@@ -426,7 +426,7 @@
     <string name="mostrar_menos_de_14_h">Mostrar quan hi hagi menys de 14 hores</string>
     <string name="no_mostrar_nunca">No mostrar mai</string>
     <string name="el_turno_se_cambiar_cuando_tengas_internet">El torn canviarà quan tinguis Internet.</string>
-    <string name="puedes_configurar_kirito_para_que_env_e_a_tu_calendario_de_google_tus_turnos_esto_permite_que_se_vean_en_la_app_y_widget_de_google_calendar_nuna_vez_hechos_los_pasos_que_explicamos_tus_turnos_y_las_modificaciones_que_hagas_se_ver_n_reflejadas_autom_ticamente_nesta_gesti_n_debes_hacerla_desde_la_web">Pots configurar Kirito perquè enviï al teu calendari de Google els teus torns. Això permet que es vegin a l\'app i widget de Google Calendar.\nUna vegada fets els passos que expliquem, els teus torns i les modificacions que facis es veuran reflectits automàticament.\nAquesta gestió has de fer-la des de la web.</string>
+    <string name="puedes_configurar_kirito_para_que_env_e_a_tu_calendario_de_google_tus_turnos">Pots configurar Kirito perquè enviï al teu calendari de Google els teus torns. Això permet que es vegin a l\'app i widget de Google Calendar.\nUna vegada fets els passos que expliquem, els teus torns i les modificacions que facis es veuran reflectits automàticament.\nAquesta gestió has de fer-la des de la web.</string>
     <string name="enlazar_google_calendar">Enllaçar Google Calendar</string>
     <string name="enlazar_calendario_de_ios">Enllaçar Calendari d\'iOS</string>
     <string name="tambi_n_puedes_configurar_tu_calendario_de_ios_aunque_en_este_los_cambios_solo_se_ven_reflejados_a_las_24_horas">També pots configurar el teu calendari d\'iOs, tot i que en aquest els canvis només es veuran reflectits a les 24 hores.</string>

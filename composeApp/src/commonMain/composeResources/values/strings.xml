@@ -498,7 +498,7 @@
     <string name="no_mostrar_nunca">No mostrar nunca</string>
     <string name="el_turno_se_cambiar_cuando_tengas_internet">El turno se cambiará cuando tengas Internet.</string>
     <string name="configurar_google_calendar" translatable="false">Configurar Google Calendar</string>
-    <string name="puedes_configurar_kirito_para_que_env_e_a_tu_calendario_de_google_tus_turnos_esto_permite_que_se_vean_en_la_app_y_widget_de_google_calendar_nuna_vez_hechos_los_pasos_que_explicamos_tus_turnos_y_las_modificaciones_que_hagas_se_ver_n_reflejadas_autom_ticamente_nesta_gesti_n_debes_hacerla_desde_la_web">Puedes configurar Kirito para que envíe a tu calendario de Google tus turnos. Esto permite que se vean en la app y widget de Google Calendar.\nUna vez hechos los pasos que explicamos, tus turnos y las modificaciones que hagas se verán reflejadas automáticamente.\nEsta gestión debes hacerla desde la web.</string>
+    <string name="puedes_configurar_kirito_para_que_env_e_a_tu_calendario_de_google_tus_turnos">Puedes configurar Kirito para que envíe a tu calendario de Google tus turnos. Esto permite que se vean en la app y widget de Google Calendar.\nUna vez hechos los pasos que explicamos, tus turnos y las modificaciones que hagas se verán reflejadas automáticamente.\nEsta gestión debes hacerla desde la web.</string>
     <string name="enlazar_google_calendar">Enlazar Google Calendar</string>
     <string name="enlazar_calendario_de_ios">Enlazar Calendario de iOS</string>
     <string name="tambi_n_puedes_configurar_tu_calendario_de_ios_aunque_en_este_los_cambios_solo_se_ven_reflejados_a_las_24_horas">También puedes configurar tu calendario de iOS, aunque en este los cambios solo se ven reflejados a las 24 horas.</string>

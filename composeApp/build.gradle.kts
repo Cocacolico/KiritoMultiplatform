@@ -59,9 +59,10 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
 
             //Cosas de UI:
-            implementation(libs.material.icons.extended)
+            //implementation(libs.material.icons.extended)
 
         }
+        task("testClasses")
     }
 }
 
