@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
@@ -36,9 +37,30 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
+            implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+
+
+            //Internet!!
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.cio)//Un motor de ktor.
+            implementation(libs.ktor.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.slf4j.simple.logger)
+
+            //Serialización
+            implementation(libs.kotlin.serialization)
+            implementation(libs.kotlinx.serialization.json)
+
+            //Corrutinas:
+            implementation(libs.kotlinx.coroutines.core)
+
+            //Cosas de UI:
+            implementation(libs.material.icons.extended)
+
         }
     }
 }
