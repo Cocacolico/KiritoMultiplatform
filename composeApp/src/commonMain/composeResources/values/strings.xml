@@ -175,7 +175,7 @@
     <string name="reintentar" translatable="false">Reintentar</string>
     <string name="esperando_al_administrador">Esperando al administrador</string>
     <string name="turnos">Turnos</string>
-    <string name="no_hay_un_turno_para_este_d_a_debes_crear_un_cuadro_anual" tools:ignore="Typos">No hay un turno para este día. Debes crear un cuadro anual.</string>
+    <string name="no_hay_un_turno_para_este_d_a_debes_crear_un_cuadro_anual">No hay un turno para este día. Debes crear un cuadro anual.</string>
     <string name="no_hay_grafico_en_vigor">No hay gráfico en vigor para el día seleccionado.</string>
     <string name="este_d_a_no_tiene_gr_fico_en_vigor">Este día no tiene gráfico en vigor.</string>
     <string name="detalle_del_turno_seleccionado">Detalle del turno seleccionado</string>
@@ -199,7 +199,7 @@
     <string name="interior" translatable="false">Interior</string>
     <string name="exterior" translatable="false">Exterior</string>
     <string name="selecciona_un_mes">Selecciona un mes</string>
-    <string name="ok" translatable="false" tools:ignore="ButtonCase,Typos">Ok</string>
+    <string name="ok" translatable="false">Ok</string>
     <string name="mensual" translatable="false">Mensual</string>
     <string name="month_and_year" translatable="false">"%1$s %2$d"</string>
     <string name="nombre_largo_turnos_y_turno" translatable="false">"%1$s %2$s"</string>
@@ -349,7 +349,7 @@
     <string name="pol_tica_de_privacidad_y_tratamiento_de_datos">Política de privacidad y tratamiento de datos</string>
     <string name="politica_privacidad_1">Apreciado usuario, en Kirito valoramos tu privacidad y seguridad en línea. Por eso, queremos informarte sobre cómo tratamos tus datos personales.</string>
     <string name="informaci_n_b_sica">Información básica</string>
-    <string name="politica_privacidad_2" tools:ignore="Typos">A través de esta aplicación no se recaban datos de carácter personal de los usuarios sin su conocimiento, ni se ceden a terceros en ningún caso. \nCon la finalidad de ofrecerte el mejor servicio y con el objeto de facilitar el uso, se analizan el número de páginas visitadas, el número de visitas, así como la actividad de los usuarios y la frecuencia de uso. \nA estos efectos, Kirito utiliza la información estadística elaborada por Google Analytics. Kirito no utiliza cookies para recoger información de los usuarios, ni registra las direcciones IP de acceso. \nEn Kirito hay enlaces a sitios web de terceros, cuyas políticas de privacidad son ajenas a nosotros. Al acceder a tales sitios web tú puedes decidir si aceptas sus políticas de privacidad y de cookies. Con carácter general, si navegas por internet puedes aceptar o rechazar las cookies de terceros desde las opciones de configuración del navegador. \nSolo recolectamos información personal cuando es necesaria para brindarte un servicio de calidad, y siempre con tu consentimiento. Esta información incluye, entre otras cosas, tu nombre, dirección de correo electrónico y número de teléfono. Estos datos son voluntariamente proporcionados por ti y su único propósito es permitirte comunicarte con otros usuarios si así lo deseas. Puedes borrar estos datos en cualquier momento o también puedes pedírnoslo a nosotros. \nAdemás, nos comprometemos a no compartir tus datos personales con terceros bajo ninguna circunstancia. Tomamos medidas para proteger tus datos personales contra el acceso no autorizado y la divulgación no autorizada. Utilizamos tecnologías de seguridad estándar de la industria para proteger tus datos personales.</string>
+    <string name="politica_privacidad_2">A través de esta aplicación no se recaban datos de carácter personal de los usuarios sin su conocimiento, ni se ceden a terceros en ningún caso. \nCon la finalidad de ofrecerte el mejor servicio y con el objeto de facilitar el uso, se analizan el número de páginas visitadas, el número de visitas, así como la actividad de los usuarios y la frecuencia de uso. \nA estos efectos, Kirito utiliza la información estadística elaborada por Google Analytics. Kirito no utiliza cookies para recoger información de los usuarios, ni registra las direcciones IP de acceso. \nEn Kirito hay enlaces a sitios web de terceros, cuyas políticas de privacidad son ajenas a nosotros. Al acceder a tales sitios web tú puedes decidir si aceptas sus políticas de privacidad y de cookies. Con carácter general, si navegas por internet puedes aceptar o rechazar las cookies de terceros desde las opciones de configuración del navegador. \nSolo recolectamos información personal cuando es necesaria para brindarte un servicio de calidad, y siempre con tu consentimiento. Esta información incluye, entre otras cosas, tu nombre, dirección de correo electrónico y número de teléfono. Estos datos son voluntariamente proporcionados por ti y su único propósito es permitirte comunicarte con otros usuarios si así lo deseas. Puedes borrar estos datos en cualquier momento o también puedes pedírnoslo a nosotros. \nAdemás, nos comprometemos a no compartir tus datos personales con terceros bajo ninguna circunstancia. Tomamos medidas para proteger tus datos personales contra el acceso no autorizado y la divulgación no autorizada. Utilizamos tecnologías de seguridad estándar de la industria para proteger tus datos personales.</string>
     <string name="derechos">Derechos</string>
     <string name="politica_privacidad_3">Si tienes preguntas sobre nuestra política de privacidad o el uso de tus datos personales, no dudes en ponerte en contacto con nosotros enviando un correo electrónico a privacidad@kirito.com o a través del formulario de contacto. Estaremos encantados de responder cualquier pregunta o inquietud que puedas tener.</string>
     <string name="responsabilidad_de_los_contenidos">Responsabilidad de los contenidos</string>
@@ -872,8 +872,8 @@
 
     <string-array name="ordenado_por">
         <item>Fecha del cambio</item>
-        <item tools:ignore="Typos">Momento de la petición</item>
-        <item tools:ignore="Typos">Momento de la respuesta</item>
+        <item>Momento de la petición</item>
+        <item>Momento de la respuesta</item>
         <item>Nombre del compañero</item>
     </string-array>
     <string-array name="enviado_por">

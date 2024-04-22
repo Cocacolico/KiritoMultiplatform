@@ -43,9 +43,7 @@ import kirito.composeapp.generated.resources.selecciona_tu_residencia
 import kirito.composeapp.generated.resources.ver_contrase_a
 
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.vectorResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
