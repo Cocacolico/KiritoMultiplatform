@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExposedDropDownMenu(modifier: Modifier = Modifier, options: List<String>, initialValue: Int = 0, onSelected: (Int) -> Unit) {
 

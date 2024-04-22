@@ -32,6 +32,8 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.lifecycle.compose)
+          //  implementation(libs.kotlinx.coroutines.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -59,12 +61,15 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
 
             //Cosas de UI:
-            implementation(libs.material.icons.extended)
+            //implementation(libs.material.icons.extended)
 
             //Otras cosas:
             implementation(libs.kotlinx.datetime)
+            implementation(libs.datastore.preferences)
+            implementation(libs.androidx.lifecycle.viewmodel)
 
         }
+
         task("testClasses")
     }
 }

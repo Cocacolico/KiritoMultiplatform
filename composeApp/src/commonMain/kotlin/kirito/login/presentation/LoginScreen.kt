@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,6 +49,8 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 fun LoginScreen() {
+    val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
+    val contador by viewModel.contador
     val state = false //by remember { mutableStateOf(false) }
     Surface (Modifier.fillMaxSize()){
         Column (
@@ -117,8 +120,11 @@ fun LoginScreen() {
 
                     }
                 }
+                Text("Prueba $contador")
                 Button(
-                    onClick = {}
+                    onClick = {
+                        viewModel.updateContador()
+                    }
                 ) {
                     Text(stringResource(Res.string.entrar))
                 }
