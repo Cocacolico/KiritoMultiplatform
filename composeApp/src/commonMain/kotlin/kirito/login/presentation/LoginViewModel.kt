@@ -1,14 +1,13 @@
 package kirito.login.presentation
 
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import es.kirito.kirito.login.data.network.ResidenciaDTO
 import kirito.login.domain.LoginRepository
+import kirito.login.domain.LoginState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
@@ -17,14 +16,21 @@ class LoginViewModel : ViewModel() {
 
     private val repository = LoginRepository()
 
+    val state = MutableStateFlow(LoginState())
 
-    val contador = mutableIntStateOf(2)
 
-    val residencias = MutableStateFlow(emptyList<ResidenciaDTO>())
-
-    fun updateContador() {
-        contador.value += 1
+    fun expandirResidencias(){
+        state.update {
+            it.copy(expanded = true)
+        }
     }
+
+    fun ocluirResidencias(){
+        state.update {
+            it.copy(expanded = false)
+        }
+    }
+
 
     fun testCorrutino() {
         viewModelScope.launch {
@@ -41,7 +47,14 @@ class LoginViewModel : ViewModel() {
             //Nos las bajamos de internet.
             //Ojo, esto, cuando lo hagamos en serio, habrá que cazar excepciones y tal.
             repository.getResidencias().respuesta?.residencias?.let { lista ->
-                residencias.value = lista
+
+                //Importante esto también. Esta es la manera más "actual" que he visto en que se deberían
+                //usar los estados de compose. Un único objeto y dentro de él todas las cosas. Se actualiza
+                //así su valor y no de otra manera, pues así forzamos la recomposición. Si usas var en vez de val,
+                //te fallarán algunas recomposiciones y no sabrás por qué.
+                state.update {
+                    it.copy(residencias = lista)
+                }
             }
         }
     }

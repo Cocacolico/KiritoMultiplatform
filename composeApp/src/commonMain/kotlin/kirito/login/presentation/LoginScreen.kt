@@ -48,9 +48,8 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun LoginScreen() {
     val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
-    val contador by viewModel.contador
-    val residencias by viewModel.residencias.collectAsState()
-    var expanded by remember { mutableStateOf(false) }
+    val state by viewModel.state.collectAsState()
+
     Surface (Modifier.fillMaxSize()){
         Column (
             modifier = Modifier.fillMaxSize(),
@@ -59,9 +58,9 @@ fun LoginScreen() {
         ){
             Text(stringResource(Res.string.modo_desarrollador_activado))
             ExposedDropdownMenuBox(
-                expanded = expanded,
+                expanded = state.expanded,
                 onExpandedChange = {
-                    expanded = !expanded
+                    viewModel.expandirResidencias()
                 }
             ) {
                 TextField(
@@ -72,14 +71,14 @@ fun LoginScreen() {
                     modifier = Modifier.menuAnchor()
                 )
                 ExposedDropdownMenu(
-                    expanded = expanded,
+                    expanded = state.expanded,
                     onDismissRequest = {}
                 ) {
-                    residencias.forEach {residencia ->
+                   state.residencias.forEach {residencia ->
                         DropdownMenuItem(
                             text = { Text(residencia.nombre) },
                             onClick = {
-                                expanded = false
+                                viewModel.ocluirResidencias()
                             }
                         )
                     }
@@ -113,11 +112,8 @@ fun LoginScreen() {
 
                     }
                 }
-                Text("Prueba $contador")
                 Button(
-                    onClick = {
-                        viewModel.updateContador()
-                    }
+                    onClick = {}
                 ) {
                     Text(stringResource(Res.string.entrar))
                 }
