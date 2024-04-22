@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -17,18 +15,18 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kirito.composeapp.generated.resources.Res
@@ -51,7 +49,8 @@ import org.jetbrains.compose.resources.stringResource
 fun LoginScreen() {
     val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
     val contador by viewModel.contador
-    val state = false //by remember { mutableStateOf(false) }
+    val residencias by viewModel.residencias.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
     Surface (Modifier.fillMaxSize()){
         Column (
             modifier = Modifier.fillMaxSize(),
@@ -60,8 +59,10 @@ fun LoginScreen() {
         ){
             Text(stringResource(Res.string.modo_desarrollador_activado))
             ExposedDropdownMenuBox(
-                expanded = state,
-                onExpandedChange = { }
+                expanded = expanded,
+                onExpandedChange = {
+                    expanded = !expanded
+                }
             ) {
                 TextField(
                     value = "",
@@ -71,25 +72,17 @@ fun LoginScreen() {
                     modifier = Modifier.menuAnchor()
                 )
                 ExposedDropdownMenu(
-                    expanded = state,
+                    expanded = expanded,
                     onDismissRequest = {}
                 ) {
-                    DropdownMenuItem(
-                        text = { Text("Alcazar de San Juan") },
-                        onClick = {}
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Atocha Media Distancia") },
-                        onClick = {}
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Oviedo Cercanias") },
-                        onClick = {}
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Figueres") },
-                        onClick = {}
-                    )
+                    residencias.forEach {residencia ->
+                        DropdownMenuItem(
+                            text = { Text(residencia.nombre) },
+                            onClick = {
+                                expanded = false
+                            }
+                        )
+                    }
                 }
 
             }
