@@ -51,7 +51,7 @@ class KiritoRequest {
 
 
 
-    private fun getClienteJson() = HttpClient(CIO) {
+    private fun getClienteJson() = HttpClient {
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.ALL

@@ -2,6 +2,7 @@ package kirito.login.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import es.kirito.kirito.login.data.network.ResidenciaDTO
 import kirito.login.domain.LoginRepository
 import kirito.login.domain.LoginState
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,8 @@ class LoginViewModel : ViewModel() {
     private val repository = LoginRepository()
 
     val state = MutableStateFlow(LoginState())
+
+    private var clicksModoDev: Int = 0
 
 
     fun expandirResidencias(){
@@ -36,6 +39,31 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             //Aquí dentro van cosas en corrutinas.
         }
+    }
+
+    fun seleccionarResidencia(residencia: String) {
+        state.update {
+            it.copy (
+                residenciaSeleccionada = residencia,
+                expanded = false
+            )
+        }
+    }
+
+    fun activarModoDev() {
+        clicksModoDev++
+        if(clicksModoDev in 10..13)
+            state.update {
+                it.copy(
+                    modoDevActivado = true
+                )
+            }
+        else
+            state.update {
+                it.copy(
+                    modoDevActivado = false
+                )
+            }
     }
 
 

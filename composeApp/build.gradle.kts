@@ -34,6 +34,10 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.compose)
           //  implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.ktor.client.android)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.ios)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

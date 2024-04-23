@@ -1,6 +1,7 @@
 package kirito.login.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +15,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -40,6 +43,7 @@ import kirito.composeapp.generated.resources.olvid_mi_contrase_a
 import kirito.composeapp.generated.resources.registrarme
 import kirito.composeapp.generated.resources.selecciona_tu_residencia
 import kirito.composeapp.generated.resources.ver_contrase_a
+import kirito.core.presentation.components.MyTextStd
 
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
@@ -50,53 +54,65 @@ fun LoginScreen() {
     val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
 
-    Surface (Modifier.fillMaxSize()){
-        Column (
+    Surface(Modifier.fillMaxSize()) {
+        Box(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            Text(stringResource(Res.string.modo_desarrollador_activado))
-            ExposedDropdownMenuBox(
-                expanded = state.expanded,
-                onExpandedChange = {
-                    viewModel.expandirResidencias()
-                }
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxSize()
             ) {
-                TextField(
-                    value = "",
-                    onValueChange = {},
-                    readOnly = true,
-                    placeholder = { Text(stringResource(Res.string.selecciona_tu_residencia)) },
-                    modifier = Modifier.menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = state.expanded,
-                    onDismissRequest = {}
-                ) {
-                   state.residencias.forEach {residencia ->
-                        DropdownMenuItem(
-                            text = { Text(residencia.nombre) },
-                            onClick = {
-                                viewModel.ocluirResidencias()
-                            }
-                        )
-                    }
-                }
 
-            }
-            Column(Modifier.padding(4.dp)) {
-                Text(stringResource(Res.string.introduce_tu_usuario_y_contrase_a))
-                TextField(
-                    value = "",
+                if(state.modoDevActivado){
+                    MyTextStd(text = stringResource(Res.string.modo_desarrollador_activado))
+                }
+                ExposedDropdownMenuBox(
+                    expanded = state.expanded,
+                    onExpandedChange = {
+                        viewModel.expandirResidencias()
+                    }
+                ) {
+                    OutlinedTextField(
+                        value = state.residenciaSeleccionada?: "",
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = state.expanded)
+                        },
+                        placeholder = { MyTextStd(stringResource(Res.string.selecciona_tu_residencia)) },
+                        modifier = Modifier.menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = state.expanded,
+                        onDismissRequest = { viewModel.ocluirResidencias() }
+                    ) {
+                        state.residencias.forEach { residencia ->
+                            DropdownMenuItem(
+                                text = { MyTextStd(residencia.nombre) },
+                                onClick = {
+                                    viewModel.seleccionarResidencia(residencia.nombre)
+                                }
+                            )
+                        }
+                    }
+
+                }
+                TextButton(
+                    onClick = { viewModel.activarModoDev() }
+                ) {
+                    MyTextStd(stringResource(Res.string.introduce_tu_usuario_y_contrase_a))
+                }
+                OutlinedTextField(
+                    value = state.usuario,
                     onValueChange = {},
                     label = { Text(stringResource(Res.string.matr_cula)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true
                 )
                 Row() {
-                    TextField(
-                        value = "",
+                    OutlinedTextField(
+                        value = state.password,
                         onValueChange = {},
                         label = { Text(stringResource(Res.string.contrase_a)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -113,29 +129,27 @@ fun LoginScreen() {
                     }
                 }
                 Button(
-                    onClick = {}
+                    onClick = { TODO("Hacer las acciones de login")}
                 ) {
-                    Text(stringResource(Res.string.entrar))
+                    MyTextStd(stringResource(Res.string.entrar))
                 }
                 TextButton(
-                    onClick = {}
+                    onClick = { TODO("Enlazar con screen para recuperar contraseña")}
                 ) {
-                    Text(
+                    MyTextStd(
                         text = stringResource(Res.string.olvid_mi_contrase_a),
                         color = Color.Blue
                     )
                 }
-            }
-
-            Column {
-                Text(stringResource(Res.string.es_tu_primera_vez_en_kirito))
-                Button(
-                    onClick = {}
-                ) {
-                    Text(stringResource(Res.string.registrarme))
+                Row {
+                    MyTextStd(stringResource(Res.string.es_tu_primera_vez_en_kirito))
+                    Button(
+                        onClick = { TODO("Llevar a la screen de registro")}
+                    ) {
+                        MyTextStd(stringResource(Res.string.registrarme))
+                    }
                 }
             }
-
         }
     }
 }
