@@ -22,13 +22,13 @@ class LoginViewModel : ViewModel() {
     private var clicksModoDev: Int = 0
 
 
-    fun expandirResidencias(){
+    fun expandirResidencias() {
         state.update {
             it.copy(expanded = true)
         }
     }
 
-    fun ocluirResidencias(){
+    fun ocluirResidencias() {
         state.update {
             it.copy(expanded = false)
         }
@@ -43,7 +43,7 @@ class LoginViewModel : ViewModel() {
 
     fun seleccionarResidencia(residencia: String) {
         state.update {
-            it.copy (
+            it.copy(
                 residenciaSeleccionada = residencia,
                 expanded = false
             )
@@ -52,18 +52,21 @@ class LoginViewModel : ViewModel() {
 
     fun activarModoDev() {
         clicksModoDev++
-        if(clicksModoDev in 10..13)
-            state.update {
+        when (clicksModoDev) {
+            in 10..13 -> state.update {
                 it.copy(
                     modoDevActivado = true
                 )
             }
-        else
-            state.update {
-                it.copy(
-                    modoDevActivado = false
-                )
-            }
+
+            13 -> clicksModoDev = 0
+            else ->
+                state.update {
+                    it.copy(
+                        modoDevActivado = false
+                    )
+                }
+        }
     }
 
 
