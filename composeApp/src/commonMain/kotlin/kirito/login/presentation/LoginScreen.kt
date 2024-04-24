@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.contrase_a
 import kirito.composeapp.generated.resources.entrar
@@ -61,11 +62,22 @@ import kirito.core.presentation.components.MyTextStd
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
+enum class LoginScreenNav() {
+    Login,
+    Registro,
+    Recuperar
+}
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 fun LoginScreen() {
     val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
+
+    NavHost(
+        navController = navController,
+        startDestination = LoginScreenNav.Login.name,
+        modifier = Modifier.padding(innerPadding)
+    )
 
     val errorUsuarioOPasswordErroneo by remember {
         derivedStateOf {
