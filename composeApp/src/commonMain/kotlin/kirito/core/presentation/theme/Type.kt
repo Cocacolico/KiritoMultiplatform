@@ -1,4 +1,4 @@
-package es.kirito.kirito.android.ui.theme
+package kirito.core.presentation.theme
 
 
 // Set of Material typography styles to start with

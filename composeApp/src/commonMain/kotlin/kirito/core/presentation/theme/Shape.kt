@@ -1,4 +1,4 @@
-package es.kirito.kirito.android.ui.theme
+package kirito.core.presentation.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes

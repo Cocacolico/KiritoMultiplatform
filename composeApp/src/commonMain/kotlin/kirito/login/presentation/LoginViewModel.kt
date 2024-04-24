@@ -35,12 +35,6 @@ class LoginViewModel : ViewModel() {
     }
 
 
-    fun testCorrutino() {
-        viewModelScope.launch {
-            //Aquí dentro van cosas en corrutinas.
-        }
-    }
-
     fun seleccionarResidencia(residencia: String) {
         state.update {
             it.copy(
@@ -53,7 +47,7 @@ class LoginViewModel : ViewModel() {
     fun activarModoDev() {
         clicksModoDev++
         when (clicksModoDev) {
-            in 10..13 -> state.update {
+            in 10..<13 -> state.update {
                 it.copy(
                     modoDevActivado = true
                 )
