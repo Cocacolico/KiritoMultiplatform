@@ -84,15 +84,6 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun mostrarPassword() {
-        state.update {
-            it.copy(
-                mostrandoPassword = true
-            )
-        }
-    }
-
-
     init {//Sí, los viewmodels tienen su método init{}, que se ejecuta al crearse el viewmodel.
         //Aquí puedes hacer cosas que se ejecutan al principio.
         viewModelScope.launch(Dispatchers.IO) { //A esta corrutina le he pedido
