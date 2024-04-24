@@ -58,7 +58,6 @@ class LoginViewModel : ViewModel() {
                     modoDevActivado = true
                 )
             }
-
             13 -> clicksModoDev = 0
             else ->
                 state.update {
@@ -66,6 +65,30 @@ class LoginViewModel : ViewModel() {
                         modoDevActivado = false
                     )
                 }
+        }
+    }
+
+    fun onValueUsuarioChange(value: String) {
+        state.update {
+            it.copy(
+                usuario = value
+            )
+        }
+    }
+
+    fun onValuePasswordChange(value: String) {
+        state.update {
+            it.copy(
+                password = value
+            )
+        }
+    }
+
+    fun mostrarPassword() {
+        state.update {
+            it.copy(
+                mostrandoPassword = true
+            )
         }
     }
 

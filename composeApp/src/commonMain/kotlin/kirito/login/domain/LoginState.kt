@@ -8,5 +8,6 @@ data class LoginState(
     val expanded: Boolean = false,
     val usuario: String = "",
     val password: String = "",
-    val modoDevActivado: Boolean = false
+    val modoDevActivado: Boolean = false,
+    val errorCampoUserPassword: Boolean = false
 )
