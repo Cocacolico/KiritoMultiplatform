@@ -1,9 +1,9 @@
 import androidx.compose.runtime.*
-import kirito.core.presentation.theme.KiritoTheme
+import es.kirito.kirito.core.presentation.theme.KiritoTheme
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-import kirito.login.presentation.LoginScreen
+import es.kirito.kirito.login.presentation.LoginScreen
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable

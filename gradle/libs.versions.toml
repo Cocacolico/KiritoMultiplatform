@@ -23,6 +23,7 @@ kotlinxDatetime = "0.6.0-RC.2"
 datastore = "1.1.0"
 androidxNavigationCompose = "2.8.0-alpha07"
 androidxLifecycle = "2.8.0-beta01"
+androidx-startup = "1.1.1"
 
 
 [libraries]
@@ -51,6 +52,7 @@ androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-co
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidxLifecycle" }
 
 datastore-preferences = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
+androidx-startup = { module = "androidx.startup:startup-runtime", version.ref = "androidx-startup" }
 
 slf4j-simple-logger = {module = "org.slf4j:slf4j-simple", version.ref = "slf4j-logger" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
