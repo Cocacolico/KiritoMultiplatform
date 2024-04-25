@@ -15,7 +15,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonEncoder
 
 
-
 class KiritoPreferencesImpl(
     private val dataStore: DataStore<Preferences>
 ) {
@@ -26,7 +25,7 @@ class KiritoPreferencesImpl(
 
     private val kiritoSettings = stringPreferencesKey(KIRITO_SETTINGS)
 
-    val kiritoPrefs = dataStore.data.map { preferences ->
+    internal val kiritoPrefs = dataStore.data.map { preferences ->
         preferences[kiritoSettings] ?: "NADA"
     }.map { cadena ->
         if (cadena == "NADA")
@@ -35,7 +34,7 @@ class KiritoPreferencesImpl(
             Json.decodeFromString(cadena)
     }
 
-    suspend fun savePrefs(settings: AppSettings) {
+   internal suspend fun savePrefs(settings: AppSettings) {
         val cadena = Json.encodeToString(settings)
         dataStore.edit { preferences ->
             preferences[kiritoSettings] = cadena
