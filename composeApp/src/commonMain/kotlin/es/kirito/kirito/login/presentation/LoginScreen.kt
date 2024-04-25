@@ -12,15 +12,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -39,7 +39,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import es.kirito.kirito.core.data.utils.coreComponent
+import es.kirito.kirito.core.data.dataStore.preferenciasKirito
+import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
+import es.kirito.kirito.core.presentation.components.MyIconError
+import es.kirito.kirito.core.presentation.components.MyTextError
+import es.kirito.kirito.core.presentation.components.MyTextStd
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.contrase_a
 import kirito.composeapp.generated.resources.entrar
@@ -52,10 +56,7 @@ import kirito.composeapp.generated.resources.olvid_mi_contrase_a
 import kirito.composeapp.generated.resources.registrarme
 import kirito.composeapp.generated.resources.selecciona_tu_residencia
 import kirito.composeapp.generated.resources.usuario_o_contrase_a_incorrectos
-import es.kirito.kirito.core.presentation.components.MyIconError
-import es.kirito.kirito.core.presentation.components.MyTextError
-import es.kirito.kirito.core.presentation.components.MyTextStd
-
+import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
@@ -180,14 +181,16 @@ fun LoginScreen() {
                 }
                 print("probando el dark mode")
                 LaunchedEffect(Unit) {
-                    var darkMode = coreComponent.appPreferences.isDarkModeEnabled()
-                    println("dark mode 0 is $darkMode")
-                    coreComponent.appPreferences.changeDarkMode(false)
-                     darkMode = coreComponent.appPreferences.isDarkModeEnabled()
-                    println("dark mode 1 is $darkMode")
-                    coreComponent.appPreferences.changeDarkMode(true)
-                    darkMode = coreComponent.appPreferences.isDarkModeEnabled()
-                    println("dark mode 2 is $darkMode")
+                    var preferences = preferenciasKirito.first()
+                    println("dark mode 0 is $preferences")
+                    updatePreferenciasKirito {appSettings ->
+                        appSettings.copy(estoyInicializado = true,
+                            password = "miratecomento")
+                    }
+                    preferences = preferenciasKirito.first()
+                    println("dark mode 1 is $preferences")
+
+                    println("dark mode 2 is $preferences")
                 }
 
                 TextButton(
