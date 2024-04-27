@@ -6,6 +6,7 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineScope
+import platform.Foundation.*
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun dataStorePreferences(
@@ -17,7 +18,7 @@ actual fun dataStorePreferences(
     migrations = migrations,
     coroutineScope = coroutineScope,
     path = {
-        val documentDirectory: NSUL? = NSFileManager.defaultManager.URLForDirectory(
+        val documentDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(
             directory = NSDocumentDirectory,
             inDomain = NSUserDomainMask,
             appropriateForURL = null,
