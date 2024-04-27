@@ -12,8 +12,64 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RegisterViewModel : ViewModel() {
-    fun onClickButtonVolver() {
+    fun expandirResidencias() {
         TODO("Not yet implemented")
+    }
+
+    fun ocluirResidencias() {
+        TODO("Not yet implemented")
+    }
+
+    fun seleccionarResidencia(nombre: String) {
+
+    }
+
+    fun onValueUsuarioChange(value: String) {
+
+    }
+
+    fun onValuePasswordChange(value: String) {
+
+    }
+
+    fun onClickButtonEnviar() {
+        TODO("Not yet implemented")
+    }
+
+    fun onValueNombreChange(value: String) {
+
+    }
+
+    fun onValueApellidosChange(value: String) {
+
+    }
+
+    fun onValueTelefonoCortoChange(value: String) {
+
+    }
+
+    fun onValueTelefonoLargoChange(value: String) {
+
+    }
+
+    fun onVisibilidadTelefonoChanged(value: Boolean) {
+
+    }
+
+    fun onVisibilidadTelefonoPersonalChanged(value: Boolean) {
+
+    }
+
+    fun onValueEmailChange(value: Any) {
+
+    }
+
+    fun onValuePasswordCheckChange(value: String) {
+
+    }
+
+    fun onValueComentariosChange(value: String) {
+
     }
 
     private val repository = LoginRepository()
