@@ -42,7 +42,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.NavHost
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.contrase_a
 import kirito.composeapp.generated.resources.entrar
@@ -50,6 +49,7 @@ import kirito.composeapp.generated.resources.es_tu_primera_vez_en_kirito
 import kirito.composeapp.generated.resources.introduce_tu_usuario_y_contrase_a
 import kirito.composeapp.generated.resources.matr_cula
 import kirito.composeapp.generated.resources.modo_desarrollador_activado
+import kirito.composeapp.generated.resources.ocultar
 import kirito.composeapp.generated.resources.olvid_mi_contrase_a
 import kirito.composeapp.generated.resources.registrarme
 import kirito.composeapp.generated.resources.selecciona_tu_residencia
@@ -62,22 +62,13 @@ import kirito.core.presentation.components.MyTextStd
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
-enum class LoginScreenNav() {
-    Login,
-    Registro,
-    Recuperar
-}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 fun LoginScreen() {
     val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
 
-    NavHost(
-        navController = navController,
-        startDestination = LoginScreenNav.Login.name,
-        modifier = Modifier.padding(innerPadding)
-    )
 
     val errorUsuarioOPasswordErroneo by remember {
         derivedStateOf {
@@ -220,6 +211,7 @@ fun LoginScreen() {
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun PasswordVisibilityToggleIcon(
     showPassword: Boolean,
@@ -228,7 +220,7 @@ fun PasswordVisibilityToggleIcon(
     IconButton(onClick = onTogglePasswordVisibility) {
         Icon(
             imageVector = if (showPassword) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-            contentDescription = if (showPassword) "Ocultar contraseña" else "Mostrar contraseña"
+            contentDescription = if (showPassword) Res.string.ocultar.toString() else Res.string.ver_contrase_a.toString()
         )
     }
 }

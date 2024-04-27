@@ -47,7 +47,8 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(compose.materialIconsExtended)
+
+
 
 
             //Internet!!
@@ -66,7 +67,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
 
             //Cosas de UI:
-            //implementation(libs.material.icons.extended)
+            implementation(compose.materialIconsExtended)
 
             //Otras cosas:
             implementation(libs.kotlinx.datetime)
@@ -112,4 +113,3 @@ android {
         debugImplementation(libs.compose.ui.tooling)
     }
 }
-
