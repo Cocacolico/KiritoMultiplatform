@@ -90,6 +90,14 @@ class RegisterViewModel : ViewModel() {
         }
     }
 
+    fun onValueTelefonoPersonalChange(value: String) {
+        state.update {
+            it.copy(
+                telefonoPersonal = value
+            )
+        }
+    }
+
     fun onVisibilidadTelefonoPersonalChanged(value: Boolean) {
         state.update {
             it.copy(
@@ -124,6 +132,8 @@ class RegisterViewModel : ViewModel() {
     fun onClickButtonEnviar() {
         TODO("Not yet implemented")
     }
+
+
 
     private val repository = LoginRepository()
 

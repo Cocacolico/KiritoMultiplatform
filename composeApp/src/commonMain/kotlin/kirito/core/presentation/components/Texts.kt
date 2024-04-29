@@ -1,13 +1,10 @@
 package kirito.core.presentation.components
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -377,7 +374,7 @@ fun BigTextWarning(text: String, modifier: Modifier = Modifier) {
     Text(
         modifier = modifier,
         text = text,
-      //TODO  color = colorResource(id = Res.color.DarkOrange),
+        //TODO  color = colorResource(id = Res.color.DarkOrange),
         fontSize = 16.sp,
         fontStyle = FontStyle.Italic
     )
@@ -418,5 +415,23 @@ fun TextSubtituloTelefono(text: String, modifier: Modifier = Modifier) {
         modifier = modifier,
         style = kiritoTypography.titleMedium,
         fontStyle = FontStyle.Italic
+    )
+}
+
+@Composable
+fun NotaAlPie(
+    text: String,
+    modifier: Modifier = Modifier,
+    textAlign: TextAlign = TextAlign.Start,
+    fontSize: TextUnit = 10.sp,
+    maxLines: Int = 2
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = kiritoTypography.bodyMedium,
+        textAlign = textAlign,
+        fontSize = fontSize,
+        maxLines = maxLines
     )
 }

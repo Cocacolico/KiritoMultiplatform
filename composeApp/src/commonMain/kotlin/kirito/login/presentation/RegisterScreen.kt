@@ -10,8 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Train
@@ -62,6 +60,11 @@ import kirito.composeapp.generated.resources.usuario_o_contrase_a_incorrectos
 import kirito.core.presentation.components.MyIconError
 import kirito.core.presentation.components.MyTextError
 import kirito.core.presentation.components.MyTextStd
+import kirito.core.presentation.components.NotaAlPie
+import kirito.core.presentation.components.OutlinedTextFieldEmail
+import kirito.core.presentation.components.OutlinedTextFieldTelefono
+import kirito.core.presentation.components.OutlinedTextFieldEmail
+import kirito.core.presentation.components.OutlinedTextFieldText
 import kirito.core.presentation.components.TitleText
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
@@ -152,80 +155,63 @@ fun RegisterScreen() {
                     leadingIcon = { Icon(Icons.Outlined.Train, "") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                OutlinedTextFieldText(
                     value = state.nombre,
                     onValueChange = { viewModel.onValueNombreChange(it) },
                     label = { Text(stringResource(Res.string.nombre)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    leadingIcon = { Icon(Icons.Outlined.Person, "") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    leadingIcon = { Icon(Icons.Outlined.Person, "") }
                 )
-                OutlinedTextField(
+                OutlinedTextFieldText(
                     value = state.apellidos,
                     onValueChange = { viewModel.onValueApellidosChange(it) },
-                    label = { Text(stringResource(Res.string.apellidos)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text(stringResource(Res.string.apellidos)) }
                 )
-                OutlinedTextField(
+                OutlinedTextFieldTelefono(
                     value = state.telefonoIntCorto,
                     onValueChange = { viewModel.onValueTelefonoCortoChange(it) },
                     label = { Text(stringResource(Res.string.tel_fono_interior_corto)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    leadingIcon = { Icon(Icons.Outlined.Call, "") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                OutlinedTextFieldTelefono(
                     value = state.telefonoIntLargo,
                     onValueChange = { viewModel.onValueTelefonoLargoChange(it) },
                     label = { Text(stringResource(Res.string.tel_fono_exterior_largo)) },
-                    leadingIcon = { Icon(Icons.Outlined.Call, "") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MyTextStd(stringResource(Res.string.mis_compa_eros_pueden_ver_mis_tel_fonos_de_empresa))
                     Checkbox(
                         checked = state.visibilidadTelefonoEmpresa,
                         onCheckedChange = { viewModel.onVisibilidadTelefonoEmpresaChanged(it) }
                     )
+                    MyTextStd(
+                        text = stringResource(Res.string.mis_compa_eros_pueden_ver_mis_tel_fonos_de_empresa),
+                        maxLines = 2)
                 }
 
-                OutlinedTextField(
+                OutlinedTextFieldTelefono(
                     value = state.telefonoPersonal,
-                    onValueChange = { viewModel.onValueTelefonoLargoChange(it) },
-                    label = { Text(stringResource(Res.string.tel_fono_personal)) },
-                    leadingIcon = { Icon(Icons.Outlined.Call, "") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    onValueChange = { viewModel.onValueTelefonoPersonalChange(it) },
+                    label = { Text(stringResource(Res.string.tel_fono_personal)) }
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MyTextStd(stringResource(Res.string.mis_compa_eros_pueden_ver_mi_tel_fono_personal))
                     Checkbox(
                         checked = state.visibilidadTelefonoPersonal,
                         onCheckedChange = { viewModel.onVisibilidadTelefonoPersonalChanged(it) }
                     )
+                    MyTextStd(
+                        text = stringResource(Res.string.mis_compa_eros_pueden_ver_mi_tel_fono_personal),
+                        maxLines = 2
+                    )
                 }
 
-                OutlinedTextField(
+                OutlinedTextFieldEmail(
                     value = state.email,
                     onValueChange = { viewModel.onValueEmailChange(it) },
                     label = { Text(stringResource(Res.string.email)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    leadingIcon = { Icon(Icons.Outlined.Email, "") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
                 )
-                MyTextStd(stringResource(Res.string.el_email_solo_lo_usaremos___))
+                NotaAlPie(stringResource(Res.string.el_email_solo_lo_usaremos___))
 
                 OutlinedTextField(
                     value = state.password,
@@ -287,15 +273,13 @@ fun RegisterScreen() {
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                OutlinedTextFieldText(
                     value = state.comentarios,
                     onValueChange = { viewModel.onValueComentariosChange(it) },
                     label = { Text(stringResource(Res.string.comentario_al_admin)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    singleLine = false,
-                    modifier = Modifier.fillMaxWidth()
+                    singleLine = false
                 )
-                MyTextStd(stringResource(Res.string.puedes_poner_un_comentario_para_que_el_administrador_que_te_dar_de_alta_sepa_qui_n_eres))
+                NotaAlPie(stringResource(Res.string.puedes_poner_un_comentario_para_que_el_administrador_que_te_dar_de_alta_sepa_qui_n_eres))
 
                 Button(
                     onClick = { viewModel.onClickButtonEnviar() }
