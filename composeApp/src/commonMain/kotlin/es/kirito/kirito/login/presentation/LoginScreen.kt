@@ -56,6 +56,7 @@ import kirito.composeapp.generated.resources.olvid_mi_contrase_a
 import kirito.composeapp.generated.resources.registrarme
 import kirito.composeapp.generated.resources.selecciona_tu_residencia
 import kirito.composeapp.generated.resources.usuario_o_contrase_a_incorrectos
+import kirito.composeapp.generated.resources.ver_contrase_a
 import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource

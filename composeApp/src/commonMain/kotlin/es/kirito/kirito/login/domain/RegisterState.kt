@@ -1,4 +1,4 @@
-package kirito.login.domain
+package es.kirito.kirito.login.domain
 
 import es.kirito.kirito.login.data.network.ResidenciaDTO
 

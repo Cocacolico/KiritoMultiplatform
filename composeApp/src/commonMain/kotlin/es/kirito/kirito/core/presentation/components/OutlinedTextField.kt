@@ -1,4 +1,4 @@
-package kirito.core.presentation.components
+package es.kirito.kirito.core.presentation.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions

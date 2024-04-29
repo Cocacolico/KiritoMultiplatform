@@ -1,9 +1,9 @@
-package kirito.login.presentation
+package es.kirito.kirito.login.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kirito.login.domain.LoginRepository
-import kirito.login.domain.RegisterState
+import es.kirito.kirito.login.domain.LoginRepository
+import es.kirito.kirito.login.domain.RegisterState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow

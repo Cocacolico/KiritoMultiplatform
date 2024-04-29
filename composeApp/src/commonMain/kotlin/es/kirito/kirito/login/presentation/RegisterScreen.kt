@@ -1,4 +1,4 @@
-package kirito.login.presentation
+package es.kirito.kirito.login.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,15 +57,14 @@ import kirito.composeapp.generated.resources.tel_fono_exterior_largo
 import kirito.composeapp.generated.resources.tel_fono_interior_corto
 import kirito.composeapp.generated.resources.tel_fono_personal
 import kirito.composeapp.generated.resources.usuario_o_contrase_a_incorrectos
-import kirito.core.presentation.components.MyIconError
-import kirito.core.presentation.components.MyTextError
-import kirito.core.presentation.components.MyTextStd
-import kirito.core.presentation.components.NotaAlPie
-import kirito.core.presentation.components.OutlinedTextFieldEmail
-import kirito.core.presentation.components.OutlinedTextFieldTelefono
-import kirito.core.presentation.components.OutlinedTextFieldEmail
-import kirito.core.presentation.components.OutlinedTextFieldText
-import kirito.core.presentation.components.TitleText
+import es.kirito.kirito.core.presentation.components.MyIconError
+import es.kirito.kirito.core.presentation.components.MyTextError
+import es.kirito.kirito.core.presentation.components.MyTextStd
+import es.kirito.kirito.core.presentation.components.NotaAlPie
+import es.kirito.kirito.core.presentation.components.OutlinedTextFieldEmail
+import es.kirito.kirito.core.presentation.components.OutlinedTextFieldTelefono
+import es.kirito.kirito.core.presentation.components.OutlinedTextFieldText
+import es.kirito.kirito.core.presentation.components.TitleText
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
