@@ -1,16 +1,16 @@
 [versions]
-agp = "8.3.2"
+agp = "8.4.0"
 android-compileSdk = "34"
 android-minSdk = "28"
 android-targetSdk = "34"
 androidx-activityCompose = "1.9.0"
 androidx-appcompat = "1.6.1"
 androidx-constraintlayout = "2.1.4"
-androidx-core-ktx = "1.13.0"
+androidx-core-ktx = "1.13.1"
 androidx-espresso-core = "3.5.1"
 androidx-material = "1.11.0"
 androidx-test-junit = "1.1.5"
-compose = "1.6.6"
+compose = "1.6.7"
 compose-plugin = "1.6.2"
 junit = "4.13.2"
 kotlin = "1.9.23"
@@ -18,12 +18,13 @@ kotlinSerialization = "1.9.23"
 ktor = "2.3.10"
 slf4j-logger = "1.6.1"
 kotlinxCoroutines = "1.8.0"
-kotlinxSerializationJson = "1.5.1"
+kotlinxSerializationJson = "1.6.3"
 kotlinxDatetime = "0.6.0-RC.2"
-datastore = "1.1.0"
-androidxNavigationCompose = "2.8.0-alpha07"
-androidxLifecycle = "2.8.0-beta01"
+datastore = "1.1.1"
+androidxNavigationCompose = "2.8.0-alpha08"
+androidxLifecycle = "2.8.0-rc01"
 androidx-startup = "1.1.1"
+sqlDelight = "2.0.2"
 
 
 [libraries]
@@ -39,21 +40,27 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "compose" }
-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
+
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" } #Versión de kmp
 #kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlinSerialization" }
 kotlinx-datetime = {module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime"}
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigationCompose" }
 androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidxLifecycle" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigationCompose" }
+
+#sqlDelight / Base de datos!
+sqldelight-driver-android = {module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight"}
+sqldelight-driver-ios = {module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight"}
+sqldelight-coroutines = {module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight"}
+
 
 datastore-preferences = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
 androidx-startup = { module = "androidx.startup:startup-runtime", version.ref = "androidx-startup" }
 
+#Ktor / internet!
 slf4j-simple-logger = {module = "org.slf4j:slf4j-simple", version.ref = "slf4j-logger" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-ios = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
@@ -71,3 +78,4 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization" }
+sqldelight = {id = "app.cash.sqldelight", version.ref = "sqlDelight"}
