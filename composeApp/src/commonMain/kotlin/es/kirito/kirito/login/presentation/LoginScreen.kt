@@ -41,6 +41,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
+import es.kirito.kirito.core.data.database.KiritoDao
+import es.kirito.kirito.core.data.database.createDatabase
+import es.kirito.kirito.core.data.sqldelight.User
 import es.kirito.kirito.core.presentation.components.MyIconError
 import es.kirito.kirito.core.presentation.components.MyTextError
 import es.kirito.kirito.core.presentation.components.MyTextStd
@@ -58,13 +61,19 @@ import kirito.composeapp.generated.resources.selecciona_tu_residencia
 import kirito.composeapp.generated.resources.usuario_o_contrase_a_incorrectos
 import kirito.composeapp.generated.resources.ver_contrase_a
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import kotlin.random.Random
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(kiritoDao: KiritoDao) {
     val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
 
@@ -180,8 +189,10 @@ fun LoginScreen() {
                 ) {
                     MyTextStd(stringResource(Res.string.entrar))
                 }
-                print("probando el dark mode")
+
+
                 LaunchedEffect(Unit) {
+                    //Con esto probamos el datastore.
                     var preferences = preferenciasKirito.first()
                     println("dark mode 0 is $preferences")
                     updatePreferenciasKirito {appSettings ->
@@ -192,6 +203,53 @@ fun LoginScreen() {
                     println("dark mode 1 is $preferences")
 
                     println("dark mode 2 is $preferences")
+                }
+
+                LaunchedEffect(Unit){
+                    //Con esto probamos el sqlDelight, código de chatgpt, solo para ver que va.
+                    repeat(5) {
+                        val id = Random.nextLong()
+                        val username = "user_${Random.nextInt(1000)}"
+                        val email = "user${Random.nextInt(1000)}@example.com"
+                        val name = "Name_${Random.nextInt(100)}"
+                        val surname = "Surname_${Random.nextInt(100)}"
+                        val normalizedName = name.lowercase()
+                        val normalizedSurname = surname.lowercase()
+                        val work_phone_ext = "+1"
+                        val work_phone = "1234567890"
+                        val personal_phone = "0987654321"
+                        val mostrar_telf_trabajo = "yes"
+                        val mostrar_telf_personal = "no"
+                        val photo = "https://example.com/photo.jpg"
+                        val created = Clock.System.now().epochSeconds
+                        val last_login = created - Random.nextLong(0, 1000000000)
+                        val disabled = if (Random.nextBoolean()) "yes" else "no"
+                        val admin = if (Random.nextBoolean()) "yes" else "no"
+                        val key_ics = "key_ics_${Random.nextInt(1000)}"
+                        val key_access_web = "key_access_${Random.nextInt(1000)}"
+                        val comentariosAlAdmin = "Some comments"
+                        val cambios_activados = "yes"
+                        val cambios_activados_cuando = Clock.System.now().epochSeconds - Random.nextLong(0, 1000000000)
+                        val recibir_email_notificaciones = "yes"
+                        val mostrar_cuadros = "yes"
+                        val mostrar_cuadros_cuando = "Always"
+                        val notas = "Some notes"
+                        val peticiones_diarias = "Some daily requests"
+
+                        val user = User(
+                            id, username, email, name, surname, normalizedName, normalizedSurname,
+                            work_phone_ext, work_phone, personal_phone, mostrar_telf_trabajo,
+                            mostrar_telf_personal, photo, created, last_login, disabled, admin,
+                            key_ics, key_access_web, comentariosAlAdmin, cambios_activados,
+                            cambios_activados_cuando, recibir_email_notificaciones, mostrar_cuadros,
+                            mostrar_cuadros_cuando, notas, peticiones_diarias
+                        )
+                        kiritoDao.insertUser(user)
+                    }
+                    val users = kiritoDao.getAllUsers().first()
+                    val usuarioNuevo = kiritoDao.getUserById(12L).first()
+                    println("Los users son $users")
+                    println("El nuevo usuario es $usuarioNuevo")
                 }
 
                 TextButton(

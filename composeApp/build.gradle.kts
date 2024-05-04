@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -36,9 +37,12 @@ kotlin {
           //  implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.android)
             implementation(libs.androidx.startup)
+            implementation(libs.sqldelight.driver.android)
+
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.ios)
+            implementation(libs.sqldelight.driver.ios)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -65,6 +69,9 @@ kotlin {
 
             //Corrutinas:
             implementation(libs.kotlinx.coroutines.core)
+
+            //SQLDelight:
+            implementation(libs.sqldelight.coroutines)
 
             //Otras cosas:
             implementation(libs.kotlinx.datetime)
@@ -108,6 +115,15 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+    }
+}
+
+sqldelight {
+    databases {
+        create("KiritoDatabase") {
+            packageName.set("es.kirito.kirito.core.data.sqldelight")
+            srcDirs.setFrom("src/commonMain/kotlin")
+        }
     }
 }
 

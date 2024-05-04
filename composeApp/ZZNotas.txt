@@ -1,0 +1,20 @@
+
+
+En la nueva versión de Compose se podrá compartir un elemento para
+las transiciones.
+
+Referencias al viewmodel en fábricas para ios.
+
+usar sqlDelight.
+Mirar el tema de la paginación para el buscador y cosas enormes.
+
+Volver a intentar lo de la navegación.
+
+
+
+Firebase notificaciones:
+https://github.com/mirzemehdi/KMPNotifier
+https://proandroiddev.com/how-to-implement-push-notification-in-kotlin-multiplatform-5006ff20f76c
+
+
+
