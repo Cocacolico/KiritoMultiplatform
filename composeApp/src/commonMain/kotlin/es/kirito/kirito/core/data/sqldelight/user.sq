@@ -5,7 +5,7 @@ PRAGMA user_version = 1;
 
 
 
-CREATE TABLE Users (
+CREATE TABLE User (
    id INTEGER PRIMARY KEY NOT NULL,
     username TEXT NOT NULL,
     email TEXT NOT NULL,
@@ -36,14 +36,14 @@ CREATE TABLE Users (
 );
 
 selectAllUsers:
-SELECT * FROM Users;
+SELECT * FROM User;
 
 selectUserById:
-SELECT * FROM Users WHERE id = :id;
+SELECT * FROM User WHERE id = :id;
 
 insertUser:
-INSERT OR REPLACE INTO Users
+INSERT OR REPLACE INTO User
 VALUES ?; -- Es la manera de insertar toda la tabla directamente.
 
 deleteAllUsers:
-DELETE FROM Users;
+DELETE FROM User;

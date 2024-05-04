@@ -4,10 +4,10 @@ package es.kirito.kirito.core.data.database
 
 import app.cash.sqldelight.db.SqlDriver
 import es.kirito.kirito.core.data.sqldelight.KiritoDatabase
-import es.kirito.kirito.core.data.sqldelight.Users
+
 
 expect class DriverFactory {
-    fun createDriver(): SqlDriver
+   fun createDriver(): SqlDriver
 }
 
 fun createDatabase(driverFactory: DriverFactory): KiritoDatabase {

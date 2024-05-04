@@ -41,6 +41,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
+import es.kirito.kirito.core.data.database.KiritoDao
+import es.kirito.kirito.core.data.database.createDatabase
 import es.kirito.kirito.core.presentation.components.MyIconError
 import es.kirito.kirito.core.presentation.components.MyTextError
 import es.kirito.kirito.core.presentation.components.MyTextStd
@@ -64,7 +66,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(kiritoDao: KiritoDao) {
     val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
 
@@ -192,6 +194,11 @@ fun LoginScreen() {
                     println("dark mode 1 is $preferences")
 
                     println("dark mode 2 is $preferences")
+                }
+
+                LaunchedEffect(Unit){
+                    val users = kiritoDao.getAllUsers()
+                    println("Los users son $users")
                 }
 
                 TextButton(
