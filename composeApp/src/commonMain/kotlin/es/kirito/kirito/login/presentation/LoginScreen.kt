@@ -68,12 +68,6 @@ fun LoginScreen() {
     val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
 
-
-    val errorUsuarioOPasswordErroneo by remember {
-        derivedStateOf {
-            state.errorCampoUserPassword
-        }
-    }
     var showPassword by remember { mutableStateOf(false) }
 
     Surface(Modifier.fillMaxSize()) {
@@ -130,15 +124,15 @@ fun LoginScreen() {
                     onValueChange = { viewModel.onValueUsuarioChange(it) },
                     label = { Text(stringResource(Res.string.matr_cula)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    isError = errorUsuarioOPasswordErroneo,
+                    isError = state.errorCampoUserPassword,
                     supportingText = {
-                        if (errorUsuarioOPasswordErroneo) {
+                        if (state.errorCampoUserPassword) {
                             MyTextError(stringResource(Res.string.usuario_o_contrase_a_incorrectos))
                         }
                     },
                     singleLine = true,
                     trailingIcon = {
-                        if (errorUsuarioOPasswordErroneo)
+                        if (state.errorCampoUserPassword)
                             MyIconError()
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -150,7 +144,7 @@ fun LoginScreen() {
                     label = { Text(stringResource(Res.string.contrase_a)) },
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        if (errorUsuarioOPasswordErroneo)
+                        if (state.errorCampoUserPassword)
                             MyIconError()
                         else
                             PasswordVisibilityToggleIcon(
@@ -163,9 +157,9 @@ fun LoginScreen() {
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
-                    isError = errorUsuarioOPasswordErroneo,
+                    isError = state.errorCampoUserPassword,
                     supportingText = {
-                        if (errorUsuarioOPasswordErroneo) {
+                        if (state.errorCampoUserPassword) {
                             MyTextError(stringResource(Res.string.usuario_o_contrase_a_incorrectos))
                         }
                     },
@@ -174,7 +168,7 @@ fun LoginScreen() {
                 )
 
                 Button(
-                    onClick = { TODO("Hacer las acciones de login") },
+                    onClick = { viewModel.onEntrarClick() },
                     modifier = Modifier.align(alignment = Alignment.End)
                 ) {
                     MyTextStd(stringResource(Res.string.entrar))

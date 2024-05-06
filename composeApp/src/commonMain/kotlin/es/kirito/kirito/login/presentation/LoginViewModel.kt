@@ -8,6 +8,7 @@ import es.kirito.kirito.login.domain.LoginState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -17,26 +18,27 @@ class LoginViewModel : ViewModel() {
 
     private val repository = LoginRepository()
 
-    val state = MutableStateFlow(LoginState())
+    private val _state = MutableStateFlow(LoginState())
+    val state = _state.asStateFlow()
 
     private var clicksModoDev: Int = 0
 
 
     fun expandirResidencias() {
-        state.update {
+        _state.update {
             it.copy(expanded = true)
         }
     }
 
     fun ocluirResidencias() {
-        state.update {
+        _state.update {
             it.copy(expanded = false)
         }
     }
 
 
     fun seleccionarResidencia(residencia: String) {
-        state.update {
+        _state.update {
             it.copy(
                 residenciaSeleccionada = residencia,
                 expanded = false
@@ -50,14 +52,14 @@ class LoginViewModel : ViewModel() {
     fun activarModoDev() {
         clicksModoDev++
         when (clicksModoDev) {
-            in 10..<13 -> state.update {
+            in 10..<13 -> _state.update {
                 it.copy(
                     modoDevActivado = true
                 )
             }
             13 -> clicksModoDev = 0
             else ->
-                state.update {
+                _state.update {
                     it.copy(
                         modoDevActivado = false
                     )
@@ -66,7 +68,7 @@ class LoginViewModel : ViewModel() {
     }
 
     fun onValueUsuarioChange(value: String) {
-        state.update {
+        _state.update {
             it.copy(
                 usuario = value
             )
@@ -74,11 +76,25 @@ class LoginViewModel : ViewModel() {
     }
 
     fun onValuePasswordChange(value: String) {
-        state.update {
+        _state.update {
             it.copy(
                 password = value
             )
         }
+    }
+
+    fun onEntrarClick() {
+        with(_state.value) {
+            if(usuario.isBlank() || password.isBlank())
+                _state.update {
+                    it.copy(
+                        errorCampoUserPassword = true
+                    )
+                }
+            else
+                TODO("Hacer la petición a Jesús y movidas")
+        }
+
     }
 
     init {//Sí, los viewmodels tienen su método init{}, que se ejecuta al crearse el viewmodel.
@@ -94,7 +110,7 @@ class LoginViewModel : ViewModel() {
                 //usar los estados de compose. Un único objeto y dentro de él todas las cosas. Se actualiza
                 //así su valor y no de otra manera, pues así forzamos la recomposición. Si usas var en vez de val,
                 //te fallarán algunas recomposiciones y no sabrás por qué.
-                state.update {
+                _state.update {
                     it.copy(residencias = lista)
                 }
             }
