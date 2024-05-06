@@ -1,16 +1,21 @@
 [versions]
-agp = "8.3.2"
+agp = "8.4.0"
 android-compileSdk = "34"
 android-minSdk = "28"
 android-targetSdk = "34"
 androidx-activityCompose = "1.9.0"
 androidx-appcompat = "1.6.1"
 androidx-constraintlayout = "2.1.4"
-androidx-core-ktx = "1.13.0"
+androidx-core-ktx = "1.13.1"
 androidx-espresso-core = "3.5.1"
-androidx-material = "1.11.0"
+androidx-material = "1.12.0"
 androidx-test-junit = "1.1.5"
-compose = "1.6.6"
+androidx-room = "2.7.0-alpha01"
+ksp = "1.9.23-1.0.19"
+sqlite = "2.5.0-SNAPSHOT"
+pagingComposeAndroid = "3.3.0-rc01"
+androidx-paging = "3.3.0-rc01"
+compose = "1.6.7"
 compose-plugin = "1.6.2"
 junit = "4.13.2"
 kotlin = "1.9.23"
@@ -20,9 +25,9 @@ slf4j-logger = "1.6.1"
 kotlinxCoroutines = "1.8.0"
 kotlinxSerializationJson = "1.5.1"
 kotlinxDatetime = "0.6.0-RC.2"
-datastore = "1.1.0"
-androidxNavigationCompose = "2.8.0-alpha07"
-androidxLifecycle = "2.8.0-beta01"
+datastore = "1.1.1"
+androidxNavigationCompose = "2.8.0-alpha08"
+androidxLifecycle = "2.8.0-rc01"
 androidx-startup = "1.1.1"
 
 
@@ -37,6 +42,15 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-material = { group = "com.google.android.material", name = "material", version.ref = "androidx-material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+
+#Room
+androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "androidx-paging" }
+androidx-paging-compose-android = { group = "androidx.paging", name = "paging-compose-android", version.ref = "pagingComposeAndroid" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidx-room" }
+androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "androidx-room" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidx-room" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "compose" }
@@ -71,3 +85,7 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization" }
+
+#Room
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "androidx-room" }

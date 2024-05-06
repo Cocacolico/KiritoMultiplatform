@@ -5,6 +5,9 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.serialization)
+
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -36,6 +39,7 @@ kotlin {
           //  implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.android)
             implementation(libs.androidx.startup)
+            implementation(libs.androidx.room.paging)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.ios)
@@ -70,6 +74,9 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.datastore.preferences)
             implementation(libs.androidx.lifecycle.viewmodel)
+
+            //Room Database:
+            implementation(libs.androidx.room.runtime)
 
         }
 
@@ -108,6 +115,18 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+        implementation(libs.androidx.paging.compose.android)
     }
 }
 
+dependencies {
+    // Room
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    add("kspIosX64", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
+}
