@@ -153,7 +153,6 @@ fun LoginScreen() {
                         if (errorUsuarioOPasswordErroneo)
                             MyIconError()
                         else
-                        // Password visibility toggle icon
                             PasswordVisibilityToggleIcon(
                                 showPassword = showPassword,
                                 onTogglePasswordVisibility = {

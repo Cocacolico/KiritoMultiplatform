@@ -65,6 +65,9 @@ import es.kirito.kirito.core.presentation.components.OutlinedTextFieldEmail
 import es.kirito.kirito.core.presentation.components.OutlinedTextFieldTelefono
 import es.kirito.kirito.core.presentation.components.OutlinedTextFieldText
 import es.kirito.kirito.core.presentation.components.TitleText
+import kirito.composeapp.generated.resources.debes_seleccionar_una_residencia
+import kirito.composeapp.generated.resources.la_contrasena_debe_tener_5_caracteres
+import kirito.composeapp.generated.resources.usuario_siete_caracteres
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
@@ -76,33 +79,18 @@ fun RegisterScreen() {
 
     var showPassword by remember { mutableStateOf(false) }
 
-    val errorUsuarioErroneo by remember {
-        derivedStateOf {
-            state.errorUsuarioErroneo
-        }
-    }
-    val errorPasswordErroneo by remember {
-        derivedStateOf {
-            state.errorPasswordErroneo
-        }
-    }
-    val errorPasswordNoCoincide by remember {
-        derivedStateOf {
-            state.errorPasswordNoCoincide
-        }
-    }
-
     Surface(Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            Column(Modifier
-                .align(Alignment.CenterEnd)
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-            ){
+            Column(
+                Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
                 TitleText(stringResource(Res.string.reg_strate))
 
                 ExposedDropdownMenuBox(
@@ -112,11 +100,16 @@ fun RegisterScreen() {
                     }
                 ) {
                     OutlinedTextField(
-                        value = state.residenciaSeleccionada ?: "",
+                        value = state.residenciaSeleccionada,
                         onValueChange = {},
                         readOnly = true,
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = state.expanded)
+                        },
+                        isError = state.errorResidenciaVacio,
+                        supportingText = {
+                            if (state.errorResidenciaVacio)
+                                MyTextStd(stringResource(Res.string.debes_seleccionar_una_residencia))
                         },
                         placeholder = { MyTextStd(stringResource(Res.string.selecciona_tu_residencia)) },
                         modifier = Modifier.menuAnchor().fillMaxWidth()
@@ -140,15 +133,15 @@ fun RegisterScreen() {
                     onValueChange = { viewModel.onValueUsuarioChange(it) },
                     label = { Text(stringResource(Res.string.matr_cula)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    isError = errorUsuarioErroneo,
+                    isError = state.errorUsuarioErroneo,
                     supportingText = {
-                        if (errorUsuarioErroneo) {
-                            MyTextError(stringResource(Res.string.usuario_o_contrase_a_incorrectos))
+                        if (state.errorUsuarioErroneo) {
+                            MyTextError(stringResource(Res.string.usuario_siete_caracteres))
                         }
                     },
                     singleLine = true,
                     trailingIcon = {
-                        if (errorUsuarioErroneo)
+                        if (state.errorUsuarioErroneo)
                             MyIconError()
                     },
                     leadingIcon = { Icon(Icons.Outlined.Train, "") },
@@ -184,7 +177,8 @@ fun RegisterScreen() {
                     )
                     MyTextStd(
                         text = stringResource(Res.string.mis_compa_eros_pueden_ver_mis_tel_fonos_de_empresa),
-                        maxLines = 2)
+                        maxLines = 2
+                    )
                 }
 
                 OutlinedTextFieldTelefono(
@@ -218,26 +212,23 @@ fun RegisterScreen() {
                     label = { Text(stringResource(Res.string.contrase_a)) },
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        if (errorPasswordErroneo)
-                            MyIconError()
-                        else
-                        // Password visibility toggle icon
-                            PasswordVisibilityToggleIcon(
-                                showPassword = showPassword,
-                                onTogglePasswordVisibility = {
-                                    showPassword = !showPassword
-                                })
+                        PasswordVisibilityToggleIcon(
+                            showPassword = showPassword,
+                            onTogglePasswordVisibility = {
+                                showPassword = !showPassword
+                            })
                     },
                     leadingIcon = { Icon(Icons.Outlined.LockOpen, "") },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
-                    isError = errorPasswordErroneo,
+                    isError = state.errorPasswordNoCumpleLongitud,
                     supportingText = {
-                        if (errorPasswordErroneo) {
+                        if (state.errorPasswordNoCoincide)
                             MyTextError(stringResource(Res.string.las_contrasenas_no_coinciden))
-                        }
+                        else if (state.errorPasswordNoCumpleLongitud)
+                            MyTextError(stringResource(Res.string.la_contrasena_debe_tener_5_caracteres))
                     },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -248,26 +239,20 @@ fun RegisterScreen() {
                     label = { Text(stringResource(Res.string.repite_la_contrase_a)) },
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        if (errorPasswordNoCoincide)
-                            MyIconError()
-                        else
-                        // Password visibility toggle icon
-                            PasswordVisibilityToggleIcon(
-                                showPassword = showPassword,
-                                onTogglePasswordVisibility = {
-                                    showPassword = !showPassword
-                                })
+                        PasswordVisibilityToggleIcon(
+                            showPassword = showPassword,
+                            onTogglePasswordVisibility = {
+                                showPassword = !showPassword
+                            })
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
-                    isError = errorPasswordNoCoincide,
+                    isError = state.errorPasswordNoCoincide,
                     supportingText = {
-                        if (errorPasswordNoCoincide) {
-
+                        if (state.errorPasswordNoCoincide)
                             MyTextError(stringResource(Res.string.las_contrasenas_no_coinciden))
-                        }
                     },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
