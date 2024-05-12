@@ -175,7 +175,7 @@ fun LoginScreen() {
                 )
 
                 Button(
-                    onClick = { TODO("Hacer las acciones de login") },
+                    onClick = { viewModel.onEntrarClick() },
                     modifier = Modifier.align(alignment = Alignment.End)
                 ) {
                     MyTextStd(stringResource(Res.string.entrar))
@@ -196,7 +196,7 @@ fun LoginScreen() {
 
                 TextButton(
                     onClick = {
-                        //TODO("Enlazar con screen para recuperar contraseña")
+                        TODO("Enlazar con screen para recuperar contraseña")
                     },
                     modifier = Modifier.align(alignment = Alignment.End)
                 ) {

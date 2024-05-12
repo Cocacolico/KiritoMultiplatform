@@ -1,6 +1,11 @@
 package es.kirito.kirito.core.data.network
 
+import es.kirito.kirito.login.data.network.RequestLoginDTO
+import es.kirito.kirito.login.data.network.RequestRegisterUserDTO
+import es.kirito.kirito.login.data.network.ResponseLoginDTO
+import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
+import es.kirito.kirito.login.domain.RegisterData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -28,8 +33,44 @@ class KiritoRequest {
     suspend fun getResidencias(): ResponseKiritoDTO<ResponseResidenciasDTO> {
         return post<RequestSimpleDTO, ResponseResidenciasDTO>(RequestSimpleDTO("residencias"), esInicial = true)
     }
-
-
+    suspend fun requestRegistro(
+        residenciaSeleccionada: String,
+        datosUsuario: RegisterData,
+        tokenFCM: String
+    ): ResponseKiritoDTO<ResponseRegisterUserDTO> {
+        return post<RequestRegisterUserDTO, ResponseRegisterUserDTO>(
+            RequestRegisterUserDTO(
+                peticion = "usuarios.registrar",
+                username = datosUsuario.username,
+                email = datosUsuario.email,
+                name = datosUsuario.name,
+                surname = datosUsuario.surname,
+                work_phone_ext = datosUsuario.work_phone_ext,
+                work_phone = datosUsuario.work_phone,
+                personal_phone = datosUsuario.personal_phone,
+                mostrar_telf_trabajo = datosUsuario.mostrar_telf_trabajo,
+                mostrar_telf_personal = datosUsuario.mostrar_telf_personal,
+                comentariosAlAdmin = datosUsuario.comentariosAlAdmin,
+                password = datosUsuario.password
+            )
+        )
+    }
+    suspend fun requestLogin(
+        usuario: String,
+        password: String,
+        nombreDispositivo: String,
+        tokenFCM: String
+    ): ResponseKiritoDTO<ResponseLoginDTO> {
+        return post<RequestLoginDTO, ResponseLoginDTO>(
+            RequestLoginDTO(
+                peticion = "usuarios.login",
+                usuario = usuario,
+                password = password,
+                descripcion_dispositivo = nombreDispositivo,
+                tokenFCM = tokenFCM
+            )
+        )
+    }
 
 
     // suspend fun post(request: Map<String, String>): HttpResponse {//Por si no va en ios el reified.
@@ -71,4 +112,6 @@ class KiritoRequest {
             })
         }
     }
+
+
 }
