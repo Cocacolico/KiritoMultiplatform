@@ -39,6 +39,7 @@ kotlin {
           //  implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.android)
             implementation(libs.androidx.startup)
+            // Room
             implementation(libs.androidx.room.paging)
         }
         iosMain.dependencies {
@@ -75,8 +76,11 @@ kotlin {
             implementation(libs.datastore.preferences)
             implementation(libs.androidx.lifecycle.viewmodel)
 
+
             //Room Database:
+            implementation(libs.androidx.paging.common)
             implementation(libs.androidx.room.runtime)
+            implementation(libs.sqlite.bundled)
 
         }
 
