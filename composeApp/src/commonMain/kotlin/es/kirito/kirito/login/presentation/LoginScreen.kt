@@ -39,11 +39,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.room.RoomDatabase
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
+import es.kirito.kirito.core.data.database.KiritoDatabase
+import es.kirito.kirito.core.data.database.getKiritoDatabase
 import es.kirito.kirito.core.presentation.components.MyIconError
 import es.kirito.kirito.core.presentation.components.MyTextError
 import es.kirito.kirito.core.presentation.components.MyTextStd
+import es.kirito.kirito.login.domain.LoginRepository
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.contrase_a
 import kirito.composeapp.generated.resources.entrar
@@ -64,8 +70,12 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
-fun LoginScreen() {
-    val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
+fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
+    val viewModel = viewModel<LoginViewModel>{
+        LoginViewModel(
+            repository = LoginRepository(database)
+        )
+    }//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
 
 
@@ -185,8 +195,7 @@ fun LoginScreen() {
                     var preferences = preferenciasKirito.first()
                     println("dark mode 0 is $preferences")
                     updatePreferenciasKirito {appSettings ->
-                        appSettings.copy(estoyInicializado = true,
-                            password = "miratecomento")
+                        appSettings.copy(estoyInicializado = true)
                     }
                     preferences = preferenciasKirito.first()
                     println("dark mode 1 is $preferences")
@@ -215,7 +224,7 @@ fun LoginScreen() {
                     Modifier.padding(horizontal = 16.dp)
                 )
                 Button(
-                    onClick = { TODO("Llevar a la screen de registro") }
+                    onClick = { navController.navigate("register") }
                 ) {
                     MyTextStd(stringResource(Res.string.registrarme))
                 }

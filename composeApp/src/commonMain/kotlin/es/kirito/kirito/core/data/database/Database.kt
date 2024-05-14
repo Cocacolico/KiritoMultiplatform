@@ -5,6 +5,9 @@ import androidx.room.DeleteColumn
 import androidx.room.DeleteTable
 import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlin.concurrent.Volatile
 
 //Primero introducimos la tabla en entities.
@@ -18,5 +21,14 @@ import kotlin.concurrent.Volatile
 abstract class KiritoDatabase : RoomDatabase() {
 
     abstract fun kiritoDao(): KiritoDao
+}
 
+fun getKiritoDatabase(
+    builder: RoomDatabase.Builder<KiritoDatabase>
+): KiritoDatabase {
+    return builder
+        .fallbackToDestructiveMigrationOnDowngrade(true)
+        .setDriver(BundledSQLiteDriver())
+        .setQueryCoroutineContext(Dispatchers.IO)
+        .build()
 }

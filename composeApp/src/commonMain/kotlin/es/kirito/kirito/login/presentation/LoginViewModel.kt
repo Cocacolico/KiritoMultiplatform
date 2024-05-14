@@ -2,7 +2,9 @@ package es.kirito.kirito.login.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import es.kirito.kirito.login.data.network.ResidenciaDTO
+import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
+import es.kirito.kirito.core.data.database.KiritoDao
+import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.login.domain.LoginRepository
 import es.kirito.kirito.login.domain.LoginState
 import kotlinx.coroutines.Dispatchers
@@ -12,11 +14,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val repository: LoginRepository,
+): ViewModel() {
     //Lo importante de un viewmodel para serlo, es que herede de ViewModel().
     //Aquí dentro ya tenemos todas las cosas chulas, como viewmodelscope.
 
-    private val repository = LoginRepository()
+
 
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
@@ -97,7 +101,17 @@ class LoginViewModel : ViewModel() {
                 tokenFCM = getRandomString(20)
             )
             if(kiritoToken.respuesta?.respuesta?.login?.token != "null"){ //Tenemos un login correcto, vamos a probar la BBDD
-                println("Login correcto")
+                kiritoToken.respuesta?.respuesta?.login?.let {
+                    println("Login correcto")
+                    // Actualizamos DataStore
+                    updatePreferenciasKirito {appSettings ->
+                        appSettings.copy(
+                            matricula = _state.value.usuario,
+                            userId = it.id_usuario.toLongOrNull() ?: -2L,
+                            token = it.token
+                        )
+                    }
+                }
             } else
                 println("Error con el login")
         }
