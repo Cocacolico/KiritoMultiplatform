@@ -1,5 +1,6 @@
 package es.kirito.kirito.login.domain
 
+import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.core.data.network.KiritoRequest
 import es.kirito.kirito.core.data.network.ResponseKiritoDTO
@@ -8,10 +9,10 @@ import es.kirito.kirito.core.data.utils.KiritoUserBlockedException
 import es.kirito.kirito.login.data.network.ResponseLoginDTO
 import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 
-class LoginRepository {
+class LoginRepository(
+    private val database: KiritoDatabase
+) {
     private val ktor =  KiritoRequest()
-    //private val database: KiritoDatabase
-
     suspend fun getResidencias(): ResponseKiritoDTO<ResponseResidenciasDTO> {
        return ktor.getResidencias()
     }
@@ -43,6 +44,7 @@ class LoginRepository {
             }
         }
     }
+
 
     /* suspend fun registerNewUser(
          residenciaSeleccionada: String,
