@@ -1,4 +1,4 @@
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -7,11 +7,10 @@ import androidx.room.RoomDatabase
 import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.database.getKiritoDatabase
 import es.kirito.kirito.core.presentation.theme.KiritoTheme
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.ui.tooling.preview.Preview
-
 import es.kirito.kirito.login.presentation.LoginScreen
 import es.kirito.kirito.login.presentation.RegisterScreen
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -19,15 +18,16 @@ import es.kirito.kirito.login.presentation.RegisterScreen
 fun App(databaseBuilder: RoomDatabase.Builder<KiritoDatabase>) {
     KiritoTheme {
         val navController = rememberNavController()
+        val database = getKiritoDatabase(databaseBuilder)
         NavHost(
             navController = navController,
             startDestination = "login"
         ) {
             composable("login") {
-                LoginScreen(navController, getKiritoDatabase(databaseBuilder) )
+                LoginScreen(navController, database)
             }
             composable("register") {
-                RegisterScreen(navController)
+                RegisterScreen(navController, database)
             }
             composable("recuperarPassword") {
 
@@ -52,9 +52,9 @@ fun App(databaseBuilder: RoomDatabase.Builder<KiritoDatabase>) {
                 }
 
             }
-        //LoginScreen()
+            //LoginScreen()
 
-        //Lo que había por defecto, puede valernos para ver código de otros.
+            //Lo que había por defecto, puede valernos para ver código de otros.
 //        var showContent by remember { mutableStateOf(false) }
 //        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
 //            Button(onClick = { showContent = !showContent }) {
@@ -69,6 +69,6 @@ fun App(databaseBuilder: RoomDatabase.Builder<KiritoDatabase>) {
 //            }
 //        }
 
+        }
     }
 }
-    }

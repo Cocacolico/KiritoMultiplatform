@@ -41,6 +41,10 @@ kotlin {
             implementation(libs.androidx.startup)
             // Room
             implementation(libs.androidx.room.paging)
+
+            // Koin
+            //implementation(libs.koin.android)
+            //implementation(libs.koin.androidx.compose)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.ios)
@@ -75,6 +79,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.datastore.preferences)
             implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.navigation.compose)
 
 
             //Room Database:
@@ -82,6 +87,9 @@ kotlin {
             implementation(libs.androidx.room.runtime)
             implementation(libs.sqlite.bundled)
 
+            //Koin
+            //api(libs.koin.core)
+            //implementation(libs.koin.compose)
         }
 
         task("testClasses")

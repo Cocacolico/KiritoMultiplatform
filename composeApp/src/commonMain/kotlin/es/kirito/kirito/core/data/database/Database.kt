@@ -14,12 +14,17 @@ import kotlin.concurrent.Volatile
 //Versión: Cambiar SIEMPRE que modificamos el schema.
 //exportSchema: Por defecto es true, guarda la base de datos en una carpeta.
 @Database(
-    entities = [GrGraficos::class],
+    entities = [Configuracion_APK::class, Cu_detalles::class, MyKiritoUser::class,
+        LsUsers::class, Ot_festivos::class, GrTareas::class, GrExcelIF::class, GrGraficos::class,
+        Cu_historial::class, CuDiasIniciales::class, GrEquivalencias::class, GrNotasTren::class,
+        GrNotasTurno::class, OtTeleindicadores::class, TurnosCompis::class,
+        UpdatedTables::class, OtMensajesAdmin::class, Estaciones::class, ColoresHoraTurnos::class,
+        OtColoresTrenes::class, CaPeticiones::class, Clima::class, Localizador::class,
+        TelefonoImportante::class, TablonAnuncios::class],
     version = 1,
     exportSchema = true
 )
 abstract class KiritoDatabase : RoomDatabase() {
-
     abstract fun kiritoDao(): KiritoDao
 }
 
