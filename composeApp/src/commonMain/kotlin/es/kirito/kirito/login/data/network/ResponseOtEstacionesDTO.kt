@@ -1,6 +1,5 @@
 package es.kirito.kirito.login.data.network
 
-import es.kirito.kirito.core.data.network.ResponseKiritoErrorDTO
 import kotlinx.serialization.Serializable
 
 @Serializable

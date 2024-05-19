@@ -2,17 +2,15 @@ package es.kirito.kirito.login.domain
 
 import es.kirito.kirito.core.data.database.Estaciones
 import es.kirito.kirito.core.data.database.KiritoDatabase
-import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.core.data.network.KiritoRequest
 import es.kirito.kirito.core.data.network.ResponseKiritoDTO
 import es.kirito.kirito.core.data.utils.KiritoException
 import es.kirito.kirito.core.data.utils.KiritoUserBlockedException
 import es.kirito.kirito.login.data.network.ResponseLoginDTO
 import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
+import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.login.data.network.ResponseRespuestaOtEstaciones
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.forEach
-import kotlinx.coroutines.flow.map
 
 class LoginRepository(
     private val database: KiritoDatabase

@@ -1,14 +1,10 @@
 package es.kirito.kirito.core.data.database
 
 import androidx.room.Database
-import androidx.room.DeleteColumn
-import androidx.room.DeleteTable
 import androidx.room.RoomDatabase
-import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlin.concurrent.Volatile
 
 //Primero introducimos la tabla en entities.
 //Versión: Cambiar SIEMPRE que modificamos el schema.

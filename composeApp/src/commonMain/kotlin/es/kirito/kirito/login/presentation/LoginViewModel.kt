@@ -3,8 +3,6 @@ package es.kirito.kirito.login.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
-import es.kirito.kirito.core.data.database.KiritoDao
-import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.login.domain.LoginRepository
 import es.kirito.kirito.login.domain.LoginState
 import kotlinx.coroutines.Dispatchers
@@ -91,9 +89,11 @@ class LoginViewModel(
                         errorCampoUserPassword = true
                     )
                 }
-            else
-              val nombreDispositivo = "Multiplatform pruebas"
-              userLogin(nombreDispositivo)
+            else {
+                val nombreDispositivo = "Multiplatform pruebas"
+                userLogin(nombreDispositivo)
+            }
+
         }
         
     }
