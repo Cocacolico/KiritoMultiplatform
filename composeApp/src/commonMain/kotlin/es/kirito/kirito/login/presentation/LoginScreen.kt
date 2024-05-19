@@ -64,8 +64,14 @@ import kirito.composeapp.generated.resources.selecciona_tu_residencia
 import kirito.composeapp.generated.resources.usuario_o_contrase_a_incorrectos
 import kirito.composeapp.generated.resources.ver_contrase_a
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import kotlin.random.Random
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
@@ -183,8 +189,8 @@ fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
                 ) {
                     MyTextStd(stringResource(Res.string.entrar))
                 }
-                println("probando el dark mode")
                 LaunchedEffect(Unit) {
+                    //Con esto probamos el datastore.
                     var preferences = preferenciasKirito.first()
                     println("dark mode 0 is $preferences")
                     updatePreferenciasKirito {appSettings ->

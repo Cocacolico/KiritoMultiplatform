@@ -1,0 +1,49 @@
+
+PRAGMA user_version = 1;
+
+
+
+
+
+CREATE TABLE User (
+   id INTEGER PRIMARY KEY NOT NULL,
+    username TEXT NOT NULL,
+    email TEXT NOT NULL,
+    name TEXT NOT NULL,
+    surname TEXT NOT NULL,
+    normalizedName TEXT NOT NULL,
+    normalizedSurname TEXT NOT NULL,
+    work_phone_ext TEXT NOT NULL,
+    work_phone TEXT NOT NULL,
+    personal_phone TEXT NOT NULL,
+    mostrar_telf_trabajo TEXT NOT NULL,
+    mostrar_telf_personal TEXT NOT NULL,
+    photo TEXT NOT NULL,
+    created INTEGER, -- DATETIME C/S (Stored as Unix timestamp)
+    last_login INTEGER, -- DATETIME C/S (Stored as Unix timestamp)
+    disabled TEXT NOT NULL,
+    admin TEXT NOT NULL,
+    key_ics TEXT NOT NULL,
+    key_access_web TEXT NOT NULL,
+    comentariosAlAdmin TEXT NOT NULL,
+    cambios_activados TEXT NOT NULL,
+    cambios_activados_cuando INTEGER, -- DATETIME C/S (Stored as Unix timestamp)
+    recibir_email_notificaciones TEXT NOT NULL,
+    mostrar_cuadros TEXT NOT NULL,
+    mostrar_cuadros_cuando TEXT NOT NULL,
+    notas TEXT NOT NULL,
+    peticiones_diarias TEXT NOT NULL
+);
+
+selectAllUsers:
+SELECT * FROM User;
+
+selectUserById:
+SELECT * FROM User WHERE id = :id;
+
+insertUser:
+INSERT OR REPLACE INTO User
+VALUES ?; -- Es la manera de insertar toda la tabla directamente.
+
+deleteAllUsers:
+DELETE FROM User;

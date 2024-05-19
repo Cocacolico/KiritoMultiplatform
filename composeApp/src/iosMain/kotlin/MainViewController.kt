@@ -1,4 +1,7 @@
 import androidx.compose.ui.window.ComposeUIViewController
+import es.kirito.kirito.core.data.database.DriverFactory
+import es.kirito.kirito.core.data.database.KiritoDao
+import es.kirito.kirito.core.data.sqldelight.KiritoDatabase
 import es.kirito.kirito.core.data.utils.ApplicationComponent
 import es.kirito.kirito.core.data.database.getDatabaseBuilderIos
 

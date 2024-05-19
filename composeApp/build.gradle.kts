@@ -39,6 +39,7 @@ kotlin {
           //  implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.android)
             implementation(libs.androidx.startup)
+
             // Room
             implementation(libs.androidx.room.paging)
 
@@ -48,6 +49,7 @@ kotlin {
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.ios)
+            implementation(libs.sqldelight.driver.ios)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -74,6 +76,9 @@ kotlin {
 
             //Corrutinas:
             implementation(libs.kotlinx.coroutines.core)
+
+            //SQLDelight:
+            implementation(libs.sqldelight.coroutines)
 
             //Otras cosas:
             implementation(libs.kotlinx.datetime)
