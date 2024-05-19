@@ -1,5 +1,6 @@
 package es.kirito.kirito.login.domain
 
+import es.kirito.kirito.core.data.database.Estaciones
 import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.core.data.network.KiritoRequest
@@ -8,6 +9,10 @@ import es.kirito.kirito.core.data.utils.KiritoException
 import es.kirito.kirito.core.data.utils.KiritoUserBlockedException
 import es.kirito.kirito.login.data.network.ResponseLoginDTO
 import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
+import es.kirito.kirito.login.data.network.ResponseRespuestaOtEstaciones
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.flow.map
 
 class LoginRepository(
     private val database: KiritoDatabase
@@ -44,7 +49,40 @@ class LoginRepository(
             }
         }
     }
+    // Como da error la API al no haber negociado antes el login,
+    // para probar si funciona bien la BBDD retornamos un Boolean y lo tratamos en el viewModel
+    suspend fun refreshEstaciones(): Boolean {
+        val hayEstaciones = database.kiritoDao().hayEstaciones().first()
+        return if(hayEstaciones)
+            true
+        else
+            false
+        /*if (!hayEstaciones) {//Solo descargamos si no hay estaciones.
+            val respuesta = ktor.requestOtEstaciones()
+            if (respuesta.error.errorCode == "0") {
+                respuesta.respuesta?.respuesta?.forEach {
+                    database.kiritoDao().insertEstacion(it.asDBModel())
+                }
+                println("Estaciones en la BBDD:")
+                database.kiritoDao().getAllEstaciones().map {
+                    for (estacion in it) {
+                        println(estacion.nombre)
+                }
+                }
+            } else
+                throw KiritoException("Error: ${respuesta.error}")
+        }*/
+    }
 
+    private fun ResponseRespuestaOtEstaciones.asDBModel(): Estaciones {
+        return Estaciones(
+            nombre = nombre,
+            acronimo = acronimo,
+            numero = numero,
+            longitud = null,
+            latitud = null,
+        )
+    }
 
     /* suspend fun registerNewUser(
          residenciaSeleccionada: String,

@@ -190,7 +190,7 @@ fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
                 ) {
                     MyTextStd(stringResource(Res.string.entrar))
                 }
-                print("probando el dark mode")
+                println("probando el dark mode")
                 LaunchedEffect(Unit) {
                     var preferences = preferenciasKirito.first()
                     println("dark mode 0 is $preferences")
@@ -202,10 +202,19 @@ fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
 
                     println("dark mode 2 is $preferences")
                 }
-
                 TextButton(
                     onClick = {
-                        TODO("Enlazar con screen para recuperar contraseña")
+                        viewModel.onDescargarEstacionesClick()
+                    },
+                    modifier = Modifier.align(alignment = Alignment.End)
+                ) {
+                    MyTextStd(
+                        text = "Descargar estaciones",
+                    )
+                }
+                TextButton(
+                    onClick = {
+                        navController.navigate("recuperarPassword")
                     },
                     modifier = Modifier.align(alignment = Alignment.End)
                 ) {

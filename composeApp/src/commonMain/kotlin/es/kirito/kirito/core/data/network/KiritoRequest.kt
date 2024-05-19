@@ -3,6 +3,7 @@ package es.kirito.kirito.core.data.network
 import es.kirito.kirito.login.data.network.RequestLoginDTO
 import es.kirito.kirito.login.data.network.RequestRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseLoginDTO
+import es.kirito.kirito.login.data.network.ResponseOtEstacionesDTO
 import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.login.domain.RegisterData
@@ -71,6 +72,12 @@ class KiritoRequest {
             )
         )
     }
+    suspend fun requestOtEstaciones(): ResponseKiritoDTO<ResponseOtEstacionesDTO> {
+        return post<RequestSimpleDTO, ResponseOtEstacionesDTO>(
+            RequestSimpleDTO("otros.obtener_estaciones")
+        )
+
+    }
 
 
     // suspend fun post(request: Map<String, String>): HttpResponse {//Por si no va en ios el reified.
@@ -112,6 +119,4 @@ class KiritoRequest {
             })
         }
     }
-
-
 }

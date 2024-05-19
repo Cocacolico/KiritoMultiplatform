@@ -15,13 +15,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val repository: LoginRepository,
+    private val repository: LoginRepository
 ): ViewModel() {
     //Lo importante de un viewmodel para serlo, es que herede de ViewModel().
     //Aquí dentro ya tenemos todas las cosas chulas, como viewmodelscope.
-
-
-
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
 
@@ -87,6 +84,21 @@ class LoginViewModel(
         }
     }
 
+    fun onEntrarClick() {
+        val nombreDispositivo = "Multiplatform pruebas"
+        userLogin(nombreDispositivo)
+    }
+    // Función para relacionar la residencia seleccionada por el usuario con el directorio.
+    // De cara a que en el futuro se hagan las peticiones a una residencia u otra.
+    private fun obtenerDirectorioResidencia(): String? {
+        var directorio: String? = null
+        _state.value.residencias.find {
+            it.nombre == _state.value.residenciaSeleccionada
+        }?.let {
+            directorio = it.directorio
+        }
+        return directorio
+    }
     private fun postLogin() {
         TODO("Descargar cuadro de tareas en BBDD")
     }
@@ -98,7 +110,7 @@ class LoginViewModel(
                 usuario = _state.value.usuario,
                 password = _state.value.password,
                 nombreDispositivo = nombreDispositivo,
-                tokenFCM = getRandomString(20)
+                tokenFCM = getRandomString(24) // Hasta que podamos implementar Firebase genera un token de 24 caracteres aleatorios
             )
             if(kiritoToken.respuesta?.respuesta?.login?.token != "null"){ //Tenemos un login correcto, vamos a probar la BBDD
                 kiritoToken.respuesta?.respuesta?.login?.let {
@@ -111,25 +123,11 @@ class LoginViewModel(
                             token = it.token
                         )
                     }
+
                 }
             } else
                 println("Error con el login")
         }
-    }
-
-    private fun obtenerDirectorioResidencia(): String? {
-        var directorio: String? = null
-        _state.value.residencias.find {
-            it.nombre == _state.value.residenciaSeleccionada
-        }?.let {
-            directorio = it.directorio
-        }
-        return directorio
-    }
-
-    fun onEntrarClick() {
-        val nombreDispositivo = "Multiplatform pruebas"
-        userLogin(nombreDispositivo)
     }
 
     /**
@@ -140,6 +138,15 @@ class LoginViewModel(
         return (1..length)
             .map { allowedChars.random() }
             .joinToString("")
+    }
+
+    fun onDescargarEstacionesClick() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if(repository.refreshEstaciones())
+                println("Tenemos estaciones en la BBDD")
+            else
+                println("No tenemos ninguna estación en la BBDD")
+        }
     }
 
     init {//Sí, los viewmodels tienen su método init{}, que se ejecuta al crearse el viewmodel.
