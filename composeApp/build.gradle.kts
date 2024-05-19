@@ -5,7 +5,9 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.serialization)
-    alias(libs.plugins.sqldelight)
+
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -37,8 +39,13 @@ kotlin {
           //  implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.android)
             implementation(libs.androidx.startup)
-            implementation(libs.sqldelight.driver.android)
 
+            // Room
+            implementation(libs.androidx.room.paging)
+
+            // Koin
+            //implementation(libs.koin.android)
+            //implementation(libs.koin.androidx.compose)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.ios)
@@ -77,7 +84,17 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.datastore.preferences)
             implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.navigation.compose)
 
+
+            //Room Database:
+            implementation(libs.androidx.paging.common)
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.sqlite.bundled)
+
+            //Koin
+            //api(libs.koin.core)
+            //implementation(libs.koin.compose)
         }
 
         task("testClasses")
@@ -115,15 +132,18 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+        implementation(libs.androidx.paging.compose.android)
     }
 }
 
-sqldelight {
-    databases {
-        create("KiritoDatabase") {
-            packageName.set("es.kirito.kirito.core.data.sqldelight")
-            srcDirs.setFrom("src/commonMain/kotlin")
-        }
-    }
+dependencies {
+    // Room
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    add("kspIosX64", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}

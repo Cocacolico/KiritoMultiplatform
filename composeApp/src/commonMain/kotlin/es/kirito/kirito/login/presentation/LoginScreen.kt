@@ -39,14 +39,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.room.RoomDatabase
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
-import es.kirito.kirito.core.data.database.KiritoDao
-import es.kirito.kirito.core.data.database.createDatabase
-import es.kirito.kirito.core.data.sqldelight.User
+import es.kirito.kirito.core.data.database.KiritoDatabase
+import es.kirito.kirito.core.data.database.getKiritoDatabase
 import es.kirito.kirito.core.presentation.components.MyIconError
 import es.kirito.kirito.core.presentation.components.MyTextError
 import es.kirito.kirito.core.presentation.components.MyTextStd
+import es.kirito.kirito.login.domain.LoginRepository
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.contrase_a
 import kirito.composeapp.generated.resources.entrar
@@ -73,16 +76,14 @@ import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
-fun LoginScreen(kiritoDao: KiritoDao) {
-    val viewModel = LoginViewModel()//Con esta línea invocas al viewmodel.
+fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
+    val viewModel = viewModel<LoginViewModel>{
+        LoginViewModel(
+            repository = LoginRepository(database)
+        )
+    }//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
 
-
-    val errorUsuarioOPasswordErroneo by remember {
-        derivedStateOf {
-            state.errorCampoUserPassword
-        }
-    }
     var showPassword by remember { mutableStateOf(false) }
 
     Surface(Modifier.fillMaxSize()) {
@@ -139,15 +140,15 @@ fun LoginScreen(kiritoDao: KiritoDao) {
                     onValueChange = { viewModel.onValueUsuarioChange(it) },
                     label = { Text(stringResource(Res.string.matr_cula)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    isError = errorUsuarioOPasswordErroneo,
+                    isError = state.errorCampoUserPassword,
                     supportingText = {
-                        if (errorUsuarioOPasswordErroneo) {
+                        if (state.errorCampoUserPassword) {
                             MyTextError(stringResource(Res.string.usuario_o_contrase_a_incorrectos))
                         }
                     },
                     singleLine = true,
                     trailingIcon = {
-                        if (errorUsuarioOPasswordErroneo)
+                        if (state.errorCampoUserPassword)
                             MyIconError()
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -159,10 +160,9 @@ fun LoginScreen(kiritoDao: KiritoDao) {
                     label = { Text(stringResource(Res.string.contrase_a)) },
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        if (errorUsuarioOPasswordErroneo)
+                        if (state.errorCampoUserPassword)
                             MyIconError()
                         else
-                        // Password visibility toggle icon
                             PasswordVisibilityToggleIcon(
                                 showPassword = showPassword,
                                 onTogglePasswordVisibility = {
@@ -173,9 +173,9 @@ fun LoginScreen(kiritoDao: KiritoDao) {
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
-                    isError = errorUsuarioOPasswordErroneo,
+                    isError = state.errorCampoUserPassword,
                     supportingText = {
-                        if (errorUsuarioOPasswordErroneo) {
+                        if (state.errorCampoUserPassword) {
                             MyTextError(stringResource(Res.string.usuario_o_contrase_a_incorrectos))
                         }
                     },
@@ -184,77 +184,36 @@ fun LoginScreen(kiritoDao: KiritoDao) {
                 )
 
                 Button(
-                    onClick = { TODO("Hacer las acciones de login") },
+                    onClick = { viewModel.onEntrarClick() },
                     modifier = Modifier.align(alignment = Alignment.End)
                 ) {
                     MyTextStd(stringResource(Res.string.entrar))
                 }
-
-
                 LaunchedEffect(Unit) {
                     //Con esto probamos el datastore.
                     var preferences = preferenciasKirito.first()
                     println("dark mode 0 is $preferences")
                     updatePreferenciasKirito {appSettings ->
-                        appSettings.copy(estoyInicializado = true,
-                            password = "miratecomento")
+                        appSettings.copy(estoyInicializado = true)
                     }
                     preferences = preferenciasKirito.first()
                     println("dark mode 1 is $preferences")
 
                     println("dark mode 2 is $preferences")
                 }
-
-                LaunchedEffect(Unit){
-                    //Con esto probamos el sqlDelight, código de chatgpt, solo para ver que va.
-                    repeat(5) {
-                        val id = Random.nextLong()
-                        val username = "user_${Random.nextInt(1000)}"
-                        val email = "user${Random.nextInt(1000)}@example.com"
-                        val name = "Name_${Random.nextInt(100)}"
-                        val surname = "Surname_${Random.nextInt(100)}"
-                        val normalizedName = name.lowercase()
-                        val normalizedSurname = surname.lowercase()
-                        val work_phone_ext = "+1"
-                        val work_phone = "1234567890"
-                        val personal_phone = "0987654321"
-                        val mostrar_telf_trabajo = "yes"
-                        val mostrar_telf_personal = "no"
-                        val photo = "https://example.com/photo.jpg"
-                        val created = Clock.System.now().epochSeconds
-                        val last_login = created - Random.nextLong(0, 1000000000)
-                        val disabled = if (Random.nextBoolean()) "yes" else "no"
-                        val admin = if (Random.nextBoolean()) "yes" else "no"
-                        val key_ics = "key_ics_${Random.nextInt(1000)}"
-                        val key_access_web = "key_access_${Random.nextInt(1000)}"
-                        val comentariosAlAdmin = "Some comments"
-                        val cambios_activados = "yes"
-                        val cambios_activados_cuando = Clock.System.now().epochSeconds - Random.nextLong(0, 1000000000)
-                        val recibir_email_notificaciones = "yes"
-                        val mostrar_cuadros = "yes"
-                        val mostrar_cuadros_cuando = "Always"
-                        val notas = "Some notes"
-                        val peticiones_diarias = "Some daily requests"
-
-                        val user = User(
-                            id, username, email, name, surname, normalizedName, normalizedSurname,
-                            work_phone_ext, work_phone, personal_phone, mostrar_telf_trabajo,
-                            mostrar_telf_personal, photo, created, last_login, disabled, admin,
-                            key_ics, key_access_web, comentariosAlAdmin, cambios_activados,
-                            cambios_activados_cuando, recibir_email_notificaciones, mostrar_cuadros,
-                            mostrar_cuadros_cuando, notas, peticiones_diarias
-                        )
-                        kiritoDao.insertUser(user)
-                    }
-                    val users = kiritoDao.getAllUsers().first()
-                    val usuarioNuevo = kiritoDao.getUserById(12L).first()
-                    println("Los users son $users")
-                    println("El nuevo usuario es $usuarioNuevo")
-                }
-
                 TextButton(
                     onClick = {
-                        //TODO("Enlazar con screen para recuperar contraseña")
+                        viewModel.onDescargarEstacionesClick()
+                    },
+                    modifier = Modifier.align(alignment = Alignment.End)
+                ) {
+                    MyTextStd(
+                        text = "Descargar estaciones",
+                    )
+                }
+                TextButton(
+                    onClick = {
+                        navController.navigate("recuperarPassword")
                     },
                     modifier = Modifier.align(alignment = Alignment.End)
                 ) {
@@ -273,7 +232,7 @@ fun LoginScreen(kiritoDao: KiritoDao) {
                     Modifier.padding(horizontal = 16.dp)
                 )
                 Button(
-                    onClick = { TODO("Llevar a la screen de registro") }
+                    onClick = { navController.navigate("register") }
                 ) {
                     MyTextStd(stringResource(Res.string.registrarme))
                 }
