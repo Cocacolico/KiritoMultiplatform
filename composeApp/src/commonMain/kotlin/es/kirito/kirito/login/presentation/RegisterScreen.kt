@@ -38,6 +38,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import es.kirito.kirito.core.data.database.KiritoDatabase
 import kirito.composeapp.generated.resources.apellidos
 import kirito.composeapp.generated.resources.comentario_al_admin
 import kirito.composeapp.generated.resources.contrase_a
@@ -65,6 +68,7 @@ import es.kirito.kirito.core.presentation.components.OutlinedTextFieldEmail
 import es.kirito.kirito.core.presentation.components.OutlinedTextFieldTelefono
 import es.kirito.kirito.core.presentation.components.OutlinedTextFieldText
 import es.kirito.kirito.core.presentation.components.TitleText
+import es.kirito.kirito.login.domain.LoginRepository
 import kirito.composeapp.generated.resources.debes_seleccionar_una_residencia
 import kirito.composeapp.generated.resources.la_contrasena_debe_tener_5_caracteres
 import kirito.composeapp.generated.resources.usuario_siete_caracteres
@@ -73,8 +77,12 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen() {
-    val viewModel = RegisterViewModel()
+fun RegisterScreen(navController: NavHostController, database: KiritoDatabase) {
+    val viewModel = viewModel<RegisterViewModel> {
+        RegisterViewModel(
+            repository = LoginRepository(database)
+        )
+    }
     val state by viewModel.state.collectAsState()
 
     var showPassword by remember { mutableStateOf(false) }

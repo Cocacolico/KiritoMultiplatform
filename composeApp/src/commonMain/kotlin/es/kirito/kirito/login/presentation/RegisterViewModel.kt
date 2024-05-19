@@ -3,6 +3,7 @@ package es.kirito.kirito.login.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.login.domain.LoginRepository
+import es.kirito.kirito.login.domain.RegisterData
 import es.kirito.kirito.login.domain.RegisterState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -11,12 +12,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class RegisterViewModel : ViewModel() {
-    private val repository = LoginRepository()
+class RegisterViewModel(
+    private val repository: LoginRepository
+) : ViewModel() {
+
 
     private val _state = MutableStateFlow(RegisterState())
     val state = _state.asStateFlow()
-
     fun expandirResidencias() {
         _state.update {
             it.copy(expanded = true)
@@ -81,11 +83,11 @@ class RegisterViewModel : ViewModel() {
     }
 
     fun onValueTelefonoLargoChange(value: String) {
-            _state.update {
-                it.copy(
-                    telefonoIntLargo = value
-                )
-            }
+        _state.update {
+            it.copy(
+                telefonoIntLargo = value
+            )
+        }
     }
 
     fun onVisibilidadTelefonoEmpresaChanged(value: Boolean) {
@@ -165,7 +167,6 @@ class RegisterViewModel : ViewModel() {
                 TODO("Enviar la petición a Jesús y tal")
         }
     }
-
     init {//Sí, los viewmodels tienen su método init{}, que se ejecuta al crearse el viewmodel.
         //Aquí puedes hacer cosas que se ejecutan al principio.
         viewModelScope.launch(Dispatchers.IO) { //A esta corrutina le he pedido
