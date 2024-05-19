@@ -863,6 +863,7 @@
     <string name="guardar_cambios">Guardar cambios</string>
     <string name="editar_telefono">Editar Teléfonoo</string>
     <string name="form_error_campo_vacio_servicio_nombre">Debes rellenar a menos el servicio o el nombre</string>
+    <string name="debes_seleccionar_una_residencia">Debes seleccionar una residencia</string>
 
     <string-array name="orden_nuevo_buscador">
         <item>Clave</item>

@@ -83,10 +83,19 @@ class LoginViewModel(
             )
         }
     }
-
     fun onEntrarClick() {
-        val nombreDispositivo = "Multiplatform pruebas"
-        userLogin(nombreDispositivo)
+      with(_state.value) {
+            if(usuario.isBlank() || password.isBlank())
+                _state.update {
+                    it.copy(
+                        errorCampoUserPassword = true
+                    )
+                }
+            else
+              val nombreDispositivo = "Multiplatform pruebas"
+              userLogin(nombreDispositivo)
+        }
+        
     }
     // Función para relacionar la residencia seleccionada por el usuario con el directorio.
     // De cara a que en el futuro se hagan las peticiones a una residencia u otra.

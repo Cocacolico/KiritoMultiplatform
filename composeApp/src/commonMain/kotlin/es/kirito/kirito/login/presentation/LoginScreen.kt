@@ -78,12 +78,6 @@ fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
     }//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
 
-
-    val errorUsuarioOPasswordErroneo by remember {
-        derivedStateOf {
-            state.errorCampoUserPassword
-        }
-    }
     var showPassword by remember { mutableStateOf(false) }
 
     Surface(Modifier.fillMaxSize()) {
@@ -140,15 +134,15 @@ fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
                     onValueChange = { viewModel.onValueUsuarioChange(it) },
                     label = { Text(stringResource(Res.string.matr_cula)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    isError = errorUsuarioOPasswordErroneo,
+                    isError = state.errorCampoUserPassword,
                     supportingText = {
-                        if (errorUsuarioOPasswordErroneo) {
+                        if (state.errorCampoUserPassword) {
                             MyTextError(stringResource(Res.string.usuario_o_contrase_a_incorrectos))
                         }
                     },
                     singleLine = true,
                     trailingIcon = {
-                        if (errorUsuarioOPasswordErroneo)
+                        if (state.errorCampoUserPassword)
                             MyIconError()
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -160,10 +154,9 @@ fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
                     label = { Text(stringResource(Res.string.contrase_a)) },
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        if (errorUsuarioOPasswordErroneo)
+                        if (state.errorCampoUserPassword)
                             MyIconError()
                         else
-                        // Password visibility toggle icon
                             PasswordVisibilityToggleIcon(
                                 showPassword = showPassword,
                                 onTogglePasswordVisibility = {
@@ -174,9 +167,9 @@ fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
-                    isError = errorUsuarioOPasswordErroneo,
+                    isError = state.errorCampoUserPassword,
                     supportingText = {
-                        if (errorUsuarioOPasswordErroneo) {
+                        if (state.errorCampoUserPassword) {
                             MyTextError(stringResource(Res.string.usuario_o_contrase_a_incorrectos))
                         }
                     },

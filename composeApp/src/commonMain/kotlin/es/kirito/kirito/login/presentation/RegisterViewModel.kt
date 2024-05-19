@@ -138,7 +138,34 @@ class RegisterViewModel(
         }
     }
     fun onClickButtonEnviar() {
-        TODO("Acciones del botón de enviar")
+        with(_state.value) {
+            if(residenciaSeleccionada.isBlank())
+                _state.update {
+                    it.copy (
+                        errorResidenciaVacio = true
+                    )
+                }
+            else if(usuario.length != 7)
+                _state.update {
+                    it.copy (
+                        errorUsuarioErroneo = true
+                    )
+                }
+            else if(password.length < 5)
+                _state.update {
+                    it.copy (
+                        errorPasswordNoCumpleLongitud = true
+                    )
+                }
+            else if(passwordCheck != password)
+                _state.update {
+                    it.copy (
+                        errorPasswordNoCoincide = true
+                    )
+                }
+            else
+                TODO("Enviar la petición a Jesús y tal")
+        }
     }
     init {//Sí, los viewmodels tienen su método init{}, que se ejecuta al crearse el viewmodel.
         //Aquí puedes hacer cosas que se ejecutan al principio.
