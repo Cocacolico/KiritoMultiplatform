@@ -92,7 +92,7 @@ interface KiritoDao {
             "set longitud = :longitud, latitud = :lat " +
             "where nombre = :nombre"
     )
-    fun setStationCoordinates(longitud: Float, lat: Float, nombre: String)
+    suspend fun setStationCoordinates(longitud: Float, lat: Float, nombre: String)
 
     @Query("Select * from tabla_estaciones where esDelGrafico and latitud is null")
     fun getChartStationsWithoutCoordinates(): Flow<List<Estaciones>>

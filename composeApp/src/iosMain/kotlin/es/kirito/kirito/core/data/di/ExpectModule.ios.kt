@@ -1,12 +1,15 @@
 package es.kirito.kirito.core.data.di
 
 import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.database.dbFileName
+import es.kirito.kirito.core.data.database.instantiateImpl
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import platform.Foundation.NSHomeDirectory
 
 actual fun platformModule(): Module = module {
 //    single { Darwin.create() }//Ktor.
@@ -21,7 +24,7 @@ fun getKiritoDatabase(
 
 ): KiritoDatabase {
     val dbFilePath = NSHomeDirectory() + "/$dbFileName"
-    return Room.databaseBuilder<AppDatabase>(
+    return Room.databaseBuilder<KiritoDatabase>(
         name = dbFilePath,
         factory = { KiritoDatabase::class.instantiateImpl() }
     )
