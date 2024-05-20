@@ -11,12 +11,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class LoginViewModel(
-    private val repository: LoginRepository
-): ViewModel() {
-    //Lo importante de un viewmodel para serlo, es que herede de ViewModel().
-    //Aquí dentro ya tenemos todas las cosas chulas, como viewmodelscope.
+class LoginViewModel: ViewModel(), KoinComponent {
+
+    private val repository: LoginRepository by inject()
+
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
 
@@ -155,19 +156,9 @@ class LoginViewModel(
         }
     }
 
-    init {//Sí, los viewmodels tienen su método init{}, que se ejecuta al crearse el viewmodel.
-        //Aquí puedes hacer cosas que se ejecutan al principio.
-        viewModelScope.launch(Dispatchers.IO) { //A esta corrutina le he pedido
-            //que cambie su hilo al de IO, no al que se usa para mostrar la UI, que es Main.
-
-            //Nos las bajamos de internet.
-            //Ojo, esto, cuando lo hagamos en serio, habrá que cazar excepciones y tal.
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getResidencias().respuesta?.residencias?.let { lista ->
-
-                //Importante esto también. Esta es la manera más "actual" que he visto en que se deberían
-                //usar los estados de compose. Un único objeto y dentro de él todas las cosas. Se actualiza
-                //así su valor y no de otra manera, pues así forzamos la recomposición. Si usas var en vez de val,
-                //te fallarán algunas recomposiciones y no sabrás por qué.
                 _state.update {
                     it.copy(residencias = lista)
                 }

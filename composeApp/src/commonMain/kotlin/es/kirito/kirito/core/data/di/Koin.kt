@@ -1,6 +1,10 @@
 package es.kirito.kirito.core.data.di
 
 import es.kirito.kirito.login.domain.LoginRepository
+import es.kirito.kirito.login.presentation.LoginViewModel
+import es.kirito.kirito.login.presentation.RegisterViewModel
+import org.koin.compose.viewmodel.dsl.viewModelOf
+
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
@@ -19,10 +23,12 @@ fun commonModule() = module {
     //El viewmodel tendremos que meterlo así, claro.
   //  single { createJson() }
  //   single { createHttpClient(get(), get()) }
+    //  single { FantasyPremierLeagueApi(get()) }
+    //  single { AppSettings(get()) }
 
-  //  viewModelOf(::LoginViewModel)
-  //  single { LoginRepository() }
-  //  single { FantasyPremierLeagueApi(get()) }
 
-  //  single { AppSettings(get()) }
+    viewModelOf(::LoginViewModel)
+    viewModelOf(::RegisterViewModel)
+    single { LoginRepository() }
+
 }

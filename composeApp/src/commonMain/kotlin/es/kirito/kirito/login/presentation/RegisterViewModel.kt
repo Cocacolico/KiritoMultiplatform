@@ -11,11 +11,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class RegisterViewModel(
-    private val repository: LoginRepository
-) : ViewModel() {
+class RegisterViewModel : ViewModel(), KoinComponent {
 
+    private val repository: LoginRepository by inject()
 
 
     private val _state = MutableStateFlow(RegisterState())

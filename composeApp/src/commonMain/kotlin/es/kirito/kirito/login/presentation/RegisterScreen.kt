@@ -72,13 +72,13 @@ import kirito.composeapp.generated.resources.tel_fono_personal
 import kirito.composeapp.generated.resources.usuario_siete_caracteres
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class, KoinExperimentalAPI::class)
 @Composable
 fun RegisterScreen(navController: NavHostController) {
-    val viewModel = viewModel<RegisterViewModel> {
-        RegisterViewModel(repository = LoginRepository())
-    }
+    val viewModel = koinViewModel<RegisterViewModel>()
     val state by viewModel.state.collectAsState()
 
     var showPassword by remember { mutableStateOf(false) }

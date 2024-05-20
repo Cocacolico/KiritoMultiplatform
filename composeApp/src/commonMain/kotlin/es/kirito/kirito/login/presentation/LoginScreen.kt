@@ -1,3 +1,5 @@
+@file:OptIn(KoinExperimentalAPI::class)
+
 package es.kirito.kirito.login.presentation
 
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -38,15 +40,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
-import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.presentation.components.MyIconError
 import es.kirito.kirito.core.presentation.components.MyTextError
 import es.kirito.kirito.core.presentation.components.MyTextStd
-import es.kirito.kirito.login.domain.LoginRepository
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.contrase_a
 import kirito.composeapp.generated.resources.entrar
@@ -63,16 +62,16 @@ import kirito.composeapp.generated.resources.ver_contrase_a
 import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 fun LoginScreen(navController: NavHostController) {
-    val viewModel = viewModel<LoginViewModel>{
-        LoginViewModel(
-            repository = LoginRepository()
-        )
-    }//Con esta línea invocas al viewmodel.
+
+    val viewModel = koinViewModel<LoginViewModel>()
+
     val state by viewModel.state.collectAsState()
 
     var showPassword by remember { mutableStateOf(false) }
