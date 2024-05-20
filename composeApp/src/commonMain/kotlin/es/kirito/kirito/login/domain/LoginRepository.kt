@@ -11,20 +11,26 @@ import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.login.data.network.ResponseRespuestaOtEstaciones
 import kotlinx.coroutines.flow.first
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class LoginRepository(
-    private val database: KiritoDatabase
-) {
-    private val ktor =  KiritoRequest()
+class LoginRepository : KoinComponent {
+
+    private val database: KiritoDatabase by inject()
+    private val dao = database.kiritoDao()
+    private val ktor = KiritoRequest()
+
+
     suspend fun getResidencias(): ResponseKiritoDTO<ResponseResidenciasDTO> {
-       return ktor.getResidencias()
+        return ktor.getResidencias()
     }
+
     suspend fun registerNewUser(
         residenciaSeleccionada: String,
         datosUsuario: RegisterData,
         tokenFCM: String
     ): ResponseKiritoDTO<ResponseRegisterUserDTO> {
-        return ktor.requestRegistro(residenciaSeleccionada,datosUsuario,tokenFCM)
+        return ktor.requestRegistro(residenciaSeleccionada, datosUsuario, tokenFCM)
     }
 
     suspend fun getMyKiritoToken(
@@ -41,46 +47,51 @@ class LoginRepository(
             }
             respuesta
         } else {
-            when(respuesta.error.errorCode) {
+            when (respuesta.error.errorCode) {
                 "13" -> respuesta // Usuario pendiente de autorizar
                 else -> throw KiritoException("Error: ${respuesta.error}")
             }
         }
     }
-    // Como da error la API al no haber negociado antes el login,
-    // para probar si funciona bien la BBDD retornamos un Boolean y lo tratamos en el viewModel
-    suspend fun refreshEstaciones(): Boolean {
-        val hayEstaciones = database.kiritoDao().hayEstaciones().first()
-        return if(hayEstaciones)
-            true
-        else
-            false
-        /*if (!hayEstaciones) {//Solo descargamos si no hay estaciones.
-            val respuesta = ktor.requestOtEstaciones()
-            if (respuesta.error.errorCode == "0") {
-                respuesta.respuesta?.respuesta?.forEach {
-                    database.kiritoDao().insertEstacion(it.asDBModel())
-                }
-                println("Estaciones en la BBDD:")
-                database.kiritoDao().getAllEstaciones().map {
-                    for (estacion in it) {
-                        println(estacion.nombre)
-                }
-                }
-            } else
-                throw KiritoException("Error: ${respuesta.error}")
-        }*/
+
+    val estaciones = dao.getAllEstaciones()
+
+    suspend fun refreshEstaciones() {
+        listOf(
+            Estaciones(
+                nombre = "Estación Central",
+                acronimo = "EC",
+                numero = "001",
+                longitud = -58.3816f,
+                latitud = -34.6037f,
+                esDelGrafico = true
+            ), Estaciones(
+                nombre = "Estación Norte",
+                acronimo = "EN",
+                numero = "002",
+                longitud = -58.3838f,
+                latitud = -34.6158f,
+                esDelGrafico = false
+            ), Estaciones(
+                nombre = "Estación Sur",
+                acronimo = "ES",
+                numero = "003",
+                longitud = -58.3912f,
+                latitud = -34.6262f,
+                esDelGrafico = true
+            ), Estaciones(
+                nombre = "Estación Este",
+                acronimo = "EE",
+                numero = "004",
+                longitud = -58.3700f,
+                latitud = -34.6032f,
+                esDelGrafico = false
+            )
+        ).forEach {
+            dao.insertEstacion(it)
+        }
     }
 
-    private fun ResponseRespuestaOtEstaciones.asDBModel(): Estaciones {
-        return Estaciones(
-            nombre = nombre,
-            acronimo = acronimo,
-            numero = numero,
-            longitud = null,
-            latitud = null,
-        )
-    }
 
     /* suspend fun registerNewUser(
          residenciaSeleccionada: String,

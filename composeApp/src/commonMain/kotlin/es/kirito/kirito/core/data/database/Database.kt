@@ -24,12 +24,16 @@ abstract class KiritoDatabase : RoomDatabase() {
     abstract fun kiritoDao(): KiritoDao
 }
 
-fun getKiritoDatabase(
-    builder: RoomDatabase.Builder<KiritoDatabase>
-): KiritoDatabase {
-    return builder
-        .fallbackToDestructiveMigrationOnDowngrade(true)
-        .setDriver(BundledSQLiteDriver())
-        .setQueryCoroutineContext(Dispatchers.IO)
-        .build()
-}
+internal const val dbFileName = "kiritoDatabase.db"
+
+
+//TODO: Original, borrar si va room con koin.
+//fun getKiritoDatabase(
+//    builder: RoomDatabase.Builder<KiritoDatabase>
+//): KiritoDatabase {
+//    return builder
+//        .fallbackToDestructiveMigrationOnDowngrade(true)
+//        .setDriver(BundledSQLiteDriver())
+//        .setQueryCoroutineContext(Dispatchers.IO)
+//        .build()
+//}

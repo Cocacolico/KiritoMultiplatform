@@ -108,9 +108,7 @@ class LoginViewModel(
         }
         return directorio
     }
-    private fun postLogin() {
-        TODO("Descargar cuadro de tareas en BBDD")
-    }
+
     private fun userLogin(
         nombreDispositivo: String
     ) {
@@ -149,12 +147,11 @@ class LoginViewModel(
             .joinToString("")
     }
 
+    val estaciones = repository.estaciones
     fun onDescargarEstacionesClick() {
         viewModelScope.launch(Dispatchers.IO) {
-            if(repository.refreshEstaciones())
-                println("Tenemos estaciones en la BBDD")
-            else
-                println("No tenemos ninguna estación en la BBDD")
+            repository.refreshEstaciones()
+            println("Metiendo estaciones!")
         }
     }
 

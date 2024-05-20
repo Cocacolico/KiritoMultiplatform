@@ -67,10 +67,10 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
-fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
+fun LoginScreen(navController: NavHostController) {
     val viewModel = viewModel<LoginViewModel>{
         LoginViewModel(
-            repository = LoginRepository(database)
+            repository = LoginRepository()
         )
     }//Con esta línea invocas al viewmodel.
     val state by viewModel.state.collectAsState()
@@ -202,6 +202,13 @@ fun LoginScreen(navController: NavHostController, database: KiritoDatabase) {
                         text = "Descargar estaciones",
                     )
                 }
+                val estaciones by viewModel.estaciones.collectAsState(emptyList())
+                LaunchedEffect(estaciones){
+                    println("Las estaciones son $estaciones")
+                }
+
+
+
                 TextButton(
                     onClick = {
                         navController.navigate("recuperarPassword")

@@ -1,13 +1,11 @@
 import androidx.compose.ui.window.ComposeUIViewController
 import es.kirito.kirito.core.data.utils.ApplicationComponent
-import es.kirito.kirito.core.data.database.getDatabaseBuilderIos
 
 fun MainViewController() =
     ComposeUIViewController {
-        val databaseBuilder = getDatabaseBuilderIos()
 
-        App(databaseBuilder)
-        //App()
+        App()
+
     }
 
 
@@ -15,3 +13,6 @@ fun MainViewController() =
 fun initialize() {
     ApplicationComponent.init()
 }
+
+
+

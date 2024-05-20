@@ -75,11 +75,9 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(navController: NavHostController, database: KiritoDatabase) {
+fun RegisterScreen(navController: NavHostController) {
     val viewModel = viewModel<RegisterViewModel> {
-        RegisterViewModel(
-            repository = LoginRepository(database)
-        )
+        RegisterViewModel(repository = LoginRepository())
     }
     val state by viewModel.state.collectAsState()
 
@@ -134,6 +132,7 @@ fun RegisterScreen(navController: NavHostController, database: KiritoDatabase) {
                         }
                     }
                 }
+
                 OutlinedTextField(
                     value = state.usuario,
                     onValueChange = { viewModel.onValueUsuarioChange(it) },
@@ -153,6 +152,7 @@ fun RegisterScreen(navController: NavHostController, database: KiritoDatabase) {
                     leadingIcon = { Icon(Icons.Outlined.Train, "") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextFieldText(
                     value = state.nombre,
                     onValueChange = { viewModel.onValueNombreChange(it) },

@@ -2,23 +2,21 @@ package es.kirito.kirito.core.presentation.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OutlinedTextFieldTelefono(
     value: String,
     onValueChange: (String) -> Unit,
     label: @Composable () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
+    modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
         value = value,
@@ -27,7 +25,7 @@ fun OutlinedTextFieldTelefono(
         leadingIcon = { Icon(Icons.Outlined.Call, "") },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         singleLine = true,
-        modifier = modifier
+        modifier = modifier.fillMaxWidth()
     )
 }
 @Composable
@@ -35,7 +33,7 @@ fun OutlinedTextFieldEmail(
     value: String,
     onValueChange: (String) -> Unit,
     label: @Composable () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
+    modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
         value = value,
@@ -44,7 +42,7 @@ fun OutlinedTextFieldEmail(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         leadingIcon = { Icon(Icons.Outlined.Email, "") },
         singleLine = true,
-        modifier = modifier
+        modifier = modifier.fillMaxWidth()
     )
 }
 @Composable
@@ -53,7 +51,7 @@ fun OutlinedTextFieldText(
     onValueChange: (String) -> Unit,
     label: @Composable () -> Unit,
     leadingIcon: @Composable (() -> Unit)? = null,
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
     singleLine: Boolean = true
 ) {
     OutlinedTextField(
@@ -63,6 +61,6 @@ fun OutlinedTextFieldText(
         leadingIcon = leadingIcon,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         singleLine = singleLine,
-        modifier = modifier
+        modifier = modifier.fillMaxWidth()
     )
 }

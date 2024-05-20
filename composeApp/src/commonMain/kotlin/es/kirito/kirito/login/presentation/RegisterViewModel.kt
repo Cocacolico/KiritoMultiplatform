@@ -2,6 +2,7 @@ package es.kirito.kirito.login.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.login.domain.LoginRepository
 import es.kirito.kirito.login.domain.RegisterState
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 class RegisterViewModel(
     private val repository: LoginRepository
 ) : ViewModel() {
+
 
 
     private val _state = MutableStateFlow(RegisterState())
