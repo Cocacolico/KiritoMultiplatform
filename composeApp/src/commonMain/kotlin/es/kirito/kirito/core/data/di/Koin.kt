@@ -3,6 +3,8 @@ package es.kirito.kirito.core.data.di
 import es.kirito.kirito.login.domain.LoginRepository
 import es.kirito.kirito.login.presentation.LoginViewModel
 import es.kirito.kirito.login.presentation.RegisterViewModel
+import es.kirito.kirito.precarga.domain.PrecargaRepository
+import es.kirito.kirito.precarga.presentation.PrecargaViewModel
 import org.koin.compose.viewmodel.dsl.viewModelOf
 
 import org.koin.core.context.startKoin
@@ -29,6 +31,9 @@ fun commonModule() = module {
 
     viewModelOf(::LoginViewModel)
     viewModelOf(::RegisterViewModel)
+    viewModelOf(::PrecargaViewModel)
+    
     single { LoginRepository() }
+    single { PrecargaRepository() }
 
 }

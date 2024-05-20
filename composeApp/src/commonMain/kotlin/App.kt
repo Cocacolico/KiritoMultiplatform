@@ -7,6 +7,7 @@ import androidx.navigation.navigation
 import es.kirito.kirito.core.presentation.theme.KiritoTheme
 import es.kirito.kirito.login.presentation.LoginScreen
 import es.kirito.kirito.login.presentation.RegisterScreen
+import es.kirito.kirito.precarga.presentation.PrecargaScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -28,8 +29,8 @@ fun App() {
             composable("recuperarPassword") {
 
             }
-            composable("loadingScreen") {
-
+            composable("precarga") {
+                PrecargaScreen(navController)
             }
             // En este navigation encapsulamos al usuario para que no pueda volver al login mientras usa la aplicación
             // de forma normal. Invocaremos al parámetro "route" cuando se haga un login exitoso.

@@ -1,16 +1,15 @@
 package es.kirito.kirito.login.domain
 
+import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
 import es.kirito.kirito.core.data.database.Estaciones
 import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.network.KiritoRequest
 import es.kirito.kirito.core.data.network.ResponseKiritoDTO
 import es.kirito.kirito.core.data.utils.KiritoException
 import es.kirito.kirito.core.data.utils.KiritoUserBlockedException
-import es.kirito.kirito.login.data.network.ResponseLoginDTO
+import es.kirito.kirito.core.data.utils.KiritoWrongTokenException
 import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
-import es.kirito.kirito.login.data.network.ResponseRespuestaOtEstaciones
-import kotlinx.coroutines.flow.first
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -38,14 +37,26 @@ class LoginRepository : KoinComponent {
         password: String,
         nombreDispositivo: String,
         tokenFCM: String,
-    ): ResponseKiritoDTO<ResponseLoginDTO> {
-        val respuesta = ktor.requestLogin(usuario, password, nombreDispositivo, tokenFCM)
-        return if (respuesta.error.errorCode == "0") { // Login exitoso
-            val tiempoBloqueado = respuesta.respuesta?.respuesta?.seconds
+        residenciaUrl: String?
+    ){
+        val respuesta = ktor.requestLogin(usuario, password, nombreDispositivo, tokenFCM, residenciaUrl)
+
+        if (respuesta.error.errorCode == "0") { // Login exitoso
+            val tiempoBloqueado = respuesta.respuesta?.seconds
             if (tiempoBloqueado != null) { // Comprobamos que el usuario no esté bloqueado
                 throw KiritoUserBlockedException("Bloqueado durante $tiempoBloqueado segundos.")
             }
-            respuesta
+
+            val kiritoToken = respuesta.respuesta?.login ?: throw KiritoWrongTokenException()
+           // println("Login correcto, id es ${kiritoToken.id_usuario} y token es ${kiritoToken.token}")
+
+            updatePreferenciasKirito { appSettings ->
+                appSettings.copy(
+                    matricula = usuario,
+                    userId = kiritoToken.id_usuario.toLongOrNull() ?: -2L,
+                    token = kiritoToken.token
+                )
+            }
         } else {
             when (respuesta.error.errorCode) {
                 "13" -> respuesta // Usuario pendiente de autorizar
