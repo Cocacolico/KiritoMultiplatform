@@ -5,6 +5,10 @@ import es.kirito.kirito.login.presentation.LoginViewModel
 import es.kirito.kirito.login.presentation.RegisterViewModel
 import es.kirito.kirito.precarga.domain.PrecargaRepository
 import es.kirito.kirito.precarga.presentation.PrecargaViewModel
+import es.kirito.kirito.turnos.presentation.HoyViewModel
+import es.kirito.kirito.turnos.presentation.MensualViewModel
+import es.kirito.kirito.turnos.presentation.BuscadorViewModel
+import es.kirito.kirito.menu.presentation.MenuViewModel
 import org.koin.compose.viewmodel.dsl.viewModelOf
 
 import org.koin.core.context.startKoin
@@ -32,6 +36,11 @@ fun commonModule() = module {
     viewModelOf(::LoginViewModel)
     viewModelOf(::RegisterViewModel)
     viewModelOf(::PrecargaViewModel)
+    viewModelOf(::HoyViewModel)
+    viewModelOf(::MensualViewModel)
+    viewModelOf(::BuscadorViewModel)
+    viewModelOf(::MenuViewModel)
+
     
     single { LoginRepository() }
     single { PrecargaRepository() }

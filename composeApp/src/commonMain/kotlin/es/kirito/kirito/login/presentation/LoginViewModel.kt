@@ -95,6 +95,13 @@ class LoginViewModel: ViewModel(), KoinComponent {
                 }
             else {
                 val nombreDispositivo = "Multiplatform pruebas"
+                if(_state.value.modoDevActivado) { // Comprobamos si se ha activado el modo Developer para ajustar consecuentemente la URL
+                    _state.update {
+                        it.copy(
+                            urlResidenciaSeleccionada = "chasca"
+                        )
+                    }
+                }
                 userLogin(nombreDispositivo)
             }
 

@@ -7,7 +7,11 @@ import androidx.navigation.navigation
 import es.kirito.kirito.core.presentation.theme.KiritoTheme
 import es.kirito.kirito.login.presentation.LoginScreen
 import es.kirito.kirito.login.presentation.RegisterScreen
+import es.kirito.kirito.menu.presentation.MenuScreen
 import es.kirito.kirito.precarga.presentation.PrecargaScreen
+import es.kirito.kirito.turnos.presentation.BuscadorScreen
+import es.kirito.kirito.turnos.presentation.HoyScreen
+import es.kirito.kirito.turnos.presentation.MensualScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -36,16 +40,16 @@ fun App() {
             // de forma normal. Invocaremos al parámetro "route" cuando se haga un login exitoso.
             navigation(startDestination = "loadingScreen", route = "kirito") {
                 composable("vistaHoy") {
-
+                    HoyScreen(navController)
                 }
                 composable("vistaMensual") {
-
+                    MensualScreen(navController)
                 }
-                composable("ajustesUsuario") {
-
+                composable("menuUsuario") {
+                    MenuScreen(navController)
                 }
                 composable("buscador") {
-
+                    BuscadorScreen(navController)
                 }
 
             }
