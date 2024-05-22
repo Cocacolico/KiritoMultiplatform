@@ -1,8 +1,9 @@
 package es.kirito.kirito.core.data.network
 
+import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.login.data.network.RequestLoginDTO
 import es.kirito.kirito.login.data.network.RequestRegisterUserDTO
-import es.kirito.kirito.login.data.network.ResponseLoginDTO
+import es.kirito.kirito.login.data.network.ResponseLogin
 import es.kirito.kirito.login.data.network.ResponseOtEstacionesDTO
 import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
@@ -20,20 +21,26 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 
 class KiritoRequest {
 
-    private val residencia = "chasca"  //TODO: get the correct residencia
+    private lateinit var residencia: String
     private val endpointInicial = "https://kirito.es/atc/api.php"
-    private val endpoint = "https://kirito.es/$residencia/api.php"
+    private lateinit var endpoint: String
     private val appName = "Kiritroid"
-    private val appVersion = "180" //TODO: Cambiar esto y hacerlo KMP  BuildConfig.VERSION_CODE.toString()
+    private val appVersion =
+        "180" //TODO: Cambiar esto y hacerlo KMP  BuildConfig.VERSION_CODE.toString()
     //https://stackoverflow.com/questions/74743976/kotlin-multiplatform-accessing-build-variables-in-code
 
     suspend fun getResidencias(): ResponseKiritoDTO<ResponseResidenciasDTO> {
-        return post<RequestSimpleDTO, ResponseResidenciasDTO>(RequestSimpleDTO("residencias"), esInicial = true)
+        return post<RequestSimpleDTO, ResponseResidenciasDTO>(
+            RequestSimpleDTO("residencias"),
+            esInicial = true
+        )
     }
+
     suspend fun requestRegistro(
         residenciaSeleccionada: String,
         datosUsuario: RegisterData,
@@ -56,22 +63,26 @@ class KiritoRequest {
             )
         )
     }
+
     suspend fun requestLogin(
         usuario: String,
         password: String,
         nombreDispositivo: String,
-        tokenFCM: String
-    ): ResponseKiritoDTO<ResponseLoginDTO> {
-        return post<RequestLoginDTO, ResponseLoginDTO>(
+        tokenFCM: String,
+        residenciaUrl: String?
+    ): ResponseKiritoDTO<ResponseLogin> {
+        return post<RequestLoginDTO, ResponseLogin>(
             RequestLoginDTO(
                 peticion = "usuarios.login",
                 usuario = usuario,
                 password = password,
                 descripcion_dispositivo = nombreDispositivo,
                 tokenFCM = tokenFCM
-            )
+            ),
+            residenciaPersonalizada = residenciaUrl
         )
     }
+
     suspend fun requestOtEstaciones(): ResponseKiritoDTO<ResponseOtEstacionesDTO> {
         return post<RequestSimpleDTO, ResponseOtEstacionesDTO>(
             RequestSimpleDTO("otros.obtener_estaciones")
@@ -82,9 +93,20 @@ class KiritoRequest {
 
     // suspend fun post(request: Map<String, String>): HttpResponse {//Por si no va en ios el reified.
     // https://github.com/JetBrains/compose-multiplatform/issues/3147
-    private suspend inline fun <reified R, reified T> post(request: R, esInicial: Boolean = false): ResponseKiritoDTO<T> {
-        val cliente = getClienteJson()
+    private suspend inline fun <reified R, reified T> post(
+        request: R,
+        esInicial: Boolean = false,
+        residenciaPersonalizada: String? = null,
+    ): ResponseKiritoDTO<T> {
 
+        residencia = preferenciasKirito.first().residenciaURL
+
+        endpoint = if (residenciaPersonalizada == null)
+            "https://kirito.es/$residencia/api.php"
+        else
+            "https://kirito.es/$residenciaPersonalizada/api.php"
+
+        val cliente = getClienteJson()
         val url = if (esInicial) endpointInicial else endpoint
 
         val response = cliente.post(url) {
@@ -95,7 +117,6 @@ class KiritoRequest {
         }
         return response.body()
     }
-
 
 
     private fun getClienteJson() = HttpClient {

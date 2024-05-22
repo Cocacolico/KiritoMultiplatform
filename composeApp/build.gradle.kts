@@ -43,9 +43,11 @@ kotlin {
             // Room
             implementation(libs.androidx.room.paging)
 
-            // Koin
-            //implementation(libs.koin.android)
-            //implementation(libs.koin.androidx.compose)
+            //Koin
+            implementation(libs.koin.android)
+           // implementation(libs.koin.androidx.compose)//Creo que no la necesito.
+
+
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.ios)
@@ -76,6 +78,16 @@ kotlin {
             //Corrutinas:
             implementation(libs.kotlinx.coroutines.core)
 
+            //Room Database:
+            implementation(libs.androidx.paging.common)
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.sqlite.bundled)
+
+            // Koin
+            api(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.composeVM)
+
             //Otras cosas:
             implementation(libs.kotlinx.datetime)
             implementation(libs.datastore.preferences)
@@ -83,14 +95,7 @@ kotlin {
             implementation(libs.navigation.compose)
 
 
-            //Room Database:
-            implementation(libs.androidx.paging.common)
-            implementation(libs.androidx.room.runtime)
-            implementation(libs.sqlite.bundled)
 
-            //Koin
-            //api(libs.koin.core)
-            //implementation(libs.koin.compose)
         }
 
         task("testClasses")

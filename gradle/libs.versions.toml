@@ -1,5 +1,5 @@
 [versions]
-agp = "8.4.0"
+agp = "8.4.1"
 android-compileSdk = "34"
 android-minSdk = "28"
 android-targetSdk = "34"
@@ -15,8 +15,8 @@ ksp = "1.9.23-1.0.19"
 sqlite = "2.5.0-SNAPSHOT"
 pagingComposeAndroid = "3.3.0"
 androidx-paging = "3.3.0"
-compose = "1.6.7"
-compose-plugin = "1.6.2"
+compose-ui = "1.6.7"
+compose-plugin = "1.6.10"
 junit = "4.13.2"
 kotlin = "1.9.23"
 kotlinSerialization = "1.9.23"
@@ -26,12 +26,12 @@ kotlinxCoroutines = "1.8.0"
 kotlinxSerializationJson = "1.6.3"
 kotlinxDatetime = "0.6.0-RC.2"
 datastore = "1.1.1"
-navigationCompose = "2.7.0-alpha03"
+navigationCompose = "2.7.0-alpha07"
 androidxLifecycle = "2.8.0"
 androidx-startup = "1.1.1"
-koin = "3.6.0-alpha3"
-koinCompose = "3.6.0-alpha3"
-koinComposeMultiplatform = "1.2.0-alpha3"
+koin = "3.6.0-Beta4"
+koinCompose = "3.6.0-Beta4"
+koinComposeMultiplatform = "1.2.0-Beta4"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -53,8 +53,8 @@ androidx-room-paging = { group = "androidx.room", name = "room-paging", version.
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidx-room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-ui" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-ui" }
 
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" } #Versión de kmp
@@ -65,10 +65,13 @@ kotlinx-datetime = {module = "org.jetbrains.kotlinx:kotlinx-datetime", version.r
 androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidxLifecycle" }
 
+#Dependency injection
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinCompose" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinComposeMultiplatform" }
+koin-composeVM = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koinComposeMultiplatform" }
+
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 datastore-preferences = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }

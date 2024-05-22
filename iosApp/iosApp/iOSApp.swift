@@ -5,7 +5,10 @@ import ComposeApp
 struct iOSApp: App {
 
     // Inicializamos DataStore
-    init() { MainViewControllerKt.initialize() }
+    init() {
+        KoinKt.doInitKoin()// Esto es lo que acabo de meter!!
+        MainViewControllerKt.initialize()
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -13,3 +16,9 @@ struct iOSApp: App {
         }
     }
 }
+
+
+/*
+//La famosa app de ejemplo de la que nos hemos copiado.
+https://github.com/joreilly/FantasyPremierLeague/blob/main/ios/FantasyPremierLeague/FantasyPremierLeague/FantasyPremierLeagueApp.swift
+ */

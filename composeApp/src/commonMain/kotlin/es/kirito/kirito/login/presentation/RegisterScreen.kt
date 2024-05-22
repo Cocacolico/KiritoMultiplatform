@@ -72,15 +72,13 @@ import kirito.composeapp.generated.resources.tel_fono_personal
 import kirito.composeapp.generated.resources.usuario_siete_caracteres
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class, KoinExperimentalAPI::class)
 @Composable
-fun RegisterScreen(navController: NavHostController, database: KiritoDatabase) {
-    val viewModel = viewModel<RegisterViewModel> {
-        RegisterViewModel(
-            repository = LoginRepository(database)
-        )
-    }
+fun RegisterScreen(navController: NavHostController) {
+    val viewModel = koinViewModel<RegisterViewModel>()
     val state by viewModel.state.collectAsState()
 
     var showPassword by remember { mutableStateOf(false) }
@@ -134,6 +132,7 @@ fun RegisterScreen(navController: NavHostController, database: KiritoDatabase) {
                         }
                     }
                 }
+
                 OutlinedTextField(
                     value = state.usuario,
                     onValueChange = { viewModel.onValueUsuarioChange(it) },
@@ -153,6 +152,7 @@ fun RegisterScreen(navController: NavHostController, database: KiritoDatabase) {
                     leadingIcon = { Icon(Icons.Outlined.Train, "") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextFieldText(
                     value = state.nombre,
                     onValueChange = { viewModel.onValueNombreChange(it) },

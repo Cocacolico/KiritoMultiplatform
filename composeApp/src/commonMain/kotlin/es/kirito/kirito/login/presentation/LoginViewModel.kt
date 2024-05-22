@@ -2,25 +2,31 @@ package es.kirito.kirito.login.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
+import es.kirito.kirito.login.data.network.ResidenciaDTO
 import es.kirito.kirito.login.domain.LoginRepository
 import es.kirito.kirito.login.domain.LoginState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class LoginViewModel(
-    private val repository: LoginRepository
-): ViewModel() {
-    //Lo importante de un viewmodel para serlo, es que herede de ViewModel().
-    //Aquí dentro ya tenemos todas las cosas chulas, como viewmodelscope.
+class LoginViewModel: ViewModel(), KoinComponent {
+
+    private val repository: LoginRepository by inject()
+
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
 
     private var clicksModoDev: Int = 0
+
+    val yaLogueado = preferenciasKirito.map { it.token.isNotBlank() }
 
 
     fun expandirResidencias() {
@@ -36,16 +42,14 @@ class LoginViewModel(
     }
 
 
-    fun seleccionarResidencia(residencia: String) {
+    fun seleccionarResidencia(residencia: ResidenciaDTO) {
         _state.update {
             it.copy(
-                residenciaSeleccionada = residencia,
+                residenciaSeleccionada = residencia.nombre,
+                urlResidenciaSeleccionada = residencia.directorio,
                 expanded = false
             )
         }
-    }
-    fun activarTest(){
-        clicksModoDev = 12
     }
 
     fun activarModoDev() {
@@ -91,51 +95,49 @@ class LoginViewModel(
                 }
             else {
                 val nombreDispositivo = "Multiplatform pruebas"
+                if(_state.value.modoDevActivado) { // Comprobamos si se ha activado el modo Developer para ajustar consecuentemente la URL
+                    _state.update {
+                        it.copy(
+                            urlResidenciaSeleccionada = "chasca"
+                        )
+                    }
+                }
                 userLogin(nombreDispositivo)
             }
 
         }
         
     }
-    // Función para relacionar la residencia seleccionada por el usuario con el directorio.
-    // De cara a que en el futuro se hagan las peticiones a una residencia u otra.
-    private fun obtenerDirectorioResidencia(): String? {
-        var directorio: String? = null
-        _state.value.residencias.find {
-            it.nombre == _state.value.residenciaSeleccionada
-        }?.let {
-            directorio = it.directorio
-        }
-        return directorio
-    }
-    private fun postLogin() {
-        TODO("Descargar cuadro de tareas en BBDD")
-    }
+
+
     private fun userLogin(
         nombreDispositivo: String
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val kiritoToken = repository.getMyKiritoToken(
-                usuario = _state.value.usuario,
-                password = _state.value.password,
-                nombreDispositivo = nombreDispositivo,
-                tokenFCM = getRandomString(24) // Hasta que podamos implementar Firebase genera un token de 24 caracteres aleatorios
-            )
-            if(kiritoToken.respuesta?.respuesta?.login?.token != "null"){ //Tenemos un login correcto, vamos a probar la BBDD
-                kiritoToken.respuesta?.respuesta?.login?.let {
-                    println("Login correcto")
-                    // Actualizamos DataStore
-                    updatePreferenciasKirito {appSettings ->
-                        appSettings.copy(
-                            matricula = _state.value.usuario,
-                            userId = it.id_usuario.toLongOrNull() ?: -2L,
-                            token = it.token
-                        )
-                    }
-
+            try {
+                //Primero guardo la residencia que ha seleccionado el usuario:
+                updatePreferenciasKirito { settings ->
+                    settings.copy(
+                        residenciaName = _state.value.residenciaSeleccionada ?: "",
+                        residenciaURL = _state.value.urlResidenciaSeleccionada ?: ""
+                    )
                 }
-            } else
-                println("Error con el login")
+
+                //Ahora intento conseguir el token.
+                repository.getMyKiritoToken(
+                    residenciaUrl = _state.value.urlResidenciaSeleccionada,
+                    usuario = _state.value.usuario,
+                    password = _state.value.password,
+                    nombreDispositivo = nombreDispositivo,
+                    tokenFCM = getRandomString(24) // Hasta que podamos implementar Firebase genera un token de 24 caracteres aleatorios
+                )
+            }catch (e: Exception){
+                //TODO: Los errores habrá que mostrarlos, idealmente con un toast, este no es una excepción (jejje)
+                println(e.message)
+            }
+
+
+
         }
     }
 
@@ -149,28 +151,17 @@ class LoginViewModel(
             .joinToString("")
     }
 
+    val estaciones = repository.estaciones
     fun onDescargarEstacionesClick() {
         viewModelScope.launch(Dispatchers.IO) {
-            if(repository.refreshEstaciones())
-                println("Tenemos estaciones en la BBDD")
-            else
-                println("No tenemos ninguna estación en la BBDD")
+            repository.refreshEstaciones()
+            println("Metiendo estaciones!")
         }
     }
 
-    init {//Sí, los viewmodels tienen su método init{}, que se ejecuta al crearse el viewmodel.
-        //Aquí puedes hacer cosas que se ejecutan al principio.
-        viewModelScope.launch(Dispatchers.IO) { //A esta corrutina le he pedido
-            //que cambie su hilo al de IO, no al que se usa para mostrar la UI, que es Main.
-
-            //Nos las bajamos de internet.
-            //Ojo, esto, cuando lo hagamos en serio, habrá que cazar excepciones y tal.
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getResidencias().respuesta?.residencias?.let { lista ->
-
-                //Importante esto también. Esta es la manera más "actual" que he visto en que se deberían
-                //usar los estados de compose. Un único objeto y dentro de él todas las cosas. Se actualiza
-                //así su valor y no de otra manera, pues así forzamos la recomposición. Si usas var en vez de val,
-                //te fallarán algunas recomposiciones y no sabrás por qué.
                 _state.update {
                     it.copy(residencias = lista)
                 }
