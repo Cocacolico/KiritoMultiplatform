@@ -1,13 +1,17 @@
 package es.kirito.kirito.core.data.network
 
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
+import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
+import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
+import es.kirito.kirito.core.data.network.models.ResponseKiritoDTO
 import es.kirito.kirito.login.data.network.RequestLoginDTO
 import es.kirito.kirito.login.data.network.RequestRegisterUserDTO
-import es.kirito.kirito.login.data.network.ResponseLogin
+import es.kirito.kirito.login.data.network.ResponseLoginDTO
 import es.kirito.kirito.login.data.network.ResponseOtEstacionesDTO
 import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.login.domain.RegisterData
+import es.kirito.kirito.precarga.data.network.models.ResponseOtFestivosDTO
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -15,6 +19,7 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -70,8 +75,8 @@ class KiritoRequest {
         nombreDispositivo: String,
         tokenFCM: String,
         residenciaUrl: String?
-    ): ResponseKiritoDTO<ResponseLogin> {
-        return post<RequestLoginDTO, ResponseLogin>(
+    ): ResponseKiritoDTO<ResponseLoginDTO> {
+        return post<RequestLoginDTO, ResponseLoginDTO>(
             RequestLoginDTO(
                 peticion = "usuarios.login",
                 usuario = usuario,
@@ -83,12 +88,19 @@ class KiritoRequest {
         )
     }
 
+
+
+
+    suspend fun requestOtFestivos(request: RequestUpdatedDTO): ResponseKiritoDTO<List<ResponseOtFestivosDTO>> {
+        return post<RequestUpdatedDTO, List<ResponseOtFestivosDTO>>(request)
+    }
+
     suspend fun requestOtEstaciones(): ResponseKiritoDTO<ResponseOtEstacionesDTO> {
         return post<RequestSimpleDTO, ResponseOtEstacionesDTO>(
             RequestSimpleDTO("otros.obtener_estaciones")
         )
-
     }
+
 
 
     // suspend fun post(request: Map<String, String>): HttpResponse {//Por si no va en ios el reified.
@@ -98,9 +110,9 @@ class KiritoRequest {
         esInicial: Boolean = false,
         residenciaPersonalizada: String? = null,
     ): ResponseKiritoDTO<T> {
-
-        residencia = preferenciasKirito.first().residenciaURL
-
+        val preferencias = preferenciasKirito.first()
+        val tokenKirito = preferencias.token
+        residencia = preferencias.residenciaURL
         endpoint = if (residenciaPersonalizada == null)
             "https://kirito.es/$residencia/api.php"
         else
@@ -113,6 +125,7 @@ class KiritoRequest {
             contentType(ContentType.Application.Json)
             header(key = "AppName", value = appName)
             header(key = "AppVersion", value = appVersion)
+            bearerAuth(tokenKirito)
             setBody(request)
         }
         return response.body()

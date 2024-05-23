@@ -151,13 +151,6 @@ class LoginViewModel: ViewModel(), KoinComponent {
             .joinToString("")
     }
 
-    val estaciones = repository.estaciones
-    fun onDescargarEstacionesClick() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.refreshEstaciones()
-            println("Metiendo estaciones!")
-        }
-    }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

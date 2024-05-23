@@ -1,10 +1,9 @@
 package es.kirito.kirito.login.domain
 
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
-import es.kirito.kirito.core.data.database.Estaciones
 import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.network.KiritoRequest
-import es.kirito.kirito.core.data.network.ResponseKiritoDTO
+import es.kirito.kirito.core.data.network.models.ResponseKiritoDTO
 import es.kirito.kirito.core.data.utils.KiritoException
 import es.kirito.kirito.core.data.utils.KiritoUserBlockedException
 import es.kirito.kirito.core.data.utils.KiritoWrongTokenException
@@ -53,7 +52,7 @@ class LoginRepository : KoinComponent {
             updatePreferenciasKirito { appSettings ->
                 appSettings.copy(
                     matricula = usuario,
-                    userId = kiritoToken.idUsuario.toLongOrNull() ?: -2L,
+                    userId = kiritoToken.id_usuario.toLongOrNull() ?: -2L,
                     token = kiritoToken.token
                 )
             }
@@ -65,43 +64,6 @@ class LoginRepository : KoinComponent {
         }
     }
 
-    val estaciones = dao.getAllEstaciones()
-
-    suspend fun refreshEstaciones() {
-        listOf(
-            Estaciones(
-                nombre = "Estación Central",
-                acronimo = "EC",
-                numero = "001",
-                longitud = -58.3816f,
-                latitud = -34.6037f,
-                esDelGrafico = true
-            ), Estaciones(
-                nombre = "Estación Norte",
-                acronimo = "EN",
-                numero = "002",
-                longitud = -58.3838f,
-                latitud = -34.6158f,
-                esDelGrafico = false
-            ), Estaciones(
-                nombre = "Estación Sur",
-                acronimo = "ES",
-                numero = "003",
-                longitud = -58.3912f,
-                latitud = -34.6262f,
-                esDelGrafico = true
-            ), Estaciones(
-                nombre = "Estación Este",
-                acronimo = "EE",
-                numero = "004",
-                longitud = -58.3700f,
-                latitud = -34.6032f,
-                esDelGrafico = false
-            )
-        ).forEach {
-            dao.insertEstacion(it)
-        }
-    }
 
 
     /* suspend fun registerNewUser(

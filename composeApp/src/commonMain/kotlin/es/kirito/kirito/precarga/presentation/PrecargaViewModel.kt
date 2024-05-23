@@ -6,7 +6,6 @@ import es.kirito.kirito.precarga.domain.PrecargaRepository
 import es.kirito.kirito.precarga.domain.PrecargaState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -24,6 +23,8 @@ class PrecargaViewModel : ViewModel(), KoinComponent {
 
     private val _state = MutableStateFlow(PrecargaState())
     val state = _state.asStateFlow()
+
+    val festivos = repository.festivos
 
 
     init {

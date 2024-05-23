@@ -28,6 +28,7 @@ fun getKiritoDatabase(
         name = dbFilePath,
         factory = { KiritoDatabase::class.instantiateImpl() }
     )
+        .fallbackToDestructiveMigration(true)
         .fallbackToDestructiveMigrationOnDowngrade(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)

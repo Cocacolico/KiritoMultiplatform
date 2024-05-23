@@ -22,6 +22,8 @@ fun PrecargaScreen(navController: NavHostController) {
     val viewModel = koinViewModel<PrecargaViewModel>()
     val timer by viewModel.timer.collectAsState()
 
+    val festivos by viewModel.festivos.collectAsState(emptyList())
+
     LaunchedEffect(timer) {
         if (timer == 4)
             navController.navigate("vistaHoy")
@@ -35,6 +37,7 @@ fun PrecargaScreen(navController: NavHostController) {
             Column {
                 Text("Precargando lo precargable")
                 Text("Avanzamos a la siguiente screen en: $timer")
+                Text(festivos.toString())
             }
         }
 

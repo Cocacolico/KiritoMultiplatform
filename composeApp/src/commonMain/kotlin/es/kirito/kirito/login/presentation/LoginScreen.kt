@@ -201,21 +201,6 @@ fun LoginScreen(navController: NavHostController) {
 
                         println("dark mode 2 is $preferences")
                     }
-                    TextButton(
-                        onClick = {
-                            viewModel.onDescargarEstacionesClick()
-                        },
-                        modifier = Modifier.align(alignment = Alignment.End)
-                    ) {
-                        MyTextStd(
-                            text = "Descargar estaciones",
-                        )
-                    }
-                    val estaciones by viewModel.estaciones.collectAsState(emptyList())
-                    LaunchedEffect(estaciones) {
-                        println("Las estaciones son $estaciones")
-                    }
-
 
 
                     TextButton(
