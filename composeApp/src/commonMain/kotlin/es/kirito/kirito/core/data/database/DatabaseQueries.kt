@@ -28,8 +28,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface KiritoDao {
 
-
-
     @Query(
         "select tabla_cu_detalle.idDetalle, tabla_cu_detalle.idUsuario, tabla_cu_detalle.fecha, " +
                 "tabla_cu_detalle.turno, tabla_cu_detalle.tipo, tabla_cu_detalle.notas, tabla_cu_detalle.nombreDebe," +
@@ -259,7 +257,7 @@ interface KiritoDao {
                 "indicador > 0 " + //Coincide el día de la semana.
                 "limit 1"
     )
-    fun getTurnoDeEquivalencia(
+    suspend fun getTurnoDeEquivalencia(
         equivalencia: String,
         idGrafico: Long?,
         diaSemana: String?
@@ -342,7 +340,7 @@ interface KiritoDao {
         "Select idGrafico from tabla_gr_graficos where fechaInicio <= :fechaElegida AND " +
                 "fechaFinal >= :fechaElegida LIMIT 1"
     )
-    fun getIdGraficoDeUnDia(fechaElegida: Long): Long?
+    suspend fun getIdGraficoDeUnDia(fechaElegida: Long): Long?
 
     @Query(
         "Select idGrafico from tabla_gr_graficos where fechaInicio <= :fechaElegida AND " +
@@ -381,7 +379,7 @@ interface KiritoDao {
     /** ACCIONES RELACIONADAS CON TABLAS INDIVIDUALES **/
     //////////////////////GR_listado_graficos (Yo lo llamaré GrGraficos)
     @Upsert()
-    fun upsertGrafico(graficos: GrGraficos)
+    suspend fun upsertGrafico(graficos: GrGraficos)
 
     @Query("Select * from tabla_gr_graficos order by fechaInicio DESC")
     fun getGraficos(): Flow<List<GrGraficos>>
@@ -471,7 +469,7 @@ interface KiritoDao {
     ): Flow<List<GrNotasTurno>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertGrNotasTurno(grNotasTurno: GrNotasTurno)
+    suspend fun insertGrNotasTurno(grNotasTurno: GrNotasTurno)
 
     @Query("Select * from tabla_notas_turno")
     fun getAllNotasTurno(): Flow<List<GrNotasTurno>>
@@ -480,13 +478,13 @@ interface KiritoDao {
     fun getGrNotasTurnoFromGrafico(idGrafico: Long): Flow<List<GrNotasTurno>>
 
     @Query("delete from tabla_notas_turno")
-    fun deleteAllGrNotasTurno()
+    suspend fun deleteAllGrNotasTurno()
 
     @Query("delete from tabla_notas_turno where idGrafico = :idGrafico")
-    fun deleteGrNotasTurnoDelGrafico(idGrafico: Long)
+    suspend fun deleteGrNotasTurnoDelGrafico(idGrafico: Long)
 
     @Query("delete from tabla_notas_turno where id = :idGrafico")
-    fun deleteOneGrNotasTurno(idGrafico: Long)
+    suspend fun deleteOneGrNotasTurno(idGrafico: Long)
 
 
     //////////////////////GrNotasTren
@@ -513,23 +511,23 @@ interface KiritoDao {
     ): Flow<List<GrNotasTren>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertGrNotasTren(grNotasTren: GrNotasTren)
+    suspend fun insertGrNotasTren(grNotasTren: GrNotasTren)
 
     @Query("Select * from tabla_notas_tren where idGrafico = :key")
     fun getGrNotasTrenFromGrafico(key: Long): Flow<List<GrNotasTren>>
 
     @Query("delete from tabla_notas_tren")
-    fun deleteAllGrNotasTren()
+    suspend fun deleteAllGrNotasTren()
 
     @Query("delete from tabla_notas_tren where idGrafico = :key")
-    fun deleteGrNotasTrenDelGrafico(key: Long)
+    suspend fun deleteGrNotasTrenDelGrafico(key: Long)
 
     @Query("delete from tabla_notas_tren where id = :key")
-    fun deleteOneGrNotasTren(key: Long)
+    suspend fun deleteOneGrNotasTren(key: Long)
 
     //////////////////////GrEquivalencias
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertGrEquivalencias(grEquivalencias: GrEquivalencias)
+    suspend fun insertGrEquivalencias(grEquivalencias: GrEquivalencias)
 
     @Query("Select * from tabla_equivalencias where idGrafico = :key")
     fun getEquivalenciasFromGrafico(key: Long): Flow<List<GrEquivalencias>>
@@ -538,7 +536,7 @@ interface KiritoDao {
         "Select equivalencia from tabla_equivalencias where " +
                 "idGrafico = :idGrafico AND turno = :turno"
     )
-    fun getOneEquivalencia(idGrafico: Long, turno: String): String
+    suspend fun getOneEquivalencia(idGrafico: Long, turno: String): String
 
     @Query(
         "Select equivalencia from tabla_equivalencias as te " +
@@ -549,18 +547,18 @@ interface KiritoDao {
     fun getOneEquivalenciaOfDate(date: Long?, turno: String?): Flow<String?>
 
     @Query("delete from tabla_equivalencias")
-    fun deleteAllGrEquivalencias()
+    suspend fun deleteAllGrEquivalencias()
 
     @Query("delete from tabla_equivalencias where idGrafico = :key")
-    fun deleteGrEquivalenciasDelGrafico(key: Long)
+    suspend fun deleteGrEquivalenciasDelGrafico(key: Long)
 
 
     //////////////////////GR_detalles_mensual (Yo lo llamaré GrExcelIF)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertGrExcelIF(grExcelIF: GrExcelIF)
+    suspend fun insertGrExcelIF(grExcelIF: GrExcelIF)
 
     @Query("Select EXISTS(Select * from tabla_gr_excel_if where idGrafico = :key limit 1)")
-    fun graficoTieneExcelIF(key: Long): Boolean
+    suspend fun graficoTieneExcelIF(key: Long): Boolean
 
     @Query(
         "Select " +
@@ -570,39 +568,41 @@ interface KiritoDao {
     )
     fun fechaTieneExcelIF(fecha: Long?): Flow<Boolean>
 
-    @Query("select exists (select * from tabla_gr_excel_if " +
-            "where idGrafico = :idGrafico and turnoReal = :turno)")
+    @Query(
+        "select exists (select * from tabla_gr_excel_if " +
+                "where idGrafico = :idGrafico and turnoReal = :turno)"
+    )
     fun elTurnoTieneExcelIF(turno: String?, idGrafico: Long?): Flow<Boolean>
 
     @Query("Select * from tabla_gr_excel_if where idGrafico = :key")
     fun getGrExcelIFFromGrafico(key: Long): Flow<List<GrExcelIF>>
 
     @Query("delete from tabla_gr_excel_if")
-    fun deleteAllGrExcelIF()
+    suspend fun deleteAllGrExcelIF()
 
     @Query("delete from tabla_gr_excel_if where idGrafico = :id")
-    fun deleteGrExcelIF(id: Long?)
+    suspend fun deleteGrExcelIF(id: Long?)
 
 
     //////////////////////GR_detalles_libreta (Yo lo llamaré GrTareas)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertGrTareas(grTareas: GrTareas)
+    suspend fun insertGrTareas(grTareas: GrTareas)
 
 
     @Query("Select * from tabla_gr_tareas where idGrafico = :key")
     fun getGrTareasFromGrafico(key: Long): Flow<List<GrTareas>>
 
     @Query("Select * from tabla_gr_tareas where idGrafico = :key LIMIT 1")
-    fun getOneGrTareasFromGrafico(key: Long): GrTareas?
+    suspend fun getOneGrTareasFromGrafico(key: Long): GrTareas?
 
     @Query("Select * from tabla_gr_tareas where idGrafico = :key LIMIT 1")
     fun areThereTareasFromGrafico(key: Long): Flow<GrTareas>
 
     @Query("delete from tabla_gr_tareas")
-    fun deleteAllGrTareas()
+    suspend fun deleteAllGrTareas()
 
     @Query("delete from tabla_gr_tareas where idGrafico = :idGrafico")
-    fun deleteAGrTareas(idGrafico: Long?)
+    suspend fun deleteAGrTareas(idGrafico: Long?)
 
     @Query(
         "Select * From tabla_gr_tareas " +
@@ -657,7 +657,7 @@ interface KiritoDao {
                 " AND diaSemana LIKE '%' || :diaSemana || '%' " +
                 "order by ordenServicio asc"
     )
-    fun getTareasDeUnTurnoRaw(
+    suspend fun getTareasDeUnTurnoRaw(
         idGrafico: Long?,
         turno: String?,
         diaSemana: String?
@@ -717,6 +717,7 @@ interface KiritoDao {
         turno: String?,
         diaSemana: String?
     ): Flow<List<GrTareaBuscador>>
+
     @Query(
         "Select exists (Select * From tabla_gr_tareas " +
                 "where idGrafico = :idGrafico " +
@@ -730,44 +731,49 @@ interface KiritoDao {
 
     ///////////////////// OT_Estaciones
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertEstacion(estaciones: Estaciones)
+    suspend fun insertEstacion(estaciones: Estaciones)
+
     @Upsert()
-    fun upsertEstacion(estacionWCoordinates: Estaciones)
+    suspend fun upsertEstacion(estacionWCoordinates: Estaciones)
 
     @Query("select exists (select * from tabla_estaciones)")
     fun hayEstaciones(): Flow<Boolean>
 
-    @Query("Select * from tabla_estaciones where nombre in " +
-            "(Select distinct * from (" +
-            "select distinct sitioOrigen from tabla_gr_tareas " +
-            "union " +
-            "select distinct sitioFin from tabla_gr_tareas) " +
-            "as combined_column)")
+    @Query(
+        "Select * from tabla_estaciones where nombre in " +
+                "(Select distinct * from (" +
+                "select distinct sitioOrigen from tabla_gr_tareas " +
+                "union " +
+                "select distinct sitioFin from tabla_gr_tareas) " +
+                "as combined_column)"
+    )
     fun getEstacionesDeGraficos(): Flow<List<Estaciones>>
 
-    @Query("Select distinct * from (" +
-            "select distinct sitioOrigen from tabla_gr_tareas " +
-            "union " +
-            "select distinct sitioFin from tabla_gr_tareas) " +
-            "as combined_column")
+    @Query(
+        "Select distinct * from (" +
+                "select distinct sitioOrigen from tabla_gr_tareas " +
+                "union " +
+                "select distinct sitioFin from tabla_gr_tareas) " +
+                "as combined_column"
+    )
     fun getEstacionesEnGraficos(): Flow<List<String>>
 
     @Query("Select exists (select * from tabla_estaciones where nombre = :nombre)")
-    fun isStationInEstaciones(nombre: String): Boolean
-
+    suspend fun isStationInEstaciones(nombre: String): Boolean
 
 
     @Query("Select * from tabla_estaciones")
     fun getAllEstaciones(): Flow<List<Estaciones>>
-    @Query("update tabla_estaciones " +
-            "set longitud = :longitud, latitud = :lat " +
-            "where nombre = :nombre"
+
+    @Query(
+        "update tabla_estaciones " +
+                "set longitud = :longitud, latitud = :lat " +
+                "where nombre = :nombre"
     )
-    fun setStationCoordinates(longitud: Float, lat: Float, nombre: String)
+    suspend fun setStationCoordinates(longitud: Float, lat: Float, nombre: String)
 
     @Query("Select * from tabla_estaciones where esDelGrafico and latitud is null")
     fun getChartStationsWithoutCoordinates(): Flow<List<Estaciones>>
-
 
 
     //////////////////////OT_teleindicadores
@@ -831,56 +837,67 @@ interface KiritoDao {
     fun getAllTeleindicadores(): Flow<List<OtTeleindicadores?>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTeleindicador(teleindicadores: OtTeleindicadores)
+    suspend fun insertTeleindicador(teleindicadores: OtTeleindicadores)
 
     @Query("Delete From tabla_teleindicadores")
-    fun deleteAllTeleindicadores()
+    suspend fun deleteAllTeleindicadores()
 
     //////////////////////OT_festivos
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun inserAllOtFestivos(otFestivos: List<OtFestivo>)
+    suspend fun inserAllOtFestivos(otFestivos: List<OtFestivo>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOtFestivos(otFestivos: OtFestivo)
+    suspend fun insertOtFestivos(otFestivos: OtFestivo)
 
     @Query("Select Descripcion from tabla_ot_festivos where fecha = :fecha")
     fun getFestivoDeUnDia(fecha: Long?): Flow<String?>
 
     @Query("Select * From tabla_ot_festivos order by fecha asc")
     fun getOtFestivos(): Flow<List<OtFestivo>>
+
     @Query("Select * From tabla_ot_festivos order by idFestivo desc")
-    fun getAllOtFestivos(): List<OtFestivo>
+    suspend fun getAllOtFestivos(): List<OtFestivo>
 
     @Query("Delete From tabla_ot_festivos")
-    fun deleteAllOtFestivos()
+    suspend fun deleteAllOtFestivos()
 
 
     ///////////////////////CuDetalle
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCuDetalles(cuDetalles: CuDetalle)
+    suspend fun insertCuDetalles(cuDetalles: CuDetalle)
 
     @Query("Select * From tabla_cu_detalle")
     fun getCuDetalles(): Flow<List<CuDetalle>>
 
     @Query("Delete From tabla_cu_detalle")
-    fun deleteAllCuDetalles()
+    suspend fun deleteAllCuDetalles()
 
-    @Query("update tabla_cu_detalle " +
-            "set excesosGrafico = :minutos " +
-            "where fecha = :date")
-    fun updateExcesoGrafico(date: Int?, minutos: Int?)
-    @Query("update tabla_cu_detalle " +
-            "set excesosGrafico = 0 " +
-            "where fecha between :inicio and :fin ")
-    fun clearExcesosGrafico(inicio: Long, fin: Long)
+    @Query(
+        "update tabla_cu_detalle " +
+                "set excesosGrafico = :minutos " +
+                "where fecha = :date"
+    )
+    suspend fun updateExcesoGrafico(date: Int?, minutos: Int?)
 
-    @Query("select idDetalle  " +
-            "from tabla_cu_detalle " +
-            "where excesosGrafico != 0 ")
+    @Query(
+        "update tabla_cu_detalle " +
+                "set excesosGrafico = 0 " +
+                "where fecha between :inicio and :fin "
+    )
+    suspend fun clearExcesosGrafico(inicio: Long, fin: Long)
+
+    @Query(
+        "select idDetalle  " +
+                "from tabla_cu_detalle " +
+                "where excesosGrafico != 0 "
+    )
     fun getExcesosGrafico(): Flow<List<Long>>
-    @Query("select excesosGrafico  " +
-            "from tabla_cu_detalle " +
-            "where idDetalle = :id ")
+
+    @Query(
+        "select excesosGrafico  " +
+                "from tabla_cu_detalle " +
+                "where idDetalle = :id "
+    )
     fun getExcesosGraficoFromId(id: Long): Flow<Int?>
 
     @Query(
@@ -989,6 +1006,7 @@ interface KiritoDao {
                 "where t1.fecha  >= :fechaInicial AND t1.fecha <= :fechaFinal"
     )
     fun getNumDds(fechaInicial: Long?, fechaFinal: Long?, year: Int): Flow<Int?>
+
     @Query(
         "Select  " +
                 "(select ti.valor from tabla_dias_iniciales as ti " +//Días iniciales.
@@ -1108,27 +1126,26 @@ interface KiritoDao {
         "Delete from tabla_cu_detalle where " +
                 "fecha between :fechaInicial and :fechaFinal"
     )
-    fun deleteYearOfCuDetalles(fechaInicial: Long, fechaFinal: Long)
+    suspend fun deleteYearOfCuDetalles(fechaInicial: Long, fechaFinal: Long)
 
     ////////////////////////OTDeletedElements
     //La tabla como tal no existe, pero desde aquí gestiono los borrados.
     @Query("Delete from LsUsers where id = :id")
-    fun deletedElementUsuario(id: Long?)
+    suspend fun deletedElementUsuario(id: Long?)
 
     @Query("Delete from tabla_ot_festivos where idFestivo = :id")
-    fun deletedElementFestivo(id: Long?)
+    suspend fun deletedElementFestivo(id: Long?)
 
     @Query("Delete from tabla_gr_graficos where idGrafico = :id")
-    fun deletedElementGrafico(id: Long?)
-
+    suspend fun deletedElementGrafico(id: Long?)
 
 
     ///////////////////////OTColoresTrenes
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertColoresTrenes(otColoresTrenes: OtColoresTrenes)
+    suspend fun insertColoresTrenes(otColoresTrenes: OtColoresTrenes)
 
     @Query("Delete from tabla_colores_trenes")
-    fun deleteAllColoresTrenes()
+    suspend fun deleteAllColoresTrenes()
 
     @Query("Select * from tabla_colores_trenes")
     fun getAllColoresTrenes(): Flow<List<OtColoresTrenes>>
@@ -1149,25 +1166,24 @@ interface KiritoDao {
     fun mensajesAdminNuevos(): Flow<Int>
 
     @Query("Select * from tabla_mensajes_de_admin where id = :id")
-    fun getUnMensajeDeAdmin(id: Long?): OtMensajesAdmin?
+    suspend fun getUnMensajeDeAdmin(id: Long?): OtMensajesAdmin?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMensajeDeAdmin(mensajesAdmin: OtMensajesAdmin)
+    suspend fun insertMensajeDeAdmin(mensajesAdmin: OtMensajesAdmin)
 
     @Query(
         "delete from tabla_mensajes_de_admin " +
                 "where id = :id"
     )
-    fun deleteMensajeDeAdmin(id: Long?)
+    suspend fun deleteMensajeDeAdmin(id: Long?)
 
     @Update(entity = OtMensajesAdmin::class)
-    fun updateEstadoMensajeAdmin(otMensajesAdmin: OtMensajesAdmin)
-
+    suspend fun updateEstadoMensajeAdmin(otMensajesAdmin: OtMensajesAdmin)
 
 
     ////////////////////////CuDiasIniciales
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertDiasIniciales(cuDiasIniciales: CuDiasIniciales)
+    suspend fun insertDiasIniciales(cuDiasIniciales: CuDiasIniciales)
 
     @Query("select * from tabla_dias_iniciales ")
     fun getAllDiasIniciales(): Flow<List<CuDiasIniciales>>
@@ -1179,30 +1195,37 @@ interface KiritoDao {
                 "order by tipo asc "
     )
     fun getDiasInicialesOfYear(year: Int): Flow<List<CuDiasIniciales>>
+
     @Query(
         "select * from tabla_dias_iniciales where anio = :year AND tipo == 'COMJ' limit 1 "
     )
     fun getComjInicialesOfYear(year: Int): Flow<CuDiasIniciales>
+
     @Query(
         "select * from tabla_dias_iniciales where anio = :year AND tipo == 'DD' limit 1 "
     )
     fun getDdInicialesOfYear(year: Int): Flow<CuDiasIniciales>
+
     @Query(
         "select * from tabla_dias_iniciales where anio = :year AND tipo == 'DJ' limit 1 "
     )
     fun getDjInicialesOfYear(year: Int): Flow<CuDiasIniciales>
+
     @Query(
         "select * from tabla_dias_iniciales where anio = :year AND tipo == 'DJA' limit 1 "
     )
     fun getDjaInicialesOfYear(year: Int): Flow<CuDiasIniciales>
+
     @Query(
         "select * from tabla_dias_iniciales where anio = :year AND tipo == 'LIBRa' limit 1 "
     )
     fun getLibraInicialesOfYear(year: Int): Flow<CuDiasIniciales>
+
     @Query(
         "select * from tabla_dias_iniciales where anio = :year AND tipo == 'LZ' limit 1 "
     )
     fun getLzInicialesOfYear(year: Int): Flow<CuDiasIniciales>
+
     @Query(
         "select * from tabla_dias_iniciales where anio = :year AND tipo == 'LZA' limit 1 "
     )
@@ -1218,12 +1241,12 @@ interface KiritoDao {
     fun getDCOMsIniciales(year: Int): Flow<CuDiasIniciales?>
 
     @Query("Delete from tabla_dias_iniciales")
-    fun deleteAllDiasIniciales()
+    suspend fun deleteAllDiasIniciales()
 
 
     ////////////////////////CU_historial
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCuHistorial(cuHistorial: CuHistorial)
+    suspend fun insertCuHistorial(cuHistorial: CuHistorial)
 
     @Query("Select * from tabla_historial where idDetalle = :id order by updated desc")
     fun getHistorialDeUnTurno(id: Long?): Flow<List<CuHistorial>>
@@ -1232,7 +1255,7 @@ interface KiritoDao {
     fun getAllHistorial(): Flow<List<CuHistorial>>
 
     @Query("Delete from tabla_historial")
-    fun deleteAllHistorial()
+    suspend fun deleteAllHistorial()
 
     //////////////////////// TurnoCompi
     @Query("Select * from tabla_turno_compi")
@@ -1257,13 +1280,13 @@ interface KiritoDao {
     fun getCompisWithTC(fechaInicial: Long?, fechaFinal: Long?): Flow<List<String>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTurnoCompi(turnoCompi: TurnoCompi)
+    suspend fun insertTurnoCompi(turnoCompi: TurnoCompi)
 
     @Query("Delete From tabla_turno_compi")
-    fun deleteAllTurnosCompis()
+    suspend fun deleteAllTurnosCompis()
 
     @Query("Delete From tabla_turno_compi where idUsuario = :id")
-    fun deleteTurnosCompisOfUser(id: Long?)
+    suspend fun deleteTurnosCompisOfUser(id: Long?)
 
 
     ////////////////////////Usuarios
@@ -1319,7 +1342,7 @@ interface KiritoDao {
                 "end result " +
                 "from LsUsers where id = :myUserId"
     )
-    fun getMyUserPermisoTurnos(myUserId: String?): Int
+    suspend fun getMyUserPermisoTurnos(myUserId: String?): Int
 
     @Query(
         "Select username, name, surname, " +
@@ -1363,24 +1386,24 @@ interface KiritoDao {
     fun getConfigUsuario(myUserId: String?): Flow<UserConfig?>
 
     @Query("Select exists (Select * from LsUsers limit 1)")
-    fun tenemosUsuarios(): Boolean
+    suspend fun tenemosUsuarios(): Boolean
 
     @Query("Select name from LsUsers where id = :id")
-    fun getMyKiritoUserName(id: Long): String?
+    suspend fun getMyKiritoUserName(id: Long): String?
 
     @Query("Select * from LsUsers where id = :id")
     fun getMyKiritoUser(id: Long): Flow<LsUsers>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUsuarios(usuario: LsUsers)
+    suspend fun insertUsuarios(usuario: LsUsers)
 
     @Query("Delete From LsUsers")
-    fun deleteAllUsuarios()
+    suspend fun deleteAllUsuarios()
 
     /////////////////////////ColoresHoraTurnos
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertColoresHoraTurnos(coloresHoraTurnos: ColoresHoraTurnos)
+    suspend fun insertColoresHoraTurnos(coloresHoraTurnos: ColoresHoraTurnos)
 
     @Query(
         "Select * from tabla_colores_hora_turnos " +
@@ -1398,14 +1421,14 @@ interface KiritoDao {
         "update tabla_colores_hora_turnos set color = :color, horaInicio = :horaInicio " +
                 "where id = :id"
     )
-    fun updateColoresHoraTurnos(id: Long, color: Int, horaInicio: Long)
+    suspend fun updateColoresHoraTurnos(id: Long, color: Int, horaInicio: Long)
 
     @Query("Delete from tabla_colores_hora_turnos where id = :id")
-    fun deleteColoresHoraTurnos(id: Long)
+    suspend fun deleteColoresHoraTurnos(id: Long)
 
     //////////////////////////UPDATED_TABLES
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertInUpdatedTables(updatedTables: UpdatedTables)
+    suspend fun insertInUpdatedTables(updatedTables: UpdatedTables)
 
     @Query(
         "select updated from tabla_updated_tables " +
@@ -1435,13 +1458,13 @@ interface KiritoDao {
         "Select year from tabla_updated_tables " +
                 "where tableName = :tableName"
     )
-    fun getTableUpdatedYears(tableName: String): List<Int>
+    suspend fun getTableUpdatedYears(tableName: String): List<Int>
 
 
     ///////////////////////////CONFIGURACION_APK
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun setLogoutFlag(configuracionApk: ConfiguracionAPK)
+    suspend fun setLogoutFlag(configuracionApk: ConfiguracionAPK)
 
     @Query(
         "Select valorConfiguracion from tabla_configuracion_apk " +
@@ -1456,13 +1479,13 @@ interface KiritoDao {
     fun getConfigTiempoEntreTurnos(): Flow<Int?>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertInConfiguracion_APK(configuracionApk: ConfiguracionAPK)
+    suspend fun insertInConfiguracion_APK(configuracionApk: ConfiguracionAPK)
 
     @Upsert
-    fun upsertConfiguracionAPK(configuracionApk: ConfiguracionAPK)
+    suspend fun upsertConfiguracionAPK(configuracionApk: ConfiguracionAPK)
 
     @Update
-    fun updateConfiguracion_APK(configuracionApk: ConfiguracionAPK)
+    suspend fun updateConfiguracion_APK(configuracionApk: ConfiguracionAPK)
 
     //Usamos Flow para que lo que haya en la tabla esté siempre actualizado.
     @Query("SELECT * FROM tabla_configuracion_apk")
@@ -1470,14 +1493,14 @@ interface KiritoDao {
 
     //Nullable porque a saber qué te trae, o si te trae algo.
     @Query("SELECT * FROM tabla_configuracion_apk WHERE nombreConfiguracion = :key limit 1")
-    fun getConfiguracionAPK(key: String): ConfiguracionAPK?
+    suspend fun getConfiguracionAPK(key: String): ConfiguracionAPK?
 
     @Query("SELECT * FROM tabla_configuracion_apk WHERE nombreConfiguracion = :key limit 1")
     fun getFlowConfiguracionAPK(key: String): Flow<ConfiguracionAPK?>
 
 
     @Query("DELETE FROM tabla_configuracion_apk")
-    fun clearConfiguracion_APK()
+    suspend fun clearConfiguracion_APK()
 
 
     //////////////////// CaPeticiones
@@ -1595,108 +1618,123 @@ interface KiritoDao {
     ): Flow<List<CaPeticionesDomain>>
 
     @Upsert
-    fun upsertCaPeticiones(caPeticiones: CaPeticiones)
+    suspend fun upsertCaPeticiones(caPeticiones: CaPeticiones)
 
     @Query("delete from tabla_peticiones_ca where id = :id")
-    fun deleteCaPeticiones(id: Long)
+    suspend fun deleteCaPeticiones(id: Long)
 
     /////////////////////////// CLIMA //////////////////////////
-    @Query("select * from tabla_clima " +
-            "where time = :time and estacion = :station " +
-            "limit 1")
+    @Query(
+        "select * from tabla_clima " +
+                "where time = :time and estacion = :station " +
+                "limit 1"
+    )
     fun getOneClima(time: Long, station: String): Flow<Clima?>
 
     @Upsert
-    fun upsertClima(clima: Clima)
+    suspend fun upsertClima(clima: Clima)
 
     @Query("delete from tabla_clima where time < :time")
-    fun deleteOldClima(time: Long)
+    suspend fun deleteOldClima(time: Long)
 
 
     /////////////////////////// LOCALIZADORES //////////////////////////
-    @Query("select * from tabla_localizadores " +
-            "where fecha = :date and turno = :turno " +
-            "limit 1")
+    @Query(
+        "select * from tabla_localizadores " +
+                "where fecha = :date and turno = :turno " +
+                "limit 1"
+    )
     fun getOneLocalizador(date: Long, turno: String): Flow<Localizador?>
 
     @Upsert
-    fun upsertLocalizador(localizador:Localizador)
+    suspend fun upsertLocalizador(localizador: Localizador)
 
     @Query("delete from tabla_localizadores where fecha < :date")
-    fun deleteOldLocalizador(date: Long)
+    suspend fun deleteOldLocalizador(date: Long)
 
 
     /////////////////////////// TABLON ANUNCIOS //////////////////////////
 
     @Upsert
-    fun upsertTablonAnuncio(tablonAnuncios: TablonAnuncios)
+    suspend fun upsertTablonAnuncio(tablonAnuncios: TablonAnuncios)
 
     @Query("Delete from tabla_anuncios where id = :id")
-    fun deleteAnuncio(id: Long?)
+    suspend fun deleteAnuncio(id: Long?)
 
-    @Query("Select ta.id, 0 as miId, cd.turno as miTurno, cd.tipo as miTipo, ta.idUsuario, tu.name || ' ' || tu.surname as nombreUsuario, " +
-            "tc.turno as turnoUsuario, " +
-            "ta.fecha, ta.titulo, ta.explicacion, ta.etiqueta1, ta.etiqueta2, ta.etiqueta3, " +
-            "ta.updated " +
-            "from tabla_anuncios as ta " +
-            "left join lsusers as tu on ta.idUsuario = tu.id " +
-            "left join tabla_turno_compi as tc on ta.idUsuario = tc.idUsuario and tc.fecha = ta.fecha " +
-            "left join tabla_cu_detalle as cd on cd.fecha = ta.fecha " +
-            "order by ta.fecha asc")
+    @Query(
+        "Select ta.id, 0 as miId, cd.turno as miTurno, cd.tipo as miTipo, ta.idUsuario, tu.name || ' ' || tu.surname as nombreUsuario, " +
+                "tc.turno as turnoUsuario, " +
+                "ta.fecha, ta.titulo, ta.explicacion, ta.etiqueta1, ta.etiqueta2, ta.etiqueta3, " +
+                "ta.updated " +
+                "from tabla_anuncios as ta " +
+                "left join lsusers as tu on ta.idUsuario = tu.id " +
+                "left join tabla_turno_compi as tc on ta.idUsuario = tc.idUsuario and tc.fecha = ta.fecha " +
+                "left join tabla_cu_detalle as cd on cd.fecha = ta.fecha " +
+                "order by ta.fecha asc"
+    )
     fun getAllTablonAnuncios(): Flow<List<TablonAnunciosItem>>
 
-    @Query("Select ta.id, 0 as miId, ta.idUsuario, tu.name || ' ' || tu.surname as nombreUsuario, " +
-            "ta.fecha, ta.titulo, ta.explicacion, ta.etiqueta1, ta.etiqueta2, ta.etiqueta3, " +
-            "ta.updated " +
-            "from tabla_anuncios as ta " +
-            "left join LsUsers as tu on ta.idUsuario = tu.id " +
-            "where ta.id = :idAnuncio")
+    @Query(
+        "Select ta.id, 0 as miId, ta.idUsuario, tu.name || ' ' || tu.surname as nombreUsuario, " +
+                "ta.fecha, ta.titulo, ta.explicacion, ta.etiqueta1, ta.etiqueta2, ta.etiqueta3, " +
+                "ta.updated " +
+                "from tabla_anuncios as ta " +
+                "left join LsUsers as tu on ta.idUsuario = tu.id " +
+                "where ta.id = :idAnuncio"
+    )
     fun getOneTablonAnuncio(idAnuncio: Long): Flow<TablonAnunciosItem>
 
-    @Query("Select ta.idUsuario, ta.fecha " +
-            "from tabla_anuncios as ta " +
-            "left join LsUsers as tu on ta.idUsuario = tu.id " +
-            "where ta.id = :idAnuncio")
+    @Query(
+        "Select ta.idUsuario, ta.fecha " +
+                "from tabla_anuncios as ta " +
+                "left join LsUsers as tu on ta.idUsuario = tu.id " +
+                "where ta.id = :idAnuncio"
+    )
     fun getTablonAnuncioNavParams(idAnuncio: Long): Flow<TablonAnunciosNavigationParams>
 
-    @Query("SELECT etiqueta, COUNT(*) AS count " +
-            "FROM ( " +
-            "    SELECT etiqueta1 AS etiqueta FROM tabla_anuncios WHERE etiqueta1 IS NOT NULL " +
-            "    UNION ALL " +
-            "    SELECT etiqueta2 AS etiqueta FROM tabla_anuncios WHERE etiqueta2 IS NOT NULL " +
-            "    UNION ALL " +
-            "    SELECT etiqueta3 AS etiqueta FROM tabla_anuncios WHERE etiqueta3 IS NOT NULL " +
-            ") AS etiquetas " +
-            "GROUP BY etiqueta " +
-            "ORDER BY count DESC " +
-            "limit 10")
+    @Query(
+        "SELECT etiqueta, COUNT(*) AS count " +
+                "FROM ( " +
+                "    SELECT etiqueta1 AS etiqueta FROM tabla_anuncios WHERE etiqueta1 IS NOT NULL " +
+                "    UNION ALL " +
+                "    SELECT etiqueta2 AS etiqueta FROM tabla_anuncios WHERE etiqueta2 IS NOT NULL " +
+                "    UNION ALL " +
+                "    SELECT etiqueta3 AS etiqueta FROM tabla_anuncios WHERE etiqueta3 IS NOT NULL " +
+                ") AS etiquetas " +
+                "GROUP BY etiqueta " +
+                "ORDER BY count DESC " +
+                "limit 10"
+    )
     fun getImportantEtiquetas(): Flow<List<EtiquetaDeTablonAnuncios>>
 
-    @Query("SELECT distinct etiqueta " +
-            "FROM ( " +
-            "    SELECT etiqueta1 AS etiqueta FROM tabla_anuncios WHERE etiqueta1 IS NOT NULL " +
-            "    UNION ALL " +
-            "    SELECT etiqueta2 AS etiqueta FROM tabla_anuncios WHERE etiqueta2 IS NOT NULL " +
-            "    UNION ALL " +
-            "    SELECT etiqueta3 AS etiqueta FROM tabla_anuncios WHERE etiqueta3 IS NOT NULL " +
-            ") AS etiquetas " +
-            "GROUP BY etiqueta ")
+    @Query(
+        "SELECT distinct etiqueta " +
+                "FROM ( " +
+                "    SELECT etiqueta1 AS etiqueta FROM tabla_anuncios WHERE etiqueta1 IS NOT NULL " +
+                "    UNION ALL " +
+                "    SELECT etiqueta2 AS etiqueta FROM tabla_anuncios WHERE etiqueta2 IS NOT NULL " +
+                "    UNION ALL " +
+                "    SELECT etiqueta3 AS etiqueta FROM tabla_anuncios WHERE etiqueta3 IS NOT NULL " +
+                ") AS etiquetas " +
+                "GROUP BY etiqueta "
+    )
     fun getAllEtiquetas(): Flow<List<String>>
 
     @Query("delete from tabla_anuncios where fecha < :hoy")
-    fun deleteOldTablonAnuncios(hoy: Long)
+    suspend fun deleteOldTablonAnuncios(hoy: Long)
+
     ////// TELEFONOS EMPRESA
     @Query("SELECT * FROM tabla_telefonos_importantes")
     fun getTelefonosDeEmpresa(): Flow<List<TelefonoImportante>>
 
     @Query("DELETE FROM tabla_telefonos_importantes WHERE id = :id")
-    fun deleteTelefonoDeEmpresa(id: Long)
+    suspend fun deleteTelefonoDeEmpresa(id: Long)
 
     @Upsert
-    fun upsertTelefonoDeEmpresa(telefonoImportante: TelefonoImportante)
+    suspend fun upsertTelefonoDeEmpresa(telefonoImportante: TelefonoImportante)
 
     @Insert
-    fun insertTelefonoDeEmpresa(telefonoImportante: TelefonoImportante)
+    suspend fun insertTelefonoDeEmpresa(telefonoImportante: TelefonoImportante)
 
 }
 

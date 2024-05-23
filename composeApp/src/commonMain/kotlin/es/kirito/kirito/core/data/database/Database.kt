@@ -13,7 +13,7 @@ import androidx.room.RoomDatabase
         OtColoresTrenes::class, CaPeticiones::class, Clima::class, Localizador::class,
         TelefonoImportante::class, TablonAnuncios::class],
     version = 2,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class KiritoDatabase : RoomDatabase() {
     abstract fun kiritoDao(): KiritoDao

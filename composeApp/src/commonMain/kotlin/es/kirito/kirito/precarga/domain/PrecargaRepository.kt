@@ -99,7 +99,6 @@ private fun ResponseOtFestivosDTO.asDatabaseModel(): OtFestivo {
         idFestivo = this.idFestivo?.toLong() ?: 0,
         descripcion = this.descripcion
     )
-    println("La coosa vale $cosa")
 
     return cosa
 }
