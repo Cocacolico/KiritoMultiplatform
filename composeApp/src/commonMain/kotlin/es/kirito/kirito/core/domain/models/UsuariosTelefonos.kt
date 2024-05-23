@@ -1,8 +1,7 @@
-package es.kirito.kirito.login.domain
+package es.kirito.kirito.core.domain.models
 
-data class RegisterData(
+data class TelefonosUsuario(
     var username: String,
-    var email: String,
     var name: String,
     var surname: String,
     var workPhoneExt: String,
@@ -10,6 +9,4 @@ data class RegisterData(
     var personalPhone: String,
     var mostrarTelfTrabajo: String,
     var mostrarTelfPersonal: String,
-    var comentariosAlAdmin: String,
-    var password: String,
 )

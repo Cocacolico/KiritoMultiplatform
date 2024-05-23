@@ -53,11 +53,11 @@ class KiritoRequest {
                 email = datosUsuario.email,
                 name = datosUsuario.name,
                 surname = datosUsuario.surname,
-                work_phone_ext = datosUsuario.work_phone_ext,
-                work_phone = datosUsuario.work_phone,
-                personal_phone = datosUsuario.personal_phone,
-                mostrar_telf_trabajo = datosUsuario.mostrar_telf_trabajo,
-                mostrar_telf_personal = datosUsuario.mostrar_telf_personal,
+                workPhoneExt = datosUsuario.workPhoneExt,
+                workPhone = datosUsuario.workPhone,
+                personalPhone = datosUsuario.personalPhone,
+                mostrarTelfTrabajo = datosUsuario.mostrarTelfTrabajo,
+                mostrarTelfPersonal = datosUsuario.mostrarTelfPersonal,
                 comentariosAlAdmin = datosUsuario.comentariosAlAdmin,
                 password = datosUsuario.password
             )

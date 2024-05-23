@@ -48,12 +48,12 @@ class LoginRepository : KoinComponent {
             }
 
             val kiritoToken = respuesta.respuesta?.login ?: throw KiritoWrongTokenException()
-           // println("Login correcto, id es ${kiritoToken.id_usuario} y token es ${kiritoToken.token}")
+           // println("Login correcto, id es ${kiritoToken.idUsuario} y token es ${kiritoToken.token}")
 
             updatePreferenciasKirito { appSettings ->
                 appSettings.copy(
                     matricula = usuario,
-                    userId = kiritoToken.id_usuario.toLongOrNull() ?: -2L,
+                    userId = kiritoToken.idUsuario.toLongOrNull() ?: -2L,
                     token = kiritoToken.token
                 )
             }
@@ -124,10 +124,10 @@ class LoginRepository : KoinComponent {
                  if (!miToken?.respuesta?.login?.token.isNullOrBlank()) {
                      //Tenemos un token válido, entonces:
                      dataStore.updateData {
-                         Timber.i("nombreDataStore repo1 ${miToken?.respuesta?.login?.id_usuario}")
+                         Timber.i("nombreDataStore repo1 ${miToken?.respuesta?.login?.idUsuario}")
                          it.copy(
                              matricula = userToBeRegistered.username,
-                             userId = miToken?.respuesta?.login?.id_usuario?.toLong() ?: -1L,
+                             userId = miToken?.respuesta?.login?.idUsuario?.toLong() ?: -1L,
                              token = miToken!!.respuesta!!.login.token,
                              residenciaURL = urlSeleccionada,
                              residenciaName = residenciaSeleccionada

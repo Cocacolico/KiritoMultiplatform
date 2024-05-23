@@ -10,6 +10,6 @@ data class ResponseLogin(
 )
 @Serializable
 data class ResponseRespuestaLogin(
-    val id_usuario: String,
+    val idUsuario: String,
     val token: String,
 )
