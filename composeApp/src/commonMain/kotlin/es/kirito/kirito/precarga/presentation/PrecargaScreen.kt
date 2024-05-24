@@ -5,12 +5,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -20,14 +22,10 @@ import org.koin.core.annotation.KoinExperimentalAPI
 fun PrecargaScreen(navController: NavHostController) {
 
     val viewModel = koinViewModel<PrecargaViewModel>()
-    val timer by viewModel.timer.collectAsState()
 
-    val festivos by viewModel.festivos.collectAsState(emptyList())
+    val pasosCompletados by viewModel.pasosCompletados.collectAsState("")
 
-    LaunchedEffect(timer) {
-        if (timer == 4)
-            navController.navigate("vistaHoy")
-    }
+
 
     Surface(Modifier.fillMaxSize()) {
         Box(
@@ -35,9 +33,8 @@ fun PrecargaScreen(navController: NavHostController) {
             contentAlignment = Alignment.Center
         ) {
             Column {
-                Text("Precargando lo precargable")
-                Text("Avanzamos a la siguiente screen en: $timer")
-                Text(festivos.toString())
+                Text("Precarga Screen", Modifier.padding(24.dp))
+                Text("Pasos completados $pasosCompletados")
             }
         }
 

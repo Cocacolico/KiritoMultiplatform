@@ -17,15 +17,12 @@ class PrecargaViewModel : ViewModel(), KoinComponent {
 
     private val repository: PrecargaRepository by inject()
 
-    private val _timer = MutableStateFlow(0)
-    val timer = _timer.asStateFlow()
-
 
     private val _state = MutableStateFlow(PrecargaState())
     val state = _state.asStateFlow()
 
-    val festivos = repository.festivos
 
+    val pasosCompletados = repository.pasosCompletados
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
