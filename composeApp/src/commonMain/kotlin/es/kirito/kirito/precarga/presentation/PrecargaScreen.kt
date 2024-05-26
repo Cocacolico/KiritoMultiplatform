@@ -24,7 +24,7 @@ fun PrecargaScreen(navController: NavHostController) {
 
     LaunchedEffect(timer) {
         if (timer == 4)
-            navController.navigate("vistaHoy")
+            navController.navigate("kirito")
     }
 
     Surface(Modifier.fillMaxSize()) {
