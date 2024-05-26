@@ -1,7 +1,9 @@
 package es.kirito.kirito.precarga.data.network.models
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ResponseCaPeticionesDTO(
     @SerialName("id_peticion_cambio") var id: String? = null,
     @SerialName("id_usuario_pide") var idUsuarioPide: String? = null,

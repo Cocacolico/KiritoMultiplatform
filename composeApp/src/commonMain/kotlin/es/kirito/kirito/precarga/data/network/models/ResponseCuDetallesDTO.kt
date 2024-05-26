@@ -1,7 +1,9 @@
 package es.kirito.kirito.precarga.data.network.models
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ResponseCuDetallesDTO (
     @SerialName("id_detalle") var idDetalle: String,
     @SerialName("id_usuario") var idUsuario: String,

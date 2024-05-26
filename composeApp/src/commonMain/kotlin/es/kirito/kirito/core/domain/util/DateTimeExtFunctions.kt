@@ -24,6 +24,8 @@ fun Long?.toLocalDate(): LocalDate {
         salida = 0
     return LocalDate.fromEpochDays(salida.toInt())
 }
+
+/** Equivalente a toLocalDateTime, por así decirlo. */
 fun Long?.toInstant(): Instant {
     var salida = this
     if (salida == null)

@@ -3,8 +3,7 @@ package es.kirito.kirito.precarga.data.network.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RequestTurnosCompiDTO (
+data class RequestGraficoDTO(
     val peticion: String,
-    val anio: String,
-    val id_compi: String
+    val id_grafico: String
 )

@@ -1,7 +1,9 @@
 package es.kirito.kirito.precarga.data.network.models
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ResponseUserDTO(
     @SerialName("id_usuario") var id: String?,
     @SerialName("username") var username: String? = null,

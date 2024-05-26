@@ -12,15 +12,21 @@ import es.kirito.kirito.login.data.network.ResponseOtEstacionesDTO
 import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.login.domain.RegisterData
+import es.kirito.kirito.precarga.data.network.models.RequestGraficoDTO
 import es.kirito.kirito.precarga.data.network.models.RequestTurnosCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCaPeticionesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseColoresTrenesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuDetallesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuHistorialDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseDiasInicialesDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseEquivalenciasDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseExcelIfDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseExcesosGraficoDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseGrGraficosDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseGrTareasDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseMensajesAdminDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseNotasTrenDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseNotasTurnoDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseOtFestivosDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseOtTablonAnunciosDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTelefonoEmpresaDTO
@@ -160,11 +166,28 @@ class KiritoRequest {
         return post<RequestTurnosCompiDTO, List<ResponseTurnoDeCompiDTO>>(request)
     }
 
+    suspend fun requestOtEstaciones(salida: RequestSimpleDTO): ResponseKiritoDTO<List<ResponseOtEstacionesDTO>> {
+        return post<RequestSimpleDTO, List<ResponseOtEstacionesDTO>>(salida)
+    }
 
-    suspend fun requestOtEstaciones(): ResponseKiritoDTO<ResponseOtEstacionesDTO> {
-        return post<RequestSimpleDTO, ResponseOtEstacionesDTO>(
-            RequestSimpleDTO("otros.obtener_estaciones")
-        )
+    suspend fun requestExcelIf(salida: RequestGraficoDTO): ResponseKiritoDTO<List<ResponseExcelIfDTO>> {
+        return post<RequestGraficoDTO, List<ResponseExcelIfDTO>>(salida)
+    }
+
+    suspend fun requestGrTareas(salida: RequestGraficoDTO): ResponseKiritoDTO<List<ResponseGrTareasDTO>> {
+        return post<RequestGraficoDTO, List<ResponseGrTareasDTO>>(salida)
+    }
+
+    suspend fun requestNotasTren(salida: RequestGraficoDTO): ResponseKiritoDTO<List<ResponseNotasTrenDTO>> {
+        return post<RequestGraficoDTO, List<ResponseNotasTrenDTO>>(salida)
+    }
+
+    suspend fun requestNotasTurno(salida: RequestGraficoDTO): ResponseKiritoDTO<List<ResponseNotasTurnoDTO>> {
+        return post<RequestGraficoDTO, List<ResponseNotasTurnoDTO>>(salida)
+    }
+
+    suspend fun requestEquivalencias(salida: RequestGraficoDTO): ResponseKiritoDTO<List<ResponseEquivalenciasDTO>> {
+        return post<RequestGraficoDTO, List<ResponseEquivalenciasDTO>>(salida)
     }
 
 
