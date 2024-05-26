@@ -1,5 +1,6 @@
 package es.kirito.kirito.menu.presentation
 
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -23,7 +24,10 @@ fun KiritoBottomNavigation(
 
         screens.forEach { screen ->
             NavigationBarItem(
-                icon = { screen.icon },
+                icon = { Icon(
+                    imageVector = screen.icon,
+                    contentDescription = stringResource(resource = screen.label)
+                )  },
                 label = { Text(stringResource(resource = screen.label)) },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
