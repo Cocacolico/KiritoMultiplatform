@@ -2,6 +2,7 @@ package es.kirito.kirito.core.data.network
 
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.network.models.RequestAnioDTO
+import es.kirito.kirito.core.data.network.models.RequestAnioUpdatedDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
 import es.kirito.kirito.core.data.network.models.ResponseKiritoDTO
@@ -13,6 +14,7 @@ import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.login.domain.RegisterData
 import es.kirito.kirito.precarga.data.network.models.RequestGraficoDTO
+import es.kirito.kirito.precarga.data.network.models.RequestStationCoordinatesDTO
 import es.kirito.kirito.precarga.data.network.models.RequestTurnosCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCaPeticionesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseColoresTrenesDTO
@@ -24,15 +26,18 @@ import es.kirito.kirito.precarga.data.network.models.ResponseExcelIfDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseExcesosGraficoDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseGrGraficosDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseGrTareasDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseLocalizadoresDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseMensajesAdminDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseNotasTrenDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseNotasTurnoDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseOtFestivosDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseOtTablonAnunciosDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseStationCoordinatesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTelefonoEmpresaDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTeleindicadorDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTurnoDeCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseUserDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseWeatherInfoDTO
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -41,6 +46,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -188,6 +194,22 @@ class KiritoRequest {
 
     suspend fun requestEquivalencias(salida: RequestGraficoDTO): ResponseKiritoDTO<List<ResponseEquivalenciasDTO>> {
         return post<RequestGraficoDTO, List<ResponseEquivalenciasDTO>>(salida)
+    }
+
+    suspend fun requestTurnosCompis(salida: RequestAnioUpdatedDTO): ResponseKiritoDTO<List<ResponseTurnoDeCompiDTO>> {
+        return post<RequestAnioUpdatedDTO, List<ResponseTurnoDeCompiDTO>>(salida)
+    }
+
+    suspend fun requestStationCoordinates(salida: RequestStationCoordinatesDTO): ResponseKiritoDTO<ResponseStationCoordinatesDTO> {
+        return post<RequestStationCoordinatesDTO, ResponseStationCoordinatesDTO>(salida)
+    }
+
+    suspend fun requestWeatherInfo(url: String): ResponseWeatherInfoDTO {
+        return getClienteJson().get(url).body() as ResponseWeatherInfoDTO
+    }
+
+    suspend fun getLocalizadores(request: RequestUpdatedDTO): ResponseKiritoDTO<List<ResponseLocalizadoresDTO>> {
+        return post<RequestUpdatedDTO, List<ResponseLocalizadoresDTO>>(request)
     }
 
 

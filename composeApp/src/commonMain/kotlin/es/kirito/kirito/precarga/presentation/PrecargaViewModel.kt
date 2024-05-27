@@ -3,7 +3,6 @@ package es.kirito.kirito.precarga.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.precarga.domain.PrecargaRepository
-import es.kirito.kirito.precarga.domain.PrecargaState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow

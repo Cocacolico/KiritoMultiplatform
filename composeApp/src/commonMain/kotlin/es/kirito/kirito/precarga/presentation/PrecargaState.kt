@@ -1,4 +1,4 @@
-package es.kirito.kirito.precarga.domain
+package es.kirito.kirito.precarga.presentation
 
 data class PrecargaState(
     val showScreen: Boolean = false, //Será true cuando no podamos actualizar en segundo plano.

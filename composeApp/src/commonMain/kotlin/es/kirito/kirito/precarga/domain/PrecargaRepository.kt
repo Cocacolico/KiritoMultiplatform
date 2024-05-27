@@ -4,6 +4,7 @@ import es.kirito.kirito.core.data.constants.MyConstants
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
 import es.kirito.kirito.core.data.database.CaPeticiones
+import es.kirito.kirito.core.data.database.Clima
 import es.kirito.kirito.core.data.database.ColoresHoraTurnos
 import es.kirito.kirito.core.data.database.CuDetalle
 import es.kirito.kirito.core.data.database.CuDiasIniciales
@@ -16,6 +17,7 @@ import es.kirito.kirito.core.data.database.GrNotasTren
 import es.kirito.kirito.core.data.database.GrNotasTurno
 import es.kirito.kirito.core.data.database.GrTareas
 import es.kirito.kirito.core.data.database.KiritoDatabase
+import es.kirito.kirito.core.data.database.Localizador
 import es.kirito.kirito.core.data.database.LsUsers
 import es.kirito.kirito.core.data.database.OtColoresTrenes
 import es.kirito.kirito.core.data.database.OtFestivo
@@ -24,8 +26,10 @@ import es.kirito.kirito.core.data.database.OtTeleindicadores
 import es.kirito.kirito.core.data.database.TablonAnuncios
 import es.kirito.kirito.core.data.database.TelefonoImportante
 import es.kirito.kirito.core.data.database.TurnoCompi
+import es.kirito.kirito.core.data.database.UpdatedTables
 import es.kirito.kirito.core.data.network.KiritoRequest
 import es.kirito.kirito.core.data.network.models.RequestAnioDTO
+import es.kirito.kirito.core.data.network.models.RequestAnioUpdatedDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
 import es.kirito.kirito.core.domain.CoreRepository
@@ -41,6 +45,7 @@ import es.kirito.kirito.core.domain.util.toStringIfNull
 import es.kirito.kirito.core.presentation.theme.PaletteColors
 import es.kirito.kirito.login.data.network.ResponseOtEstacionesDTO
 import es.kirito.kirito.precarga.data.network.models.RequestGraficoDTO
+import es.kirito.kirito.precarga.data.network.models.RequestStationCoordinatesDTO
 import es.kirito.kirito.precarga.data.network.models.RequestTurnosCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCaPeticionesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseColoresTrenesDTO
@@ -51,6 +56,7 @@ import es.kirito.kirito.precarga.data.network.models.ResponseEquivalenciasDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseExcelIfDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseGrGraficosDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseGrTareasDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseLocalizadoresDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseMensajesAdminDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseNotasTrenDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseNotasTurnoDTO
@@ -60,14 +66,18 @@ import es.kirito.kirito.precarga.data.network.models.ResponseTelefonoEmpresaDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTeleindicadorDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTurnoDeCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseUserDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseWeatherInfoDTO
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import org.koin.core.component.KoinComponent
@@ -87,7 +97,6 @@ class PrecargaRepository() : KoinComponent {
 
 
     suspend fun updateKiritoDatabase() {
-
 
         //TODO: Desde aquí: Cuando ya sea la 2a y siguientes veces, hay que hacer esto desde un work
         // y desde el equivalente de iOS.
@@ -164,23 +173,26 @@ class PrecargaRepository() : KoinComponent {
                         descargarComplementosDelGrafico(grafico.idGrafico)
                 }
             }
-        kiritoRepository.saveUpdatedDB(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
 
-        val muestroCuadros =
-            kiritoRepository.getMyUserPermisoTurnos(appSettings.userId.toString())
-        Timber.i("Muestro cuadros $muestroCuadros")
-        if (muestroCuadros == 1) {
-            pasosCompletados.postValue(pasosCompletados.value?.plus(1))
-            kiritoRepository.refreshTurnosCompis()
+        dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString()).let { muestroCuadros ->
+            if (muestroCuadros == 1){
+                updatePasosCompletados("10")
+                refreshTurnosCompis(bdActualizada)
+            }
         }
-        CheckGraficos().startCheckGraficosWork(workManager)
-        pasosCompletados.postValue(pasosCompletados.value?.plus(1))
-        kiritoRepository.refreshWeatherInformation()
-        kiritoRepository.refreshLocalizadores(bdActualizada)
+        //TODO: Esto ajusta el automatismo que cada día comprueba gráficos
+        // automáticamente. Recuerda que lanza notificaciones cuando se acerca un gráfico.
+        //CheckGraficos().startCheckGraficosWork(workManager)
+        updatePasosCompletados("11")
+        refreshWeatherInformation()
+        refreshLocalizadores(bdActualizada)
 
-        programarPreCargaWorker()
-        //Timer().schedule(2000) {/**Esto es un delay*/ }
-        descargasCompletadas.postValue(true)
+        //TODO: Esto enciende el automatismo que cada 27h sincroniza la bd si no se ha hecho antes.
+     //   programarPreCargaWorker()
+
+
+        saveUpdatedDB()
+        updatePasosCompletados("12") //Nos vamos
 
     }
 
@@ -544,7 +556,205 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
+    private suspend fun saveUpdatedDB(){
+        val now = Clock.System.now()
+        dao.insertInUpdatedTables(
+            UpdatedTables(
+                MyConstants.GENERAL_UPLOAD,
+                0,
+                now.epochSeconds
+            )
+        )
+    }
 
+    private suspend fun refreshTurnosCompis(bdActualizada: Instant){
+        val thisYear = Clock.System.todayIn(TimeZone.currentSystemDefault()).year
+        val lista = dao.getTableUpdatedYears(MyConstants.TABLE_TURNOS_COMPIS)
+            .plus(thisYear)
+        lista.distinct().forEach { year ->
+            refreshTurnosCompis(year, bdActualizada)
+        }
+    }
+
+    private suspend fun refreshTurnosCompis(year: Int, bdActualizada: Instant){
+        RequestAnioUpdatedDTO("turnos.turnos_compis.obtener",
+            year.toString(),
+            bdActualizada.enFormatoDeSalida()).let { salida ->
+               val respuesta = ktor.requestTurnosCompis(salida)
+            if (respuesta.error.errorCode == "0") {
+                respuesta.respuesta?.forEach {
+                    dao.insertTurnoCompi(it.asDatabaseModel())
+                }
+            }
+        }
+    }
+
+    private suspend fun refreshWeatherInformation(){
+        dao.deleteOldClima(today.minus(1,DateTimeUnit.DAY).toEpochDays().toLong())
+        checkChartStationsWOCoordinates()
+        refreshCoordinatesFromStations()
+        updateWeatherFromChartStations()
+
+    }
+
+    private suspend fun checkChartStationsWOCoordinates(){
+        dao.getEstacionesEnGraficos().first()
+            .filterNot { it.isBlank() }
+            .forEach { nombreEstacion ->
+                val exists = dao.isStationInEstaciones(nombreEstacion)
+                if (!exists) {
+                   //La estación no existe, la metemos.
+                    dao.insertEstacion(
+                        Estaciones(
+                            nombreEstacion,
+                            acronimo = "xx",
+                            numero = "xxxxx",
+                            longitud = null,
+                            latitud = null,
+                            esDelGrafico = true
+                        )
+                    )
+                }
+            }
+        dao.getEstacionesDeGraficos().map { lista ->
+            lista.filterNot { estacion ->
+                estacion.esDelGrafico
+            }
+        }.first()
+            .forEach { estacion ->
+                dao.upsertEstacion(
+                    estacion.copy(esDelGrafico = true)
+                )
+            }
+    }
+
+    private suspend fun refreshCoordinatesFromStations() {
+
+        val stations = getChartStationsWithoutCoordinates().first()
+
+        stations.forEach { estacion ->
+            val salida = RequestStationCoordinatesDTO(
+                "otros.googlemaps",
+                buildStationName(estacion.nombre)
+            )
+            val respuesta = ktor.requestStationCoordinates(salida)
+
+            if (respuesta.respuesta?.status == "REQUEST_DENIED") {//Hay un problema mayor.
+                println("Request denied al pedir unas coordenadas")
+            } else {
+                val estacionWCoordinates =
+                    if (respuesta.respuesta?.status == "ZERO_RESULTS") {
+                        println("Request de residencia ha dado 0 results")
+                        estacion.copy(latitud = 0f, longitud = 0f)
+                    } else
+                        estacion.copy(
+                            latitud = respuesta.respuesta?.results?.getOrNull(0)?.geometry?.location?.lat?.toFloat()
+                                ?: 0f,
+                            longitud = respuesta.respuesta?.results?.getOrNull(0)?.geometry?.location?.lng?.toFloat()
+                                ?: 0f
+                        )
+                println("Vamos a actualizar la estación $estacionWCoordinates")
+                dao.upsertEstacion(estacionWCoordinates)
+            }
+        }
+    }
+
+    private fun buildStationName(nombre: String): String {
+        val NOMBRE = nombre.uppercase()
+        var texto =
+            if (NOMBRE.contains("CERRO NEGRO"))
+                "Madrid Atocha"
+            else if (NOMBRE.contains("CAN TUNIS"))
+                "Hospitalet de Llobregat"
+            else
+                nombre
+
+        texto = texto.replace(Regex("[(AV)]"), "")
+
+        texto =
+            texto.plus(" Spain")//Esta coletilla hay que meterla para que vaya bien en la mayoría de los sitios.
+        return texto
+    }
+
+    private fun getChartStationsWithoutCoordinates(): Flow<List<Estaciones>> {
+        return dao.getChartStationsWithoutCoordinates()
+    }
+
+    private suspend fun updateWeatherFromChartStations() {
+        val updated = preferenciasKirito.map { it.weatherUpdated }.first()
+        if (updated != 0L &&
+            !areMoreThanSixHoursApart(updated.toInstant(), Clock.System.now())
+        )
+            return
+        val estaciones = dao.getEstacionesDeGraficos().first().filterNot {
+            it.longitud == null || it.longitud == 0f
+        }
+        estaciones.forEach { estacion ->
+            buildWeatherEndpoint(estacion).let { salida ->
+                val respuesta = ktor.requestWeatherInfo(salida)
+
+                val climas = respuesta.asClimas(estacion)
+                climas.forEach { clima ->
+                    dao.upsertClima(clima)
+                }
+            }
+        }
+        updatePreferenciasKirito {
+            it.copy(
+                weatherUpdated = Clock.System.now().epochSeconds
+            )
+        }
+    }
+
+    private fun buildWeatherEndpoint(estacion: Estaciones): String {
+        return "forecast?latitude=${estacion.latitud}&longitude=${estacion.longitud}&hourly=temperature_2m,precipitation_probability,rain,snowfall,cloud_cover,visibility,wind_speed_10m&forecast_days=4"
+    }
+
+    private fun areMoreThanSixHoursApart(updated: Instant, now: Instant): Boolean {
+        val duration = now - updated
+        return duration.inWholeHours > 6
+    }
+
+    private suspend fun refreshLocalizadores(bdActualizada: Instant) {
+        dao.deleteOldLocalizador(today.toEpochDays().toLong())
+        RequestUpdatedDTO("localizadores.obtener", bdActualizada.enFormatoDeSalida()).let { salida ->
+            val respuesta = ktor.getLocalizadores(salida)
+            if(respuesta.error.errorCode == "0"){
+                respuesta.respuesta?.forEach {
+                    dao.upsertLocalizador(it.asDatabaseModel())
+                }
+            }
+        }
+    }
+
+}
+
+private fun ResponseLocalizadoresDTO.asDatabaseModel(): Localizador {
+    return Localizador(
+        fecha = fecha?.fromDateStringToLong() ?: 1L,
+        turno = turno.toString(),
+        localizador = localizador.toString()
+    )
+}
+
+private fun ResponseWeatherInfoDTO.asClimas(estacion: Estaciones): List<Clima> {
+    val salida = mutableListOf<Clima>()
+    this.hourly?.time?.forEachIndexed { index, time ->
+        val clima = Clima(
+            time = Instant.parse(time).epochSeconds,//Este parse es, en teoría, con el valor estándar.
+            estacion = estacion.nombre,
+            temperatura = this.hourly?.temperature2m?.get(index) ?: -100f,
+            probabilidadLluvia = this.hourly?.precipitationProbability?.get(index) ?: -100,
+            lluvia = this.hourly?.rain?.get(index) ?: -100f,
+            nieve = this.hourly?.snowfall?.get(index) ?: -100f,
+            nublado = this.hourly?.cloudCover?.get(index) ?: -100,
+            created = Clock.System.now().epochSeconds,
+            viento = this.hourly?.windSpeed?.get(index) ?: -1f,
+            visibilidad = this.hourly?.visibility?.get(index) ?: 1,
+        )
+        salida.add(clima)
+    }
+    return salida
 }
 
 private fun ResponseEquivalenciasDTO.asDatabaseModel(): GrEquivalencias {
