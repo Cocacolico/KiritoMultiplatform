@@ -23,8 +23,11 @@ fun PrecargaScreen(navController: NavHostController) {
     val timer by viewModel.timer.collectAsState()
 
     LaunchedEffect(timer) {
-        if (timer == 4)
-            navController.navigate("kirito")
+        if (timer == 3)
+            navController.navigate("kirito") {
+                // De esta forma eliminamos el backstack anterior hasta la screen de Login
+                popUpTo("login") { inclusive = true }
+            }
     }
 
     Surface(Modifier.fillMaxSize()) {

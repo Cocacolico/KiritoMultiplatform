@@ -86,8 +86,7 @@ fun App() {
                     composable("precarga") {
                         PrecargaScreen(navController)
                     }
-                    // En este navigation encapsulamos al usuario para que no pueda volver al login mientras usa la aplicación
-                    // de forma normal. Invocaremos al parámetro "route" cuando se haga un login exitoso.
+
                     navigation(
                         startDestination = BottomNavigationItems.Hoy.route,
                         route = "kirito"
