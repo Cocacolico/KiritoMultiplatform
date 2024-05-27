@@ -3,6 +3,7 @@ package es.kirito.kirito.core.data.network
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.network.models.RequestAnioDTO
 import es.kirito.kirito.core.data.network.models.RequestAnioUpdatedDTO
+import es.kirito.kirito.core.data.network.models.RequestIncluidosDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
 import es.kirito.kirito.core.data.network.models.ResponseKiritoDTO
@@ -20,6 +21,7 @@ import es.kirito.kirito.precarga.data.network.models.ResponseCaPeticionesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseColoresTrenesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuDetallesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuHistorialDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseDelAndUpdElementsDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseDiasInicialesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseEquivalenciasDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseExcelIfDTO
@@ -176,6 +178,10 @@ class KiritoRequest {
         return post<RequestSimpleDTO, List<ResponseOtEstacionesDTO>>(salida)
     }
 
+    suspend fun requestOtEstacionesInc(salida: RequestIncluidosDTO): ResponseKiritoDTO<List<ResponseOtEstacionesDTO>> {
+        return post<RequestIncluidosDTO, List<ResponseOtEstacionesDTO>>(salida)
+    }
+
     suspend fun requestExcelIf(salida: RequestGraficoDTO): ResponseKiritoDTO<List<ResponseExcelIfDTO>> {
         return post<RequestGraficoDTO, List<ResponseExcelIfDTO>>(salida)
     }
@@ -208,8 +214,16 @@ class KiritoRequest {
         return getClienteJson().get(url).body() as ResponseWeatherInfoDTO
     }
 
-    suspend fun getLocalizadores(request: RequestUpdatedDTO): ResponseKiritoDTO<List<ResponseLocalizadoresDTO>> {
+    suspend fun requestLocalizadores(request: RequestUpdatedDTO): ResponseKiritoDTO<List<ResponseLocalizadoresDTO>> {
         return post<RequestUpdatedDTO, List<ResponseLocalizadoresDTO>>(request)
+    }
+
+    suspend fun requestVersionAge(request: RequestSimpleDTO): ResponseKiritoDTO<Unit?> {
+        return post<RequestSimpleDTO, Unit?>(request)
+    }
+
+    suspend fun requestDelAndUpdElements(request: RequestSimpleDTO): ResponseKiritoDTO<List<ResponseDelAndUpdElementsDTO>> {
+        return post<RequestSimpleDTO, List<ResponseDelAndUpdElementsDTO>>(request)
     }
 
 

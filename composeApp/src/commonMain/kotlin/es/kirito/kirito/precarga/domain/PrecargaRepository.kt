@@ -1,11 +1,13 @@
 package es.kirito.kirito.precarga.domain
 
+import es.kirito.kirito.core.data.constants.FlagLogout
 import es.kirito.kirito.core.data.constants.MyConstants
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
 import es.kirito.kirito.core.data.database.CaPeticiones
 import es.kirito.kirito.core.data.database.Clima
 import es.kirito.kirito.core.data.database.ColoresHoraTurnos
+import es.kirito.kirito.core.data.database.ConfiguracionAPK
 import es.kirito.kirito.core.data.database.CuDetalle
 import es.kirito.kirito.core.data.database.CuDiasIniciales
 import es.kirito.kirito.core.data.database.CuHistorial
@@ -30,6 +32,7 @@ import es.kirito.kirito.core.data.database.UpdatedTables
 import es.kirito.kirito.core.data.network.KiritoRequest
 import es.kirito.kirito.core.data.network.models.RequestAnioDTO
 import es.kirito.kirito.core.data.network.models.RequestAnioUpdatedDTO
+import es.kirito.kirito.core.data.network.models.RequestIncluidosDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
 import es.kirito.kirito.core.domain.CoreRepository
@@ -165,21 +168,7 @@ class PrecargaRepository() : KoinComponent {
         insertFirstColorHoraTurnos()
         //  kiritoRepository.firstTimeAlarm(getApplication<Application>().applicationContext)
 
-        dao.getGraficosDeSeisMeses(today.toEpochDays().toLong())
-            .map { lista ->
-                lista.filter {
-                    //DEJA ESTOS ELEMENTOS: los que sean MÁS NUEVOS O DE 1970.
-                    it.fechaUltimoCambio == null ||
-                            bdActualizada.epochSeconds == 0L ||//O todos si la bd está sin actualizar.
-                            it.fechaUltimoCambio.toInstant() > bdActualizada
-                }
-            }.first().forEach { grafico ->
-                dao.graficoTieneExcelIF(grafico.idGrafico).let { yaDescargado ->
-                    if (grafico.fechaUltimoCambio == null && !yaDescargado || grafico.fechaUltimoCambio != null)
-                    //Me bajo los que tengan fecha null y no se hayan bajado y el resto.
-                        descargarComplementosDelGrafico(grafico.idGrafico)
-                }
-            }
+        refreshRecentGraficos(bdActualizada)
 
         dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString())
             .let { muestroCuadros ->
@@ -196,7 +185,7 @@ class PrecargaRepository() : KoinComponent {
         refreshLocalizadores(bdActualizada)
 
         //TODO: Esto enciende el automatismo que cada 27h sincroniza la bd si no se ha hecho antes.
-        //   programarPreCargaWorker()
+        //programarPreCargaWorker()
 
 
         saveUpdatedDB()
@@ -206,8 +195,51 @@ class PrecargaRepository() : KoinComponent {
 
 
     private suspend fun refreshOfDB(bdActualizada: Instant) {
+
+        checkVersionAge()
+        updatePasosCompletados("1")
+        refreshGraficos(bdActualizada)
+        updatePasosCompletados("2")
+        refreshRecentGraficos(bdActualizada)
+        updatePasosCompletados("3")
+        processUpdatedElements(bdActualizada)
+        deleteOldElements()
+        updatePasosCompletados("4")
+        refreshCuDetalles(bdActualizada)
+        updatePasosCompletados("5")
+        refreshOtFestivos(bdActualizada)
+        updatePasosCompletados("6")
+        refreshMensajesAdmin(bdActualizada)
+        updatePasosCompletados("7")
+        refreshCambios(bdActualizada)
+        refreshTablonAnuncios(bdActualizada)
+        refreshTelefonosDeEmpresa(bdActualizada)
+
+        updatePasosCompletados("8")
+        refreshUsuarios(bdActualizada)
+        //TODO: Hacerlo cuando tengamos alarmas
+     //   refreshAlarmas(applicationContext)
+        updatePasosCompletados("9")
+
+        dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString())
+            .let { muestroCuadros ->
+                if (muestroCuadros == 1) {
+                    updatePasosCompletados("10")
+                    refreshTurnosCompis(bdActualizada)
+                }
+            }
+        updatePasosCompletados("11")
+        refreshWeatherInformation()
+        refreshLocalizadores(bdActualizada)
+
+
+        //TODO: Meter esto cuando sepamos de workManager y equivalente de ios.
+        //CheckGraficos().startCheckGraficosWork(workManager)
+        //programarPreCargaWorker()
+
+        /** Guardo el valor de updatedDB. **/
+        saveUpdatedDB()
         updatePasosCompletados("12")
-        //TODO: Actualizar solo las cosas secundarias.
     }
 
     private fun updatePasosCompletados(step: String) {
@@ -497,6 +529,24 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
+    private suspend fun refreshRecentGraficos(bdActualizada: Instant) {
+        dao.getGraficosDeSeisMeses(today.toEpochDays().toLong())
+            .map { lista ->
+                lista.filter {
+                    //DEJA ESTOS ELEMENTOS: los que sean MÁS NUEVOS O DE 1970.
+                    it.fechaUltimoCambio == null ||
+                            bdActualizada.epochSeconds == 0L ||//O todos si la bd está sin actualizar.
+                            it.fechaUltimoCambio.toInstant() > bdActualizada
+                }
+            }.first().forEach { grafico ->
+                dao.graficoTieneExcelIF(grafico.idGrafico).let { yaDescargado ->
+                    if (grafico.fechaUltimoCambio == null && !yaDescargado || grafico.fechaUltimoCambio != null)
+                    //Me bajo los que tengan fecha null y no se hayan bajado y el resto.
+                        descargarComplementosDelGrafico(grafico.idGrafico)
+                }
+            }
+    }
+
     private suspend fun descargarComplementosDelGrafico(idGrafico: Long) {
         refreshGrExcelIF(idGrafico)
         refreshGrTareas(idGrafico)
@@ -732,7 +782,7 @@ class PrecargaRepository() : KoinComponent {
             "localizadores.obtener",
             bdActualizada.enFormatoDeSalida()
         ).let { salida ->
-            val respuesta = ktor.getLocalizadores(salida)
+            val respuesta = ktor.requestLocalizadores(salida)
             if (respuesta.error.errorCode == "0") {
                 respuesta.respuesta?.forEach {
                     dao.upsertLocalizador(it.asDatabaseModel())
@@ -741,7 +791,129 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
+    private suspend fun checkVersionAge() {
+        RequestSimpleDTO("otros.version").let { salida ->
+            val respuesta = ktor.requestVersionAge(salida)
+            val error = respuesta.error.errorCode
+            if (error == "10001")
+                setOldVersionFlag()
+            if (error == "2")
+                setWrongTokenFlag()
+            if (error == "6")
+                setMustUpdApp()
+            if (error == "0")
+                setCorrectVersionApp()
+        }
+    }
+
+    /** Desde aquí levantamos un flag que luego se consulta en muchos sitios de la app y fuerza que nos salgamos. **/
+    private suspend fun setWrongTokenFlag() {
+        val flag = ConfiguracionAPK(MyConstants.FLAG_LOGOUT, FlagLogout.WRONG_TOKEN)
+        dao.setLogoutFlag(flag)
+    }
+
+    private suspend fun setMustUpdApp() {
+        val flag = ConfiguracionAPK(MyConstants.FLAG_LOGOUT, FlagLogout.MUST_UPD)
+        dao.setLogoutFlag(flag)
+    }
+
+    private suspend fun setCorrectVersionApp() {
+        val flag = ConfiguracionAPK(MyConstants.FLAG_LOGOUT, FlagLogout.NOT_NEEDED)
+        dao.setLogoutFlag(flag)
+    }
+
+    private suspend fun setOldVersionFlag() {
+        val flag = ConfiguracionAPK(MyConstants.FLAG_LOGOUT, FlagLogout.SHOULD_UPD)
+        dao.setLogoutFlag(flag)
+    }
+
+    private suspend fun processUpdatedElements(bdActualizada: Instant) {
+        RequestSimpleDTO("otros.obtener_elementos_actualizados").let { salida ->
+            val respuesta = ktor.requestDelAndUpdElements(salida)
+            if (respuesta.error.errorCode == "0") {
+                val respMapeada = respuesta.respuesta?.toMutableList()
+                if (respMapeada != null) {
+                    respMapeada.filterNot { elemento ->
+                        elemento.included.fromDateTimeStringToLong()!! < bdActualizada.epochSeconds
+                    }
+                    for (item in respMapeada) {
+                        when (item.tabla) {
+                            "OT_colores_trenes" -> updateColoresTrenes()
+                            "OT_estaciones" -> updateEstaciones()
+                            "OT_teleindicadores" -> updateTeleindicadores()
+                            "NO_mensajes" -> updateMensajesAdmin(item.idElemento, bdActualizada)
+                            else -> Unit
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun updateMensajesAdmin(idElemento: String?, bdActualizada: Instant) {
+        refreshMensajesAdmin(bdActualizada)
+    }
+
+    private suspend fun updateTeleindicadores() {
+        dao.deleteAllTeleindicadores()
+        refreshTeleindicadores()
+    }
+
+    private suspend fun updateEstaciones() {
+        RequestIncluidosDTO("otros.obtener_estaciones", "1").let { salida ->
+            val respuesta = ktor.requestOtEstacionesInc(salida)
+            if (respuesta.error.errorCode == "0") {
+                respuesta.respuesta?.forEach {
+                    dao.insertEstacion(it.asDatabaseModel())
+                }
+            }
+        }
+    }
+
+    private suspend fun updateColoresTrenes() {
+        dao.deleteAllColoresTrenes()
+        refreshColoresTrenes()
+    }
+
+    private suspend fun deleteOldElements() {
+        RequestSimpleDTO("otros.obtener_elementos_borrados").let { salida ->
+            val respuesta = ktor.requestDelAndUpdElements(salida)
+            if (respuesta.error.errorCode == "0") {
+
+                respuesta.respuesta?.forEach {elemento ->
+                    when (elemento.tabla) {
+                        "OT_festivos" -> dao.deletedElementFestivo(elemento.idElemento?.toLongOrNull())
+                        "OT_telefonos_residencia" -> Unit
+                        "LS_users" -> deleteUserAndComplements(elemento.idElemento?.toLongOrNull())
+                        "GR_listado_graficos" -> deleteGraficoAndComplements(elemento.idElemento?.toLongOrNull())
+                        "NO_mensajes" -> deleteMensajeDeAdminLocally(elemento.idElemento?.toLongOrNull())
+                        "CA_anuncios" -> dao.deleteAnuncio(elemento.idElemento?.toLongOrNull())
+                        else -> Unit
+                    }
+                }
+            }
+        }
+    }
+    private suspend fun deleteUserAndComplements(idUser: Long?) {
+        dao.deleteTurnosCompisOfUser(idUser)
+        dao.deletedElementUsuario(idUser)
+    }
+    private suspend fun deleteMensajeDeAdminLocally(id: Long?) {
+        dao.deleteMensajeDeAdmin(id)
+    }
+
+
+    private suspend fun deleteGraficoAndComplements(idGrafico: Long?) {
+        dao.deleteGrNotasTurnoDelGrafico(idGrafico ?: -1L)
+        dao.deleteGrNotasTrenDelGrafico(idGrafico ?: -1L)
+        dao.deleteGrExcelIF(idGrafico)
+        dao.deleteAGrTareas(idGrafico)
+        dao.deletedElementGrafico(idGrafico)
+    }
+
+
 }
+
 
 private fun ResponseLocalizadoresDTO.asDatabaseModel(): Localizador {
     return Localizador(
