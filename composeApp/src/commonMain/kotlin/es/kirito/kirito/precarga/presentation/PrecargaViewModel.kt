@@ -3,10 +3,13 @@ package es.kirito.kirito.precarga.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.precarga.domain.PrecargaRepository
+import es.kirito.kirito.precarga.domain.models.PreloadStep
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.inject
 import org.koin.core.component.KoinComponent
@@ -18,10 +21,13 @@ class PrecargaViewModel : ViewModel(), KoinComponent {
 
 
     private val _state = MutableStateFlow(PrecargaState())
-    val state = _state.asStateFlow()
+    private val pasosCompletados = repository.pasosCompletados
+
+    val state = _state.asStateFlow().combine(pasosCompletados){ precargaState: PrecargaState, pasos: PreloadStep ->
+        precargaState.copy(elementBeingUpdated = pasos)
+    }
 
 
-    val pasosCompletados = repository.pasosCompletados
 
 
     init {
@@ -29,6 +35,9 @@ class PrecargaViewModel : ViewModel(), KoinComponent {
             try {
                 repository.updateKiritoDatabase()
             } catch (e: Exception) {
+                _state.update {
+                    it.copy(error = e.message)
+                }
                 println(e.message)
             }
 

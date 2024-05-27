@@ -77,6 +77,7 @@ import es.kirito.kirito.precarga.data.network.models.ResponseTeleindicadorDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTurnoDeCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseUserDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseWeatherInfoDTO
+import es.kirito.kirito.precarga.domain.models.PreloadStep
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -103,7 +104,7 @@ class PrecargaRepository() : KoinComponent {
     private val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
 
-    val pasosCompletados = MutableStateFlow("0")
+    val pasosCompletados = MutableStateFlow(PreloadStep.BEGINNING)
 
 
     suspend fun updateKiritoDatabase() {
@@ -139,16 +140,16 @@ class PrecargaRepository() : KoinComponent {
         //Innecesarios porque solo se ejecuta la primera vez.
         //kiritoRepository.processUpdatedElements()
         //kiritoRepository.deleteOldElements()
-        updatePasosCompletados("2")
+        updatePasosCompletados(PreloadStep.FESTIVOS)
         refreshOtFestivos(bdActualizada)
-        updatePasosCompletados("3")
+        updatePasosCompletados(PreloadStep.GRAFICOS)
         refreshGraficos(bdActualizada)
-        updatePasosCompletados("4")
+        updatePasosCompletados(PreloadStep.TURNOS)
         refreshCuDetalles(bdActualizada)
         refreshExcesosGrafico()//Solo en esta primera vez.
-        updatePasosCompletados("5")
+        updatePasosCompletados(PreloadStep.MENSAJES_ADMIN)
         refreshMensajesAdmin(bdActualizada)
-        updatePasosCompletados("6")
+        updatePasosCompletados(PreloadStep.ELEMENTOS_GENERALES)
         refreshColoresTrenes()
         refreshCambios(bdActualizada)
         refreshTelefonosDeEmpresa(bdActualizada)
@@ -156,14 +157,14 @@ class PrecargaRepository() : KoinComponent {
         refreshDiasIniciales(
             Clock.System.now().toLocalDateTime(TimeZone.UTC).year
         )//Solo en la primera vez.
-        updatePasosCompletados("7")
+        updatePasosCompletados(PreloadStep.TELEINDICADORES)
         refreshTeleindicadores()
         //y solo bajar cuando sea necesario.
-        updatePasosCompletados("8")
+        updatePasosCompletados(PreloadStep.TURNOS_COMPIS)
         refreshUsuarios(bdActualizada)
-        updatePasosCompletados("9")
+        updatePasosCompletados(PreloadStep.ESTACIONES)
         refreshEstaciones()
-        updatePasosCompletados("10")
+        updatePasosCompletados(PreloadStep.GRAFICO_ACTUAL)
         /** EXCLUSIVO EN LA PRECARGA INICIAL, NO SE USA REITERATIVAMENTE. **/
         insertFirstColorHoraTurnos()
         //  kiritoRepository.firstTimeAlarm(getApplication<Application>().applicationContext)
@@ -173,14 +174,14 @@ class PrecargaRepository() : KoinComponent {
         dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString())
             .let { muestroCuadros ->
                 if (muestroCuadros == 1) {
-                    updatePasosCompletados("10")
+                    updatePasosCompletados(PreloadStep.TURNOS_COMPIS)
                     refreshTurnosCompis(bdActualizada)
                 }
             }
         //TODO: Esto ajusta el automatismo que cada día comprueba gráficos
         // automáticamente. Recuerda que lanza notificaciones cuando se acerca un gráfico.
         //CheckGraficos().startCheckGraficosWork(workManager)
-        updatePasosCompletados("11")
+        updatePasosCompletados(PreloadStep.INFO_METEOROLOGICA)
         refreshWeatherInformation()
         refreshLocalizadores(bdActualizada)
 
@@ -189,7 +190,7 @@ class PrecargaRepository() : KoinComponent {
 
 
         saveUpdatedDB()
-        updatePasosCompletados("12") //Nos vamos
+        updatePasosCompletados(PreloadStep.FINISHED) //Nos vamos
 
     }
 
@@ -197,38 +198,37 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun refreshOfDB(bdActualizada: Instant) {
 
         checkVersionAge()
-        updatePasosCompletados("1")
+        updatePasosCompletados(PreloadStep.GRAFICOS)
         refreshGraficos(bdActualizada)
-        updatePasosCompletados("2")
+        updatePasosCompletados(PreloadStep.GRAFICO_ACTUAL)
         refreshRecentGraficos(bdActualizada)
-        updatePasosCompletados("3")
+        updatePasosCompletados(PreloadStep.ELEMENTOS_VIEJOS)
         processUpdatedElements(bdActualizada)
         deleteOldElements()
-        updatePasosCompletados("4")
+        updatePasosCompletados(PreloadStep.TURNOS)
         refreshCuDetalles(bdActualizada)
-        updatePasosCompletados("5")
+        updatePasosCompletados(PreloadStep.FESTIVOS)
         refreshOtFestivos(bdActualizada)
-        updatePasosCompletados("6")
+        updatePasosCompletados(PreloadStep.MENSAJES_ADMIN)
         refreshMensajesAdmin(bdActualizada)
-        updatePasosCompletados("7")
+        updatePasosCompletados(PreloadStep.ELEMENTOS_GENERALES)
         refreshCambios(bdActualizada)
         refreshTablonAnuncios(bdActualizada)
         refreshTelefonosDeEmpresa(bdActualizada)
 
-        updatePasosCompletados("8")
+        updatePasosCompletados(PreloadStep.USUARIOS)
         refreshUsuarios(bdActualizada)
         //TODO: Hacerlo cuando tengamos alarmas
      //   refreshAlarmas(applicationContext)
-        updatePasosCompletados("9")
+        updatePasosCompletados(PreloadStep.TURNOS_COMPIS)
 
         dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString())
             .let { muestroCuadros ->
                 if (muestroCuadros == 1) {
-                    updatePasosCompletados("10")
                     refreshTurnosCompis(bdActualizada)
                 }
             }
-        updatePasosCompletados("11")
+        updatePasosCompletados(PreloadStep.INFO_METEOROLOGICA)
         refreshWeatherInformation()
         refreshLocalizadores(bdActualizada)
 
@@ -239,10 +239,10 @@ class PrecargaRepository() : KoinComponent {
 
         /** Guardo el valor de updatedDB. **/
         saveUpdatedDB()
-        updatePasosCompletados("12")
+        updatePasosCompletados(PreloadStep.FINISHED)
     }
 
-    private fun updatePasosCompletados(step: String) {
+    private fun updatePasosCompletados(step: PreloadStep) {
         pasosCompletados.value = step
     }
 
