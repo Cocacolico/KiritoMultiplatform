@@ -11,6 +11,6 @@ data class ResponseWeatherInfoDTO(
     @SerialName("utc_offset_seconds") var utcOffsetSeconds: Int? = null,
     @SerialName("timezone") var timezone: String? = null,
     @SerialName("timezone_abbreviation") var timezoneAbbreviation: String? = null,
-    @SerialName("elevation") var elevation: Int? = null,
+    @SerialName("elevation") var elevation: Double? = null,
     @SerialName("hourly") var hourly: HourlyDTO? = HourlyDTO()
 )

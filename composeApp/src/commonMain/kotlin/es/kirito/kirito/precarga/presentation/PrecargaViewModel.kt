@@ -23,6 +23,7 @@ class PrecargaViewModel : ViewModel(), KoinComponent {
 
     val pasosCompletados = repository.pasosCompletados
 
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             try {

@@ -25,6 +25,11 @@ fun PrecargaScreen(navController: NavHostController) {
 
     val pasosCompletados by viewModel.pasosCompletados.collectAsState("")
 
+    LaunchedEffect(pasosCompletados){
+        if (pasosCompletados == "12"){
+            navController.navigate("vistaHoy")
+        }
+    }
 
 
     Surface(Modifier.fillMaxSize()) {

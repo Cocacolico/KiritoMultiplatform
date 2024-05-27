@@ -11,6 +11,6 @@ data class HourlyDTO(
     @SerialName("rain") var rain: ArrayList<Float> = arrayListOf(),
     @SerialName("snowfall") var snowfall: ArrayList<Float> = arrayListOf(),
     @SerialName("cloud_cover") var cloudCover: ArrayList<Int> = arrayListOf(),
-    @SerialName("visibility") var visibility: ArrayList<Int> = arrayListOf(),
+    @SerialName("visibility") var visibility: ArrayList<Float> = arrayListOf(),
     @SerialName("wind_speed_10m") var windSpeed: ArrayList<Float> = arrayListOf(),
 )

@@ -18,7 +18,9 @@ fun String.toMyBoolean(): Boolean {
 }
 
 fun String.normalizeAndRemoveAccents(): String {
-    val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
-    val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
-    return pattern.matcher(normalized).replaceAll("")
+//    val normalized = Normalizer.normalize(this, Normalizer.Form.NFD)
+//    val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+//    return pattern.matcher(normalized).replaceAll("")
+    //TODO: Esto no funcionará bien.
+    return this.replace(Regex("[^\\x00-\\x7F]"), "")
 }

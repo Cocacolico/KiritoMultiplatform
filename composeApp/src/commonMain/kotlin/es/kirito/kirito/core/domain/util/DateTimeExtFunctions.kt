@@ -18,6 +18,14 @@ internal val formatJesus = DateTimeComponents.Format {
     second()
 }
 
+internal val formatStandard = DateTimeComponents.Format {
+    date(LocalDate.Formats.ISO)
+    char('T')
+    hour()
+    char(':')
+    minute()
+}
+
 fun Long?.toLocalDate(): LocalDate {
     var salida = this
     if (salida == null)
@@ -75,6 +83,12 @@ fun String?.fromDateTimeStringToLong(): Long? {
         null
     else
         Instant.parse(this, formatJesus).epochSeconds
+}
+
+/** En formato yyyy-MM-ddTHH:mm
+ * Para usar     Internet ---> BD **/
+fun String.fromDateTimeStdStringToInstant(): Instant {
+    return Instant.parse(this, formatStandard)
 }
 
 

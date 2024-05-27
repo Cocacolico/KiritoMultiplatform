@@ -35,6 +35,7 @@ import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
 import es.kirito.kirito.core.domain.CoreRepository
 import es.kirito.kirito.core.domain.util.enFormatoDeSalida
 import es.kirito.kirito.core.domain.util.fromDateStringToLong
+import es.kirito.kirito.core.domain.util.fromDateTimeStdStringToInstant
 import es.kirito.kirito.core.domain.util.fromDateTimeStringToLong
 import es.kirito.kirito.core.domain.util.fromTimeStringToInt
 import es.kirito.kirito.core.domain.util.fromTimeWOSecsStringToInt
@@ -42,7 +43,13 @@ import es.kirito.kirito.core.domain.util.normalizeAndRemoveAccents
 import es.kirito.kirito.core.domain.util.toInstant
 import es.kirito.kirito.core.domain.util.toMyBoolean
 import es.kirito.kirito.core.domain.util.toStringIfNull
-import es.kirito.kirito.core.presentation.theme.PaletteColors
+import es.kirito.kirito.core.presentation.theme.Coral
+import es.kirito.kirito.core.presentation.theme.DarkOrchid
+import es.kirito.kirito.core.presentation.theme.ForestGreen
+import es.kirito.kirito.core.presentation.theme.Gold
+import es.kirito.kirito.core.presentation.theme.Maroon
+import es.kirito.kirito.core.presentation.theme.RoyalBlue
+import es.kirito.kirito.core.presentation.theme.SkyBlue
 import es.kirito.kirito.login.data.network.ResponseOtEstacionesDTO
 import es.kirito.kirito.precarga.data.network.models.RequestGraficoDTO
 import es.kirito.kirito.precarga.data.network.models.RequestStationCoordinatesDTO
@@ -174,12 +181,13 @@ class PrecargaRepository() : KoinComponent {
                 }
             }
 
-        dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString()).let { muestroCuadros ->
-            if (muestroCuadros == 1){
-                updatePasosCompletados("10")
-                refreshTurnosCompis(bdActualizada)
+        dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString())
+            .let { muestroCuadros ->
+                if (muestroCuadros == 1) {
+                    updatePasosCompletados("10")
+                    refreshTurnosCompis(bdActualizada)
+                }
             }
-        }
         //TODO: Esto ajusta el automatismo que cada día comprueba gráficos
         // automáticamente. Recuerda que lanza notificaciones cuando se acerca un gráfico.
         //CheckGraficos().startCheckGraficosWork(workManager)
@@ -188,7 +196,7 @@ class PrecargaRepository() : KoinComponent {
         refreshLocalizadores(bdActualizada)
 
         //TODO: Esto enciende el automatismo que cada 27h sincroniza la bd si no se ha hecho antes.
-     //   programarPreCargaWorker()
+        //   programarPreCargaWorker()
 
 
         saveUpdatedDB()
@@ -198,6 +206,7 @@ class PrecargaRepository() : KoinComponent {
 
 
     private suspend fun refreshOfDB(bdActualizada: Instant) {
+        updatePasosCompletados("12")
         //TODO: Actualizar solo las cosas secundarias.
     }
 
@@ -441,46 +450,46 @@ class PrecargaRepository() : KoinComponent {
     }
 
     private suspend fun insertFirstColorHoraTurnos() {
-        val palette = PaletteColors()
+
         listOf(
             ColoresHoraTurnos(
                 0,
-                palette.DarkOrchid.value.toInt(),
+                DarkOrchid.value.toInt(),
                 LocalTime(3, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                palette.RoyalBlue.value.toInt(),
+                RoyalBlue.value.toInt(),
                 LocalTime(6, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                palette.SkyBlue.value.toInt(),
+                SkyBlue.value.toInt(),
                 LocalTime(8, 30).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                palette.ForestGreen.value.toInt(),
+                ForestGreen.value.toInt(),
                 LocalTime(11, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                palette.Gold.value.toInt(),
+                Gold.value.toInt(),
                 LocalTime(15, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                palette.Coral.value.toInt(),
+                Coral.value.toInt(),
                 LocalTime(18, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                palette.Maroon.value.toInt(),
+                Maroon.value.toInt(),
                 LocalTime(20, 30).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                palette.DarkOrchid.value.toInt(),
+                DarkOrchid.value.toInt(),
                 LocalTime(23, 59).toSecondOfDay().toLong()
             )
         ).forEach {
@@ -556,7 +565,7 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
-    private suspend fun saveUpdatedDB(){
+    private suspend fun saveUpdatedDB() {
         val now = Clock.System.now()
         dao.insertInUpdatedTables(
             UpdatedTables(
@@ -567,7 +576,7 @@ class PrecargaRepository() : KoinComponent {
         )
     }
 
-    private suspend fun refreshTurnosCompis(bdActualizada: Instant){
+    private suspend fun refreshTurnosCompis(bdActualizada: Instant) {
         val thisYear = Clock.System.todayIn(TimeZone.currentSystemDefault()).year
         val lista = dao.getTableUpdatedYears(MyConstants.TABLE_TURNOS_COMPIS)
             .plus(thisYear)
@@ -576,11 +585,13 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
-    private suspend fun refreshTurnosCompis(year: Int, bdActualizada: Instant){
-        RequestAnioUpdatedDTO("turnos.turnos_compis.obtener",
+    private suspend fun refreshTurnosCompis(year: Int, bdActualizada: Instant) {
+        RequestAnioUpdatedDTO(
+            "turnos.turnos_compis.obtener",
             year.toString(),
-            bdActualizada.enFormatoDeSalida()).let { salida ->
-               val respuesta = ktor.requestTurnosCompis(salida)
+            bdActualizada.enFormatoDeSalida()
+        ).let { salida ->
+            val respuesta = ktor.requestTurnosCompis(salida)
             if (respuesta.error.errorCode == "0") {
                 respuesta.respuesta?.forEach {
                     dao.insertTurnoCompi(it.asDatabaseModel())
@@ -589,21 +600,21 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
-    private suspend fun refreshWeatherInformation(){
-        dao.deleteOldClima(today.minus(1,DateTimeUnit.DAY).toEpochDays().toLong())
+    private suspend fun refreshWeatherInformation() {
+        dao.deleteOldClima(today.minus(1, DateTimeUnit.DAY).toEpochDays().toLong())
         checkChartStationsWOCoordinates()
         refreshCoordinatesFromStations()
         updateWeatherFromChartStations()
 
     }
 
-    private suspend fun checkChartStationsWOCoordinates(){
+    private suspend fun checkChartStationsWOCoordinates() {
         dao.getEstacionesEnGraficos().first()
             .filterNot { it.isBlank() }
             .forEach { nombreEstacion ->
                 val exists = dao.isStationInEstaciones(nombreEstacion)
                 if (!exists) {
-                   //La estación no existe, la metemos.
+                    //La estación no existe, la metemos.
                     dao.insertEstacion(
                         Estaciones(
                             nombreEstacion,
@@ -707,7 +718,7 @@ class PrecargaRepository() : KoinComponent {
     }
 
     private fun buildWeatherEndpoint(estacion: Estaciones): String {
-        return "forecast?latitude=${estacion.latitud}&longitude=${estacion.longitud}&hourly=temperature_2m,precipitation_probability,rain,snowfall,cloud_cover,visibility,wind_speed_10m&forecast_days=4"
+        return "https://api.open-meteo.com/v1/forecast?latitude=${estacion.latitud}&longitude=${estacion.longitud}&hourly=temperature_2m,precipitation_probability,rain,snowfall,cloud_cover,visibility,wind_speed_10m&forecast_days=4"
     }
 
     private fun areMoreThanSixHoursApart(updated: Instant, now: Instant): Boolean {
@@ -717,9 +728,12 @@ class PrecargaRepository() : KoinComponent {
 
     private suspend fun refreshLocalizadores(bdActualizada: Instant) {
         dao.deleteOldLocalizador(today.toEpochDays().toLong())
-        RequestUpdatedDTO("localizadores.obtener", bdActualizada.enFormatoDeSalida()).let { salida ->
+        RequestUpdatedDTO(
+            "localizadores.obtener",
+            bdActualizada.enFormatoDeSalida()
+        ).let { salida ->
             val respuesta = ktor.getLocalizadores(salida)
-            if(respuesta.error.errorCode == "0"){
+            if (respuesta.error.errorCode == "0") {
                 respuesta.respuesta?.forEach {
                     dao.upsertLocalizador(it.asDatabaseModel())
                 }
@@ -741,7 +755,7 @@ private fun ResponseWeatherInfoDTO.asClimas(estacion: Estaciones): List<Clima> {
     val salida = mutableListOf<Clima>()
     this.hourly?.time?.forEachIndexed { index, time ->
         val clima = Clima(
-            time = Instant.parse(time).epochSeconds,//Este parse es, en teoría, con el valor estándar.
+            time = time.fromDateTimeStdStringToInstant().epochSeconds,
             estacion = estacion.nombre,
             temperatura = this.hourly?.temperature2m?.get(index) ?: -100f,
             probabilidadLluvia = this.hourly?.precipitationProbability?.get(index) ?: -100,
@@ -750,7 +764,7 @@ private fun ResponseWeatherInfoDTO.asClimas(estacion: Estaciones): List<Clima> {
             nublado = this.hourly?.cloudCover?.get(index) ?: -100,
             created = Clock.System.now().epochSeconds,
             viento = this.hourly?.windSpeed?.get(index) ?: -1f,
-            visibilidad = this.hourly?.visibility?.get(index) ?: 1,
+            visibilidad = this.hourly?.visibility?.get(index)?.toInt() ?: 1,
         )
         salida.add(clima)
     }
