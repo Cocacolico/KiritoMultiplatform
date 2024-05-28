@@ -11,15 +11,15 @@ androidx-espresso-core = "3.5.1"
 androidx-material = "1.12.0"
 androidx-test-junit = "1.1.5"
 androidx-room = "2.7.0-alpha02"
-ksp = "1.9.23-1.0.19"
+ksp = "2.0.0-1.0.21"
 sqlite = "2.5.0-SNAPSHOT"
 pagingComposeAndroid = "3.3.0"
 androidx-paging = "3.3.0"
 compose-ui = "1.6.7"
 compose-plugin = "1.6.10"
 junit = "4.13.2"
-kotlin = "1.9.23"
-kotlinSerialization = "1.9.23"
+kotlin = "2.0.0"
+kotlinSerialization = "2.0.0"
 ktor = "2.3.10"
 slf4j-logger = "1.6.1"
 kotlinxCoroutines = "1.8.0"
@@ -53,8 +53,12 @@ androidx-room-paging = { group = "androidx.room", name = "room-paging", version.
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidx-room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
+
+datastore-preferences = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
+androidx-startup = { module = "androidx.startup:startup-runtime", version.ref = "androidx-startup" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-ui" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-ui" }
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" } #Versión de kmp
@@ -72,10 +76,7 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinComposeMultiplatform" }
 koin-composeVM = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koinComposeMultiplatform" }
 
-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
-datastore-preferences = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
-androidx-startup = { module = "androidx.startup:startup-runtime", version.ref = "androidx-startup" }
 
 #Ktor / internet!
 slf4j-simple-logger = {module = "org.slf4j:slf4j-simple", version.ref = "slf4j-logger" }
@@ -94,6 +95,7 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 #Room
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
