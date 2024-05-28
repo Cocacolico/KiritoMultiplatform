@@ -36,6 +36,7 @@ class PrecargaViewModel : ViewModel(), KoinComponent {
             try {
                 repository.updateKiritoDatabase()
             } catch (e: Exception) {
+                println("Ha habido un error ${e.printStackTrace()}")
                 _state.update {
                     it.copy(error = e.message)
                 }

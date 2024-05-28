@@ -12,7 +12,7 @@ fun ResponseKiritoErrorDTO.lanzarExcepcion(): Boolean {
     val descripcion = this.errorDesc
 
     when (codigo) {
-        0 -> throw KiritoException("0")
+        0 -> hayError = 0
         1 -> throw KiritoException("1")
         2 -> throw KiritoException("2")
         3 -> throw KiritoException("3")
