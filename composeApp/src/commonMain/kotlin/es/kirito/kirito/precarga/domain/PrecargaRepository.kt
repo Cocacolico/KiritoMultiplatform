@@ -36,6 +36,7 @@ import es.kirito.kirito.core.data.network.models.RequestIncluidosDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
 import es.kirito.kirito.core.domain.CoreRepository
+import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
 import es.kirito.kirito.core.domain.util.enFormatoDeSalida
 import es.kirito.kirito.core.domain.util.fromDateStringToLong
 import es.kirito.kirito.core.domain.util.fromDateTimeStdStringToInstant
@@ -252,8 +253,8 @@ class PrecargaRepository() : KoinComponent {
         val salida = RequestUpdatedDTO("festivos.obtener", bdActualizada.enFormatoDeSalida())
         val respuesta = ktor.requestOtFestivos(salida)
 
-        if (respuesta.error.errorCode == "0" && respuesta.respuesta != null) {
-            respuesta.respuesta.forEach {
+        if (respuesta.error.lanzarExcepcion()) {
+            respuesta.respuesta?.forEach {
                 dao.insertOtFestivos(it.asDatabaseModel())
             }
         }
@@ -263,7 +264,7 @@ class PrecargaRepository() : KoinComponent {
         val salida = RequestUpdatedDTO("graficos.obtener", bdActualizada.enFormatoDeSalida())
         val respuesta = ktor.requestGraficos(salida)
 
-        if (respuesta.error.errorCode == "0") {
+        if (respuesta.error.lanzarExcepcion()) {
             respuesta.respuesta?.forEach {
                 dao.upsertGrafico(it.asDatabaseModel())
             }
@@ -274,7 +275,7 @@ class PrecargaRepository() : KoinComponent {
         refreshComplementosTurnos(bdActualizada)
         val salida = RequestUpdatedDTO("turnos.obtener", bdActualizada.enFormatoDeSalida())
         val respuesta = ktor.requestCuDetalles(salida)
-        if (respuesta.error.errorCode == "0")
+        if (respuesta.error.lanzarExcepcion())
             respuesta.respuesta?.forEach {
                 dao.insertCuDetalles(it.asDatabaseModel())
             }
@@ -289,7 +290,7 @@ class PrecargaRepository() : KoinComponent {
         bdActualizada.enFormatoDeSalida().let { updatedString ->
             RequestUpdatedDTO("turnos.obtener_historial_anio", updatedString).let { salida ->
                 val respuesta = ktor.requestHistorial(salida)
-                if (respuesta.error.errorCode == "0") {
+                if (respuesta.error.lanzarExcepcion()) {
                     respuesta.respuesta?.forEach {
                         dao.insertCuHistorial(it.asDatabaseModel())
                     }
@@ -306,7 +307,7 @@ class PrecargaRepository() : KoinComponent {
             anio = year.toString()
         )
         val respuesta = ktor.requestExcesosGrafico(salida)
-        if (respuesta.error.errorCode == "0") {
+        if (respuesta.error.lanzarExcepcion()) {
             // Primero limpio lo anterior!
             dao.clearExcesosGrafico(
                 LocalDate(year, 1, 1).toEpochDays().toLong(),
@@ -325,7 +326,7 @@ class PrecargaRepository() : KoinComponent {
         bdActualizada.enFormatoDeSalida().let { updatedString ->
             RequestUpdatedDTO("mensajes.obtener", updatedString).let { salida ->
                 val respuesta = ktor.requestMensajesAdmin(salida)
-                if (respuesta.error.errorCode == "0") {
+                if (respuesta.error.lanzarExcepcion()) {
                     respuesta.respuesta?.forEach {
                         dao.insertMensajeDeAdmin(it.asDatabaseModel())
                     }
@@ -337,7 +338,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun refreshColoresTrenes() {
         RequestSimpleDTO("otros.obtener_colores_trenes").let { salida ->
             val respuesta = ktor.requestColoresTrenes(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 respuesta.respuesta?.forEach {
                     dao.insertColoresTrenes(it.asDatabaseModel())
                 }
@@ -349,7 +350,7 @@ class PrecargaRepository() : KoinComponent {
         bdActualizada.enFormatoDeSalida().let { updatedString ->
             RequestUpdatedDTO("cambios.obtener", updatedString).let { salida ->
                 val respuesta = ktor.requestCaPeticiones(salida)
-                if (respuesta.error.errorCode == "0") {
+                if (respuesta.error.lanzarExcepcion()) {
                     respuesta.respuesta?.forEach {
                         dao.upsertCaPeticiones(it.asDatabaseModel())
                     }
@@ -362,7 +363,7 @@ class PrecargaRepository() : KoinComponent {
         bdActualizada.enFormatoDeSalida().let { updatedString ->
             RequestUpdatedDTO("telefonos_importantes.obtener", updatedString).let { salida ->
                 val respuesta = ktor.requestTelefonosEmpresa(salida)
-                if (respuesta.error.errorCode == "0") {
+                if (respuesta.error.lanzarExcepcion()) {
                     respuesta.respuesta?.forEach {
                         dao.upsertTelefonoDeEmpresa(it.asDatabaseModel())
                     }
@@ -376,7 +377,7 @@ class PrecargaRepository() : KoinComponent {
         bdActualizada.enFormatoDeSalida().let { updatedString ->
             RequestUpdatedDTO("cambios_tablon.obtener", updatedString).let { salida ->
                 val respuesta = ktor.requestOtTablonAnuncios(salida)
-                if (respuesta.error.errorCode == "0") {
+                if (respuesta.error.lanzarExcepcion()) {
                     respuesta.respuesta?.forEach {
                         dao.upsertTablonAnuncio(it.asDatabaseModel())
                     }
@@ -394,7 +395,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun refreshDiasIniciales(year: Int) {
         RequestAnioDTO("dias_iniciales.obtener", year.toString()).let { salida ->
             val respuesta = ktor.requestDiasIniciales(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 respuesta.respuesta?.forEach {
                     dao.insertDiasIniciales(it.asDatabaseModel())
                 }
@@ -405,7 +406,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun refreshTeleindicadores() {
         RequestSimpleDTO("teleindicadores.obtener").let { salida ->
             val respuesta = ktor.requestTeleindicadores(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 respuesta.respuesta?.forEach {
                     dao.insertTeleindicador(it.asDatabaseModel())
                 }
@@ -419,7 +420,7 @@ class PrecargaRepository() : KoinComponent {
             updated = bdActualizada.enFormatoDeSalida()
         ).let { salida ->
             val respuesta = ktor.requestUsuarios(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 val veoTurnosCompis = dao.getMyUserPermisoTurnos(
                     preferenciasKirito.map { it.userId }.first().toString()
                 )
@@ -458,7 +459,7 @@ class PrecargaRepository() : KoinComponent {
             id_compi = compi.toString()
         ).let { salida ->
             val respuesta = ktor.requestTurnosDeUnCompi(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 respuesta.respuesta?.forEach {
                     dao.insertTurnoCompi(it.asDatabaseModel())
                 }
@@ -471,7 +472,7 @@ class PrecargaRepository() : KoinComponent {
         if (!hayEstaciones) {
             RequestSimpleDTO("otros.obtener_estaciones").let { salida ->
                 val respuesta = ktor.requestOtEstaciones(salida)
-                if (respuesta.error.errorCode == "0") {
+                if (respuesta.error.lanzarExcepcion()) {
                     respuesta.respuesta?.forEach {
                         dao.insertEstacion(it.asDatabaseModel())
                     }
@@ -558,7 +559,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun refreshGrExcelIF(idGrafico: Long) {
         RequestGraficoDTO("excelif.obtener", idGrafico.toString()).let { salida ->
             val respuesta = ktor.requestExcelIf(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 dao.deleteGrExcelIF(idGrafico)
                 respuesta.respuesta?.forEach {
                     dao.insertGrExcelIF(it.asDatabaseModel())
@@ -570,7 +571,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun refreshGrTareas(idGrafico: Long) {
         RequestGraficoDTO("excellibreta.obtener", idGrafico.toString()).let { salida ->
             val respuesta = ktor.requestGrTareas(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 dao.deleteAGrTareas(idGrafico)
                 respuesta.respuesta?.forEach {
                     dao.insertGrTareas(it.asDatabaseModel())
@@ -582,7 +583,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun refreshNotasTren(idGrafico: Long) {
         RequestGraficoDTO("graficos.notas_trenes.obtener", idGrafico.toString()).let { salida ->
             val respuesta = ktor.requestNotasTren(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 dao.deleteGrNotasTrenDelGrafico(idGrafico)
                 respuesta.respuesta?.forEach {
                     dao.insertGrNotasTren(it.asDatabaseModel())
@@ -594,7 +595,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun refreshNotasTurno(idGrafico: Long) {
         RequestGraficoDTO("graficos.notas_turnos.obtener", idGrafico.toString()).let { salida ->
             val respuesta = ktor.requestNotasTurno(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 dao.deleteGrNotasTurnoDelGrafico(idGrafico)
                 respuesta.respuesta?.forEach {
                     dao.insertGrNotasTurno(it.asDatabaseModel())
@@ -606,7 +607,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun refreshEquivalencias(idGrafico: Long) {
         RequestGraficoDTO("graficos.equivalencias.obtener", idGrafico.toString()).let { salida ->
             val respuesta = ktor.requestEquivalencias(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 dao.deleteGrEquivalenciasDelGrafico(idGrafico)
                 respuesta.respuesta?.forEach {
                     dao.insertGrEquivalencias(it.asDatabaseModel())
@@ -642,7 +643,7 @@ class PrecargaRepository() : KoinComponent {
             bdActualizada.enFormatoDeSalida()
         ).let { salida ->
             val respuesta = ktor.requestTurnosCompis(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 respuesta.respuesta?.forEach {
                     dao.insertTurnoCompi(it.asDatabaseModel())
                 }
@@ -783,7 +784,7 @@ class PrecargaRepository() : KoinComponent {
             bdActualizada.enFormatoDeSalida()
         ).let { salida ->
             val respuesta = ktor.requestLocalizadores(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 respuesta.respuesta?.forEach {
                     dao.upsertLocalizador(it.asDatabaseModel())
                 }
@@ -830,7 +831,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun processUpdatedElements(bdActualizada: Instant) {
         RequestSimpleDTO("otros.obtener_elementos_actualizados").let { salida ->
             val respuesta = ktor.requestDelAndUpdElements(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 val respMapeada = respuesta.respuesta?.toMutableList()
                 if (respMapeada != null) {
                     respMapeada.filterNot { elemento ->
@@ -862,7 +863,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun updateEstaciones() {
         RequestIncluidosDTO("otros.obtener_estaciones", "1").let { salida ->
             val respuesta = ktor.requestOtEstacionesInc(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
                 respuesta.respuesta?.forEach {
                     dao.insertEstacion(it.asDatabaseModel())
                 }
@@ -878,7 +879,7 @@ class PrecargaRepository() : KoinComponent {
     private suspend fun deleteOldElements() {
         RequestSimpleDTO("otros.obtener_elementos_borrados").let { salida ->
             val respuesta = ktor.requestDelAndUpdElements(salida)
-            if (respuesta.error.errorCode == "0") {
+            if (respuesta.error.lanzarExcepcion()) {
 
                 respuesta.respuesta?.forEach {elemento ->
                     when (elemento.tabla) {

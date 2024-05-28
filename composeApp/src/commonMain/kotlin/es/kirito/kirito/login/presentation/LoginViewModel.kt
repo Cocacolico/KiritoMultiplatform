@@ -154,10 +154,14 @@ class LoginViewModel: ViewModel(), KoinComponent {
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getResidencias().respuesta?.residencias?.let { lista ->
-                _state.update {
-                    it.copy(residencias = lista)
+            try {
+                repository.getResidencias().respuesta?.residencias?.let { lista ->
+                    _state.update {
+                        it.copy(residencias = lista)
+                    }
                 }
+            }catch (e: Exception){
+                //TODO: Mostrar un toast sobre el error.
             }
         }
     }

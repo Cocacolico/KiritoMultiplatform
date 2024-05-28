@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import es.kirito.kirito.core.presentation.components.GetErrorString
 import es.kirito.kirito.core.presentation.components.MyTextError
 import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.theme.purpleRenfe
@@ -79,8 +80,12 @@ fun PrecargaScreen(navController: NavHostController) {
                 textAlign = TextAlign.Center,
                 color = Color.White
             )
-            if (state.error != null)
-                MyTextError(state.error ?: "")
+            if (state.error != null) {
+                if (state.error?.toIntOrNull() != null)
+                    MyTextError(GetErrorString(state.error))
+                else
+                    MyTextError(state.error ?: "")
+            }
             Spacer(Modifier.weight(1f).background(transparent))
         }
     }
