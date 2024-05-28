@@ -798,7 +798,7 @@
     <string name="no_viene_el_campo_con_el_tipo_de_turno">No viene el campo con el tipo de turno</string>
     <string name="no_viene_el_campo_con_el_nombre_del_cambio">No viene el campo con el nombre del cambio</string>
     <string name="no_viene_el_campo_con_las_notas_del_turno">No viene el campo con las notas del turno</string>
-    <string name="error_con_el_id_detalle_o_fecha_no_corresponden">Error con el id_detalle o fecha. No corresponden</string>
+    <string name="error_con_el_id_detalle_o_fecha_no_corresponden">Error con el idDetalle o fecha. No corresponden</string>
     <string name="error_con_la_fecha_recibida_no_es_valida">Error con la fecha recibida. No es valida</string>
     <string name="error_con_el_turno_recibido_no_tiene_valor">Error con el turno recibido. No tiene valor</string>
     <string name="error_con_el_tipo_de_turno_recibido_no_es_valido">Error con el tipo de turno recibido. No es valido</string>
@@ -843,8 +843,9 @@
     <string name="no_encuentro_el_fichero_en_el_directorio">No encuentro el fichero en el directorio</string>
     <string name="el_fichero_adjunto_supera_los_20mb_no_se_guarda">El fichero adjunto supera los 20MB, no se guarda</string>
     <string name="c_digo_de_error_desconocido">Código de error desconocido</string>
+<!--    TODO: Traducir desde aquí! -->
     <string name="titulo_anadir_telefono_importante">Añadir Teléfono</string>
-    <string name="texto_tfImportante_not_found">No se encuentran telefonos en la base de datos.</string>
+    <string name="texto_tfImportante_not_found">No se encuentran telefonos en la base de datos</string>
     <string name="titulo_telefonos_importantes">Teléfonos Importantes</string>
     <string name="label_tfImportante_servicio">Servicio</string>
     <string name="label_tfImportante_nombre">Nombre</string>

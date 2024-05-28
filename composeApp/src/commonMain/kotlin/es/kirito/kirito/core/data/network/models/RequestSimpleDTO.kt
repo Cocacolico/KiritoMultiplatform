@@ -1,4 +1,4 @@
-package es.kirito.kirito.core.data.network
+package es.kirito.kirito.core.data.network.models
 
 import kotlinx.serialization.Serializable
 

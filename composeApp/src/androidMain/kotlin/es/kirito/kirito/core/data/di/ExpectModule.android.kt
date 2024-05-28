@@ -27,7 +27,8 @@ fun getKiritoDatabase(
         context = context,
         name = dbFile.absolutePath
     )
-        .fallbackToDestructiveMigrationOnDowngrade(true)
+        .fallbackToDestructiveMigration(true)
+       // .fallbackToDestructiveMigrationOnDowngrade(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

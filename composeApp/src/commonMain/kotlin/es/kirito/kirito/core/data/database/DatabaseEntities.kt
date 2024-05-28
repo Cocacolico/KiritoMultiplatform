@@ -11,16 +11,16 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "tabla_gr_graficos")
 data class GrGraficos(
     @PrimaryKey
-    var id_grafico: Long,
+    var idGrafico: Long,
     var fechaInicio: Long?,
     var fechaFinal: Long?,
     var descripcion: String?,
-    var fichero_grafico: String?,
-    var fichero_anexo: String?,
-    var enlace_grafico_gdrive: String?,
-    var nombre_grafico_gdrive: String?,
-    var enlace_anexo_gdrive: String?,
-    var nombre_anexo_gdrive: String?,
+    var ficheroGrafico: String?,
+    var ficheroAnexo: String?,
+    var enlaceGraficoGdrive: String?,
+    var nombreGraficoGdrive: String?,
+    var enlaceAnexoGdrive: String?,
+    var nombreAnexoGdrive: String?,
     var fechaUltimoCambio: Long?
 )
 
@@ -35,7 +35,7 @@ data class GrEquivalencias(
 data class GrNotasTren(
     @PrimaryKey
     var id: Long,
-    var id_grafico: Long,
+    var idGrafico: Long,
     var tren: String,
     var lunes: Boolean = false,
     var martes: Boolean = false,
@@ -52,7 +52,7 @@ data class GrNotasTren(
 data class GrNotasTurno(
     @PrimaryKey
     var id: Long,
-    var id_grafico: Long,
+    var idGrafico: Long,
     var turno: String,
     var lunes: Boolean = false,
     var martes: Boolean = false,
@@ -71,9 +71,9 @@ data class GrNotasTurno(
 data class GrExcelIF(
     @PrimaryKey
     var id: Long,
-    var id_grafico: Long,
-    var numero_turno: Int,
-    var orden_tarea: Int,//1 es diario, 2 findes, puede cambiar.
+    var idGrafico: Long,
+    var numeroTurno: Int,
+    var ordenTarea: Int,//1 es diario, 2 findes, puede cambiar.
     var lunes: Boolean = false,
     var martes: Boolean = false,
     var miercoles: Boolean = false,
@@ -82,12 +82,12 @@ data class GrExcelIF(
     var sabado: Boolean = false,
     var domingo: Boolean = false,
     var festivo: Boolean = false,
-    var comentario_al_turno: String?,//El comentario que se le puede poner
-    var turno_real: String?,//Si es un descanso, pondrá D.
-    var sitio_origen: String?,
-    var hora_origen: Int?,
-    var sitio_fin: String?,
-    var hora_fin: Int?,
+    var comentarioAlTurno: String?,//El comentario que se le puede poner
+    var turnoReal: String?,//Si es un descanso, pondrá D.
+    var sitioOrigen: String?,
+    var horaOrigen: Int?,
+    var sitioFin: String?,
+    var horaFin: Int?,
 )
 
 /** GR_detalles_libreta **/
@@ -95,16 +95,16 @@ data class GrExcelIF(
 data class GrTareas(
     @PrimaryKey
     var id: Long,
-    var id_grafico: Long,
+    var idGrafico: Long,
     var turno: String, //Los descansos son el número.
-    var orden_servicio: Int,//Numero de tarea dentro del turno.
+    var ordenServicio: Int,//Numero de tarea dentro del turno.
     var servicio: String,//Frase que describe lo que hacer. D en descanso. Puede ser "".
     var tipoServicio: String?, //T=Tren, M=Movimiento, "" si no es nada.
-    var dia_semana: String?,
-    var sitio_origen: String?,
-    var hora_origen: Int?, //Time.
-    var sitio_fin: String?,
-    var hora_fin: Int?,
+    var diaSemana: String?,
+    var sitioOrigen: String?,
+    var horaOrigen: Int?, //Time.
+    var sitioFin: String?,
+    var horaFin: Int?,
     var vehiculo: String?,
     var observaciones: String?,
     var inserted: Long?,//Datetime.
@@ -119,11 +119,11 @@ data class OtColoresTrenes(
 )
 
 @Entity(tableName = "tabla_ot_festivos")
-data class Ot_festivos(
+data class OtFestivo(
     @PrimaryKey
-    var id_festivo: Long,
+    var idFestivo: Long,
     var fecha: Long,
-    var Descripcion: String?
+    var descripcion: String?
 )
 
 @Entity(tableName = "tabla_estaciones")
@@ -169,17 +169,17 @@ data class OtMensajesAdmin(
 )
 
 
-@Entity(tableName = "tabla_cu_detalles")
-data class Cu_detalles(
+@Entity(tableName = "tabla_cu_detalle")
+data class CuDetalle(
     @PrimaryKey
-    var id_detalle: Long,
-    var id_usuario: Long,
+    var idDetalle: Long,
+    var idUsuario: Long,
     var fecha: Long,//DATE
-    var dia_semana: String?,
+    var diaSemana: String?,
     var turno: String?,
     var tipo: String,
     var notas: String,
-    var nombre_debe: String,
+    var nombreDebe: String,
     var updated: Long?,//DATETIME
     var libra: Int?,
     var comj: Int?,
@@ -206,13 +206,13 @@ data class CuDiasIniciales(
 )
 
 @Entity(tableName = "tabla_historial")
-data class Cu_historial(
+data class CuHistorial(
     @PrimaryKey
     var id: Long,
-    var id_detalle: Long,
+    var idDetalle: Long,
     var turno: String,
     var tipo: String,
-    var nombre_debe: String?,
+    var nombreDebe: String?,
     var updated: Long//Datetime.
 )
 
@@ -224,15 +224,15 @@ data class MyKiritoUser(
     var usuario: String,
     var password: String,
     var kiritoToken: String,
-    var id_dispositivo: String,
-    var descripcion_dispositivo: String,
+    var idDispositivo: String,
+    var descripcionDispositivo: String,
     var recordarme: Boolean = false,
 )
 
 
 //En las etiquetas como @Entity, el nombre va siempre en minúsculas con guiones bajos.
 @Entity(tableName = "tabla_configuracion_apk")
-data class Configuracion_APK(
+data class ConfiguracionAPK(
     @PrimaryKey
     var nombreConfiguracion: String = "",
     var valorConfiguracion: Int = 0,
@@ -247,11 +247,11 @@ data class UpdatedTables(
 
 
 @Entity
-data class CU_dias_ganados(
+data class CuDiaGanado(
     @PrimaryKey(autoGenerate = false)
-    var id_dia_ganado: Long,
-    var id_detalle: Long,
-    var id_tipo: Long,
+    var id: Long,
+    var idDetalle: Long,
+    var idTipo: Long,
     var computo: Int,
 )
 
@@ -266,37 +266,37 @@ data class LsUsers(
     var surname: String,
     var normalizedName: String,
     var normalizedSurname: String,
-    var work_phone_ext: String,
-    var work_phone: String,
-    var personal_phone: String,
-    var mostrar_telf_trabajo: String,
-    var mostrar_telf_personal: String,
+    var workPhoneExt: String,
+    var workPhone: String,
+    var personalPhone: String,
+    var mostrarTelfTrabajo: String,
+    var mostrarTelfPersonal: String,
     var photo: String,
     var created: Long?,//DATETIME C/S
-    var last_login: Long?,//DATETIME C/S
+    var lastLogin: Long?,//DATETIME C/S
     var disabled: String,
     var admin: String,
-    var key_ics: String,
-    var key_access_web: String,
+    var keyIcs: String,
+    var keyAccessWeb: String,
     var comentariosAlAdmin: String,
-    var cambios_activados: String,
-    var cambios_activados_cuando: Long?,
-    var recibir_email_notificaciones: String,
-    var mostrar_cuadros: String,
-    var mostrar_cuadros_cuando: String,
+    var cambiosActivados: String,
+    var cambiosActivadosCuando: Long?,
+    var recibirEmailNotificaciones: String,
+    var mostrarCuadros: String,
+    var mostrarCuadrosCuando: String,
     var notas: String,
-    var peticiones_diarias: String
+    var peticionesDiarias: String
 ){
     constructor() : this(
         -1L,"","","","","","","","","","","","",null,null,"","","","","","",null,"","","","",""
     )
 }
 
-@Entity(tableName = "tabla_turnos_compis")
-data class TurnosCompis(
+@Entity(tableName = "tabla_turno_compi")
+data class TurnoCompi(
     @PrimaryKey
-    var id_detalle: Long,
-    var id_usuario: Long,
+    var idDetalle: Long,
+    var idUsuario: Long,
     var fecha: Long,
     var turno: String?,
     var tipo: String,
@@ -357,7 +357,7 @@ data class TablonAnuncios(
 data class TelefonoImportante(
     var id: Long,
     var empresa: String,
-    var tipo_servicio: String,
+    var tipoServicio: String,
     var nombre: String,
     var telefono1: Long,
     var telefono2: Long
