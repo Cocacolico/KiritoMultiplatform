@@ -10,6 +10,7 @@ import es.kirito.kirito.turnos.presentation.HoyViewModel
 import es.kirito.kirito.turnos.presentation.MensualViewModel
 import es.kirito.kirito.turnos.presentation.BuscadorViewModel
 import es.kirito.kirito.menu.presentation.MenuViewModel
+import es.kirito.kirito.turnos.domain.TurnosRepository
 import org.koin.compose.viewmodel.dsl.viewModelOf
 
 import org.koin.core.context.startKoin
@@ -42,9 +43,10 @@ fun commonModule() = module {
     viewModelOf(::BuscadorViewModel)
     viewModelOf(::MenuViewModel)
 
-    
+
+    single { CoreRepository() }
     single { LoginRepository() }
     single { PrecargaRepository() }
-    single { CoreRepository() }
+    single { TurnosRepository() }
 
 }

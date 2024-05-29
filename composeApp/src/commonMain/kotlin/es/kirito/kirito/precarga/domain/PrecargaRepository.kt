@@ -794,7 +794,7 @@ class PrecargaRepository() : KoinComponent {
 
     private suspend fun checkVersionAge() {
         RequestSimpleDTO("otros.version").let { salida ->
-            val respuesta = ktor.requestVersionAge(salida)
+            val respuesta = ktor.requestSimpleEmptyResponse(salida)
             val error = respuesta.error.errorCode
             if (error == "10001")
                 setOldVersionFlag()

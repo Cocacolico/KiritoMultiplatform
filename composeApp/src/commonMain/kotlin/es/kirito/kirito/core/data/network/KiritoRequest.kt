@@ -218,7 +218,7 @@ class KiritoRequest {
         return post<RequestUpdatedDTO, List<ResponseLocalizadoresDTO>>(request)
     }
 
-    suspend fun requestVersionAge(request: RequestSimpleDTO): ResponseKiritoDTO<Unit?> {
+    suspend fun requestSimpleEmptyResponse(request: RequestSimpleDTO): ResponseKiritoDTO<Unit?> {
         return post<RequestSimpleDTO, Unit?>(request)
     }
 
