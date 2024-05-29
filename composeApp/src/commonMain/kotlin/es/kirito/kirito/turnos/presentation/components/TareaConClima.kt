@@ -64,7 +64,7 @@ fun TareaConClima(tarea: GrTarea, modifier: Modifier, onClick: (GrTarea) -> Unit
         }
         if (tarea.notasTren != null)
             MyTextStdWithPadding(
-                text = tarea.notasTren.fromHtmlWithBreaksToSpanned().toAnnotatedString()
+                text = tarea.notasTren.fromHtmlWithBreaksToSpanned()//.toAnnotatedString()
             )
     }
 }
