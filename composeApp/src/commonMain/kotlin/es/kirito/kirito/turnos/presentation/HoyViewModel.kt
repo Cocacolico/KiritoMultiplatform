@@ -15,7 +15,7 @@ import es.kirito.kirito.core.domain.util.isNotNullNorBlank
 import es.kirito.kirito.core.domain.util.minuteTimerFlow
 import es.kirito.kirito.core.domain.util.pasaPorMedianoche
 import es.kirito.kirito.core.domain.util.servicio
-import es.kirito.kirito.core.domain.util.toEpochSeconds
+import es.kirito.kirito.core.domain.util.toEpochSecondsZoned
 import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.domain.util.toLocalTime
 import es.kirito.kirito.turnos.domain.TurnosRepository
@@ -89,45 +89,31 @@ class HoyViewModel: ViewModel(), KoinComponent {
         repository.getTareasCortasDeUnTurno(turno?.idGrafico, turno?.turno, turno?.diaSemana)
     }
 
-    val imagenEgaDialog = MutableStateFlow(DialogImageEga())
+    //TODO: Imagenes ega
+//    val imagenEgaDialog = MutableStateFlow(DialogImageEga())
+//
+//    val imagenEga =
+//        combine(
+//            turnoPrxTr,
+//            tareasCortas,
+//            coloresTrenes,
+//            _date,
+//            minuteTimer
+//        ) { turno, tareas, colores, date, minuteTick ->
+//            if (turno?.hora_origen == null)
+//                return@combine null
+//            else
+//                TurnoParaImagen(
+//                    timeInicio = turno.hora_origen ?: 0,
+//                    timeFin = turno.hora_fin ?: 0,
+//                    tareas = tareas,
+//                    dia = date?.toEpochDay(),
+//                    zoom = 2,
+//                    coloresTrenes = colores,
+//                    minuteTick = minuteTick
+//                )
+//        }
 
-    val imagenEga =
-        combine(
-            turnoPrxTr,
-            tareasCortas,
-            coloresTrenes,
-            _date,
-            minuteTimer
-        ) { turno, tareas, colores, date, minuteTick ->
-            if (turno?.hora_origen == null)
-                return@combine null
-            else
-                TurnoParaImagen(
-                    timeInicio = turno.hora_origen ?: 0,
-                    timeFin = turno.hora_fin ?: 0,
-                    tareas = tareas,
-                    dia = date?.toEpochDay(),
-                    zoom = 2,
-                    coloresTrenes = colores,
-                    minuteTick = minuteTick
-                )
-        }
-
-    val dateString = _date.map { date ->
-        val prefixText = when (date) {
-            LocalDate.now() -> application.applicationContext.getString(R.string.hoy__fechaxx)
-            LocalDate.now()
-                .plusDays(1) -> application.applicationContext.getString(R.string.manana__fechaxx)
-
-            LocalDate.now()
-                .minusDays(1) -> application.applicationContext.getString(R.string.ayer__fechaxx)
-
-            else -> ""
-        }
-        val text = prefixText + date?.dayOfWeek?.enCastellano(application.applicationContext) +
-                ", " + date?.enMiFormato()
-        text
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 
 
     val tareas = turnoPrxTr.flatMapLatest { turno ->
@@ -141,14 +127,14 @@ class HoyViewModel: ViewModel(), KoinComponent {
                         LocalDateTime(
                             (_date.value ?: Clock.System.todayIn(TimeZone.currentSystemDefault())),
                             (tarea.horaOrigen ?: 0).toLocalTime()
-                        ).toEpochSeconds(),
+                        ).toEpochSecondsZoned(),
                         station = tarea.sitioOrigen ?: ""
                     ).firstOrNull()
                     val climaF = repository.getOneClimaRounded(
                         time = LocalDateTime(
                             (_date.value ?: Clock.System.todayIn(TimeZone.currentSystemDefault())),
                             (tarea.horaFin ?: 0).toLocalTime()
-                        ).toEpochSeconds(),
+                        ).toEpochSecondsZoned(),
                         station = tarea.sitioFin ?: ""
                     ).firstOrNull()
                     tarea.copy(
@@ -170,7 +156,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
                         inserted = LocalDateTime(
                             (_date.value ?: Clock.System.todayIn(TimeZone.currentSystemDefault())),
                             (turno?.horaOrigen ?: 0).toLocalTime()
-                        ).toEpochSeconds(),
+                        ).toEpochSecondsZoned(),
                         tickMinute = minuteTimer
                     )
                 }
@@ -422,10 +408,10 @@ class HoyViewModel: ViewModel(), KoinComponent {
         _date.value = date
     }
 
-    fun onComjYLibraClick(context: Context) {
+    fun onComjYLibraClick() {
         viewModelScope.launch(Dispatchers.IO) {
             val turno = cuDetalleDelTurno.firstOrNull()
-            val frase = turno?.genComjYLibraString(context)
+            val frase = turno?.genComjYLibraString()
             if (frase != null) {
                 toastString.emit(frase)
             }
@@ -522,7 +508,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
     fun onGenerarCuadroClick() {
         _navigationDestination.value = NavigationObject(
             NavigationDestination.NewChart,
-            _date.value?.toEpochDay() ?: return
+            _date.value?.toEpochDays() ?: return
         )
 
     }

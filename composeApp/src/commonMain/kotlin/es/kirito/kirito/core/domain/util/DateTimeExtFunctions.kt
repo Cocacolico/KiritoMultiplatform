@@ -1,15 +1,23 @@
 package es.kirito.kirito.core.domain.util
 
+import androidx.compose.runtime.Composable
+import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources.full_days
+import kirito.composeapp.generated.resources.full_months
+import kirito.composeapp.generated.resources.short_months
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringArrayResource
 
 internal val formatJesus = DateTimeComponents.Format {
     date(LocalDate.Formats.ISO)
@@ -136,10 +144,53 @@ fun Long.toLocalTime(): LocalTime{
     return this.toInt().toLocalTime()
 }
 
-fun LocalDateTime.toEpochSeconds(): Long {
+fun LocalDateTime.toEpochSecondsZoned(): Long {
    return this.toInstant(TimeZone.currentSystemDefault()).epochSeconds
 }
+fun LocalDateTime.toEpochSeconds(): Long {
+   return this.toInstant(TimeZone.UTC).epochSeconds
+}
 
+fun Instant.toLocalTime(): LocalTime {
+   return this.toLocalDateTime(TimeZone.UTC)
+        .time
+}
+
+fun Instant.toLocalDate(): LocalDate {
+   return this.toLocalDateTime(TimeZone.UTC)
+        .date
+}
+
+fun Instant.isBefore(other: Instant): Boolean {
+    return this < other
+}
+
+@Composable
+fun Month.enCastellano(): String {
+    return stringArrayResource(Res.array.full_months)[this.ordinal - 1]
+}
+
+@Composable
+fun DayOfWeek.enCastellano(): String {
+    return stringArrayResource(Res.array.full_days)[this.ordinal - 1]
+}
+
+
+/** Formato 12/31/2022**/
+fun LocalDate.enMiFormato(): String {
+    return this.dayOfMonth.toString() + "/" + this.month.ordinal.toString() + "/" + this.year.toString()
+}
+
+@Composable
+fun LocalDate.enMiFormatoMedio(): String {
+    return this.dayOfMonth.toString() + "-" + this.month.aMesCorto() + "-" + this.year.toString()
+}
+
+@Composable
+private fun Month.aMesCorto(): String {
+    //IMPORTANTE!!!!: Le resto 1 porque si no, muestra el mes siguiente.
+    return stringArrayResource(Res.array.short_months)[this.ordinal - 1]
+}
 
 
 

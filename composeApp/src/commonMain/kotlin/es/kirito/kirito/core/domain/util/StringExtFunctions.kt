@@ -1,5 +1,7 @@
 package es.kirito.kirito.core.domain.util
 
+import androidx.compose.ui.graphics.Color
+
 fun String?.isNotNullNorEmpty(): Boolean {
     return !this.isNullOrEmpty()
 }
@@ -23,4 +25,19 @@ fun String.normalizeAndRemoveAccents(): String {
 //    return pattern.matcher(normalized).replaceAll("")
     //TODO: Esto no funcionará bien.
     return this.replace(Regex("[^\\x00-\\x7F]"), "")
+}
+
+fun String?.fromHtmlWithBreaksToSpanned(): Spanned {
+
+    return Html.fromHtml( (this ?: "").replaceCommasWithHtmlBreaks(), Html.FROM_HTML_MODE_COMPACT)
+        .trim()
+        .toSpanned()
+}
+
+fun String?.toComposeColor(): Color {
+    if (this == null)
+        return Color.White
+    val colorString = this.removePrefix("#")
+    //Lo parseo como hexadecimal.
+    return Color(colorString.toInt(16))
 }

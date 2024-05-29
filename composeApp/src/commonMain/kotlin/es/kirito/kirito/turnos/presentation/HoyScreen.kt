@@ -6,8 +6,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,9 +16,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -57,21 +59,84 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.navigation.NavHostController
+import es.kirito.kirito.core.data.constants.ConstantsNormativaLaboral
+import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
 import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.TurnoPrxTr
+import es.kirito.kirito.core.domain.util.colorDeFondoTurnos
+import es.kirito.kirito.core.domain.util.colorTextoTurnos
+import es.kirito.kirito.core.domain.util.enFormatoDeSalida
+import es.kirito.kirito.core.domain.util.esTipoTurnoCambiable
+import es.kirito.kirito.core.domain.util.esTurnoConDias
+import es.kirito.kirito.core.domain.util.genNombreTextView
+import es.kirito.kirito.core.domain.util.isNotNullNorBlank
+import es.kirito.kirito.core.domain.util.nombreTurnosConTipo
+import es.kirito.kirito.core.domain.util.toComposeColor
+import es.kirito.kirito.core.domain.util.toInstant
+import es.kirito.kirito.core.domain.util.toLocalDate
+import es.kirito.kirito.core.domain.util.toLocalTime
+import es.kirito.kirito.core.domain.util.toTurnoPrxTr
+import es.kirito.kirito.core.presentation.components.HeaderWithPrevNext
+import es.kirito.kirito.core.presentation.components.MyDialogInformation
+import es.kirito.kirito.core.presentation.components.MyTextStd
+import es.kirito.kirito.core.presentation.components.ParagraphSubtitle
+import es.kirito.kirito.core.presentation.components.detectSwipe
+import es.kirito.kirito.core.presentation.theme.azulKirito
+import es.kirito.kirito.core.presentation.utils.Orientation
+import es.kirito.kirito.core.presentation.utils.getScreenSizeInfo
+import es.kirito.kirito.core.presentation.utils.orientation
+import es.kirito.kirito.turnos.domain.models.ErroresHoy
+import es.kirito.kirito.turnos.domain.models.Season
+import es.kirito.kirito.turnos.presentation.components.DateString
+import es.kirito.kirito.turnos.presentation.components.DialogClimaTarea
+import es.kirito.kirito.turnos.presentation.components.DialogEditShift
+import es.kirito.kirito.turnos.presentation.components.ErroresHoy
+import es.kirito.kirito.turnos.presentation.components.ExcesosYMermas
+import es.kirito.kirito.turnos.presentation.components.LabelComj
+import es.kirito.kirito.turnos.presentation.components.LabelLibra
+import es.kirito.kirito.turnos.presentation.components.TareaConClima
+import es.kirito.kirito.turnos.presentation.components.TurnoProxTarHeader
+import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources._cambiado_con_
+import kirito.composeapp.generated.resources.antes_
+import kirito.composeapp.generated.resources.autumn1
+import kirito.composeapp.generated.resources.cancelar
+import kirito.composeapp.generated.resources.empty_24
+import kirito.composeapp.generated.resources.excediste_x_horas_y_generaste_x
+import kirito.composeapp.generated.resources.generar_cuadro_anual_con_claves_vac_as
+import kirito.composeapp.generated.resources.historial_del_turno
+import kirito.composeapp.generated.resources.localizador
+import kirito.composeapp.generated.resources.modificado_el_dia_xxx
+import kirito.composeapp.generated.resources.notas_del_turno_
+import kirito.composeapp.generated.resources.otras_opciones
+import kirito.composeapp.generated.resources.seleccionar
+import kirito.composeapp.generated.resources.spring1
+import kirito.composeapp.generated.resources.summer1
+import kirito.composeapp.generated.resources.teleindicadores_
+import kirito.composeapp.generated.resources.tu_descanso_se_vio_mermado_en_x_horas_y_generaste_x
+import kirito.composeapp.generated.resources.tus_notas
+import kirito.composeapp.generated.resources.winter1
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.ExperimentalResourceApi
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.Month
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HoyScreen(navController: NavHostController) {
     val viewModel = koinViewModel<HoyViewModel>()
 
     Surface(Modifier.fillMaxSize()) {
-        val dialogImageEga by viewModel.imagenEgaDialog.collectAsState(initial = null)
+        //TODO: Imagen ega.
+       // val dialogImageEga by viewModel.imagenEgaDialog.collectAsState(initial = null)
         var showDialogImageEga by rememberSaveable { mutableStateOf(false) }
         var showDialogExcesos by rememberSaveable { mutableStateOf(false) }
         var showDialogTarea by remember { mutableStateOf(false) } //NO saveable.
@@ -95,21 +160,22 @@ fun HoyScreen(navController: NavHostController) {
             0f, 0f, -1f, 0f, 255f,
             0f, 0f, 0f, 1f, 0f
         )
-        val orientation = LocalConfiguration.current.orientation
-        val novedades by viewModel.novedades.collectAsStateWithLifecycle(initialValue = false)
+        val orientation = getScreenSizeInfo().orientation()
+        val novedades by viewModel.novedades.collectAsState(initial = false)
         val showLocalizadorDialog by viewModel.showLocalizadorDialog.collectAsState(initial = false)
         val localizador by viewModel.localizador.collectAsState(initial = null)
 
         LaunchedEffect(Unit) {
             while (true) {
-                nowTimeString = LocalTime.now().toStringWS()
+                nowTimeString = Clock.System.now().toLocalTime().toString()
                 delay(1.seconds)
             }
         }
         LaunchedEffect(Unit) {
             viewModel.toastFestivo.collect { show ->
-                if (show)
-                    context.showLongToast(context.getString(R.string.advertencia_festivos))
+                //TODO: Mostrar este toast.
+//                if (show)
+//                    context.showLongToast(context.getString(R.string.advertencia_festivos))
             }
         }
 
@@ -128,7 +194,7 @@ fun HoyScreen(navController: NavHostController) {
                 }, contentAlignment = Alignment.BottomEnd
         ) {
             when (orientation) {
-                Configuration.ORIENTATION_LANDSCAPE ->
+                Orientation.LANDSCAPE ->
                     Row {
                         Column(modifier = Modifier.weight(1f)) {
                             HoyHeader(viewModel, onDateClicked = {
@@ -219,7 +285,7 @@ fun HoyScreen(navController: NavHostController) {
                     ) {
                         Icon(
                             modifier = Modifier.size(24.dp),
-                            painter = painterResource(id = R.drawable.baseline_add_24),
+                            imageVector = Icons.Outlined.Add,
                             contentDescription = ""
                         )
                     }
@@ -231,14 +297,14 @@ fun HoyScreen(navController: NavHostController) {
                 val estacion = cuDetalle?.fecha?.toLocalDate()?.getSeason()
                 Image(
                     painter = painterResource(
-                        id =
+                        resource =
                         when (estacion) {
-                            Season.Spring -> R.drawable.spring1
-                            Season.Summer -> R.drawable.summer1
-                            Season.Autumn -> R.drawable.autumn1
-                            Season.Winter -> R.drawable.winter1
-                            Season.None -> R.drawable.empty_24
-                            null -> R.drawable.empty_24
+                            Season.Spring -> Res.drawable.spring1
+                            Season.Summer -> Res.drawable.summer1
+                            Season.Autumn -> Res.drawable.autumn1
+                            Season.Winter -> Res.drawable.winter1
+                            Season.None -> Res.drawable.empty_24
+                            null -> Res.drawable.empty_24
                         }
                     ),
                     contentDescription = "",
@@ -258,16 +324,18 @@ fun HoyScreen(navController: NavHostController) {
         }
 
         if (novedades) {
-            NovedadesDialog {
-                viewModel.onNovedadShown()
-            }
+            //TODO: Crear el diálogo novedades, para cuando las haya
+//            NovedadesDialog {
+//                viewModel.onNovedadShown()
+//            }
         }
 
-        if (showDialogImageEga && dialogImageEga?.imagenesEga != null) {
-            ImageEgaDialog(dialogImageEga ?: return@Surface) {
-                showDialogImageEga = false
-            }
-        }
+       // if (showDialogImageEga && dialogImageEga?.imagenesEga != null) {
+            //TODO: IMAGEN EGAAA
+//            ImageEgaDialog(dialogImageEga ?: return@Surface) {
+//                showDialogImageEga = false
+//            }
+   //     }
 
         MyDialogInformation(show = showDialogExcesos, text = textExcesos,
             onDismiss = { showDialogExcesos = false })
@@ -279,15 +347,15 @@ fun HoyScreen(navController: NavHostController) {
                     TextButton(onClick = {
                         showDatePicker = false
                         viewModel.onDateSelected(
-                            ((datePickerState.selectedDateMillis ?: 1000) / 1000).toLocalDateTime()
+                            ((datePickerState.selectedDateMillis ?: 1000) / 1000).toInstant()
                                 .toLocalDate()
                         )
                     }, enabled = datePickerConfirmEnabled.value) {
-                        Text(text = stringResource(id = R.string.seleccionar))
+                        Text(text = stringResource( Res.string.seleccionar))
                     }
                 }, dismissButton = {
                     TextButton(onClick = { showDatePicker = false }) {
-                        Text(text = stringResource(id = R.string.cancelar))
+                        Text(text = stringResource( Res.string.cancelar))
                     }
                 }) {
                 DatePicker(state = datePickerState)
@@ -336,27 +404,29 @@ fun HoyScreen(navController: NavHostController) {
             viewModel.hideLocalizadorDialog()
         }
 
-        LaunchedEffect(Unit) {
-            viewModel.toastString.collect {
-                if (it != null)
-                    context.showLongToast(it)
-            }
-        }
+        //TODO: Mostrar este toast
+//        LaunchedEffect(Unit) {
+//            viewModel.toastString.collect {
+//                if (it != null)
+//                    context.showLongToast(it)
+//            }
+//        }
     }
 }
 
 
 @Composable
 fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked: () -> Unit) {
-    val context = LocalContext.current
-    val dateString by viewModel.dateString.collectAsState()
+
+    val date by viewModel.date.collectAsState()
     val cuDetalle by viewModel.cuDetalleDelTurno.collectAsState(initial = null)
     val turnoPrxTr by viewModel.turnoPrxTr.collectAsState(initial = null)
-    val imagenEga by viewModel.imagenEga.collectAsState(initial = null)
+    //TODO: Imagen ega
+  //  val imagenEga by viewModel.imagenEga.collectAsState(initial = null)
     val festivo by viewModel.festivo.collectAsState(initial = "")
 
     HeaderWithPrevNext(
-        title = dateString ?: "",
+        title = DateString(date),
         festivo = festivo,
         onDateClick = { onDateClicked() },
         onPrevClick = { viewModel.onPreviousDayClick(1) },
@@ -364,17 +434,18 @@ fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked
         onPrevLongClick = { viewModel.onPreviousDayClick(7) },
         onNextLongClick = { viewModel.onNextDayClick(7) },
         onFestivoClick = {
-            context.showLongToast(festivo)
+            //TODO: Mostrar este toast.
+         ///   context.showLongToast(festivo)
         }
     )
     if (cuDetalle != null)
         Text(
-            text = cuDetalle?.tipoYTurnoText(turnoPrxTr, context)
+            text = cuDetalle?.tipoYTurnoText(turnoPrxTr)
                 ?: "",
             Modifier
                 .background(color = colorDeFondoTurnos(cuDetalle?.tipo ?: "").toComposeColor())
                 .fillMaxWidth(),
-            color = colorTextoTurnos(cuDetalle?.tipo ?: "").toComposeColor(),
+            color = colorTextoTurnos(cuDetalle?.tipo ?: ""),
             textAlign = TextAlign.Center,
             fontSize = 18.sp
         )
@@ -383,7 +454,7 @@ fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked
             Modifier
                 .fillMaxWidth()
                 .clickable {
-                    viewModel.onComjYLibraClick(context)
+                    viewModel.onComjYLibraClick()
                 }) {
             val COMJs = cuDetalle?.comj ?: 0
             val LIBRas = cuDetalle?.libra ?: 0
@@ -392,32 +463,34 @@ fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked
             if (LIBRas > 0)
                 LabelLibra(LIBRas)
         }
-    if (turnoPrxTr?.sitio_origen != null || cuDetalle?.tipo == "7000")
+    if (turnoPrxTr?.sitioOrigen != null || cuDetalle?.tipo == "7000")
         TurnoProxTarHeader(turno = turnoPrxTr, cuDetalle)
 
-    if (imagenEga != null) {
-        val scrollState = rememberScrollState()
-        Image(
-            bitmap = imagenEga?.genImage(context = context)?.asImageBitmap() ?: return,
-            contentDescription = "",
-            contentScale = ContentScale.FillHeight,
-            modifier = Modifier
-                .horizontalScroll(scrollState)
-                .padding(4.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures { offset ->
-                        viewModel.onImageClicked(
-                            scrollState.value,
-                            offset.x,
-                            imagenEga ?: return@detectTapGestures,
-                            context
-                        )
-                        onImageClicked()
-                    }
-                }
-
-        )
-    }
+//    //TODO: Imagen ega
+//    if (imagenEga != null) {
+//        val scrollState = rememberScrollState()
+//        //TODO: Imagen del egaaaa
+////        Image(
+////            bitmap = imagenEga?.genImage(context = context)?.asImageBitmap() ?: return,
+////            contentDescription = "",
+////            contentScale = ContentScale.FillHeight,
+////            modifier = Modifier
+////                .horizontalScroll(scrollState)
+////                .padding(4.dp)
+////                .pointerInput(Unit) {
+////                    detectTapGestures { offset ->
+////                        viewModel.onImageClicked(
+////                            scrollState.value,
+////                            offset.x,
+////                            imagenEga ?: return@detectTapGestures,
+////                            context
+////                        )
+////                        onImageClicked()
+////                    }
+////                }
+////
+////        )
+//    }
 }
 
 
@@ -425,12 +498,12 @@ fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked
 @Composable
 fun HoyBody(
     viewModel: HoyViewModel,
-    onTareaClick: (GrTareasDomain) -> Unit,
+    onTareaClick: (GrTarea) -> Unit,
     onExcesosClick: (String) -> Unit,
     onGenerarCuadroVacioClick: () -> Unit,
     onGenerarCuadroClick: () -> Unit,
 ) {
-    val context = LocalContext.current
+
     val tareas by viewModel.tareas.collectAsState(initial = emptyList())
     val teleindicadores by viewModel.teleindicadores
         .collectAsState(initial = emptyList())
@@ -440,12 +513,12 @@ fun HoyBody(
         .collectAsState(initial = HoyViewModel.AdvmermasTurnosLaterales(false, null, null))
     val cuDetalle by viewModel.cuDetalleDelTurno.collectAsState(initial = null)
     val historial by viewModel.historial.collectAsState(initial = emptyList())
-    val errores by viewModel.erroresHoy.collectAsState(initial = HoyViewModel.ErroresHoy())
+    val errores by viewModel.erroresHoy.collectAsState(initial = ErroresHoy())
     val localizador by viewModel.localizador.collectAsState(initial = null)
     val generarCuadroVacioClicked by rememberSaveable { mutableStateOf(false) }
     val selectedDate by viewModel.date.collectAsState(initial = null)
     var showErrors by remember { mutableStateOf(false) }
-    val orientation = LocalConfiguration.current.orientation
+    val orientation = getScreenSizeInfo().orientation()
 
 
     //Un pequeño delay, para que no se vean por instantes los errores.
@@ -458,7 +531,7 @@ fun HoyBody(
     LazyColumn(Modifier.padding(horizontal = 16.dp)) {
 
         if (errores.hayErrores && showErrors)
-            item { ErroresHoy(errores, cuDetalle, Modifier.animateItemPlacement()) }
+            item {ErroresHoy(errores, cuDetalle, Modifier.animateItemPlacement()) }
 
         if (cuDetalle == null && showErrors) {
             item {
@@ -466,28 +539,27 @@ fun HoyBody(
                     generarCuadroVacioClicked != generarCuadroVacioClicked
                     onGenerarCuadroVacioClick()
                 }, enabled = !generarCuadroVacioClicked) {
-                    Text(text = stringResource(R.string.generar_cuadro_anual_con_claves_vac_as))
+                    Text(text = stringResource(Res.string.generar_cuadro_anual_con_claves_vac_as))
                 }
                 OutlinedButton(onClick = { onGenerarCuadroClick() }) {
-                    Text(text = stringResource(R.string.otras_opciones))
+                    Text(text = stringResource(Res.string.otras_opciones))
                 }
             }
         }
 
         //Solo mostramos aquí las tareas si estamos en vertical.
-        if (tareas.isNotEmpty() && orientation == Configuration.ORIENTATION_PORTRAIT)
+        if (tareas.isNotEmpty() && orientation == Orientation.PORTRAIT)
             items(tareas) { tarea ->
                 TareaConClima(tarea = tarea, Modifier.animateItemPlacement()) { estaTarea ->
                     onTareaClick(estaTarea)
                 }
             }
-        if (cuDetalle?.tipo?.esTipoTurnoCambiable(context) == true && cuDetalle?.nombre_debe.isNotNullNorBlank())
+        if (cuDetalle?.tipo?.esTipoTurnoCambiable() == true && cuDetalle?.nombreDebe.isNotNullNorBlank())
             item {
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 MyTextStd(
                     text = genNombreTextView(
-                        cuDetalle?.toTurnoPrxTr() ?: TurnosPrxTr(),//Prefiero algo vacío que los !!.
-                        context
+                        cuDetalle?.toTurnoPrxTr() ?: TurnoPrxTr()//Prefiero algo vacío que los !!.
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -495,7 +567,7 @@ fun HoyBody(
         if (teleindicadores.size > 1) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
-                ParagraphSubtitle(text = stringResource(id = R.string.teleindicadores_))
+                ParagraphSubtitle(text = stringResource( Res.string.teleindicadores_))
             }
 
             itemsIndexed(teleindicadores) { index, teleindicadoresDeTren ->
@@ -536,14 +608,14 @@ fun HoyBody(
         if (notasUsuario.isNotBlank()) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
-                ParagraphSubtitle(text = stringResource(id = R.string.tus_notas))
+                ParagraphSubtitle(text = stringResource(Res.string.tus_notas))
                 MyTextStd(text = notasUsuario.toSpanned().toAnnotatedString())
             }
         }
         if (localizador != null) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
-                ParagraphSubtitle(text = stringResource(id = R.string.localizador),
+                ParagraphSubtitle(text = stringResource(Res.string.localizador),
                     modifier = Modifier.clickable { viewModel.onLocalizadorClick() }.fillMaxWidth())
                 MyTextStd(text = localizador?.localizador ?: "",
                     modifier = Modifier.clickable { viewModel.onLocalizadorClick() }.fillMaxWidth())
@@ -553,7 +625,7 @@ fun HoyBody(
         if (notasTurno.isNotBlank()) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
-                ParagraphSubtitle(text = stringResource(id = R.string.notas_del_turno_))
+                ParagraphSubtitle(text = stringResource(Res.string.notas_del_turno_))
                 MyTextStd(text = notasTurno.toSpanned().toAnnotatedString())
             }
         }
@@ -589,15 +661,15 @@ fun HoyBody(
                 var texto = ""
                 if (excesos != null && excesos != 0)
                     texto = stringResource(
-                        id = R.string.excediste_x_horas_y_generaste_x,
-                        LocalTime.ofSecondOfDay((excesos / ConstantsNormativaLaboral.EXCESO_JORNADA).toLong()),
-                        LocalTime.ofSecondOfDay(excesos.toLong())
+                        Res.string.excediste_x_horas_y_generaste_x,
+                        LocalTime.fromSecondOfDay((excesos / ConstantsNormativaLaboral.EXCESO_JORNADA).toInt()),
+                        LocalTime.fromSecondOfDay(excesos)
                     ) + "\n"
                 if (mermas != null && mermas != 0)
                     texto += stringResource(
-                        id = R.string.tu_descanso_se_vio_mermado_en_x_horas_y_generaste_x,
-                        LocalTime.ofSecondOfDay((mermas / ConstantsNormativaLaboral.MERMA_DESCANSO).toLong()),
-                        LocalTime.ofSecondOfDay(mermas.toLong())
+                        Res.string.tu_descanso_se_vio_mermado_en_x_horas_y_generaste_x,
+                        LocalTime.fromSecondOfDay((mermas / ConstantsNormativaLaboral.MERMA_DESCANSO).toInt()),
+                        LocalTime.fromSecondOfDay(mermas)
                     )
 
 
@@ -612,25 +684,25 @@ fun HoyBody(
 
                 if (index == 0) {
                     HorizontalDivider(Modifier.padding(top = 4.dp))
-                    ParagraphSubtitle(text = stringResource(id = R.string.historial_del_turno))
+                    ParagraphSubtitle(text = stringResource(Res.string.historial_del_turno))
                 }
 
                 MyTextStd(
                     text = stringResource(
-                        id = R.string.antes_,
-                        nombreTurnosConTipo(historia.tipo, historia.turno, context)
+                        Res.string.antes_,
+                        nombreTurnosConTipo(historia.tipo, historia.turno)
                     ) +
-                            if (historia.nombre_debe.isNotNullNorBlank()) {
+                            if (historia.nombreDebe.isNotNullNorBlank()) {
                                 stringResource(
-                                    id = R.string._cambiado_con_,
-                                    historia.nombre_debe ?: ""
+                                    Res.string._cambiado_con_,
+                                    historia.nombreDebe ?: ""
                                 )
                             } else {
                                 ""
                             } +
                             stringResource(
-                                id = R.string.modificado_el_dia_xxx,
-                                historia.updated.toLocalDateTime().enFormatoDeSalida() ?: ""
+                                Res.string.modificado_el_dia_xxx,
+                                historia.updated.toInstant().enFormatoDeSalida() ?: ""
                             )
                 )
             }
@@ -654,4 +726,13 @@ private fun LocalDate.getSeason(): Season {
         Month.SEPTEMBER, Month.OCTOBER, Month.NOVEMBER -> Season.Autumn
         else -> Season.None
     }
+}
+
+@Composable
+private fun CuDetalleConFestivoDBModel.tipoYTurnoText(turnoPrxTr: TurnoPrxTr?): String {
+    var texto = nombreTurnosConTipo(this.tipo, this.turno)
+    if (turnoPrxTr?.equivalencia != null) {
+        texto = "$texto - ${turnoPrxTr.equivalencia}"
+    }
+    return texto
 }
