@@ -57,7 +57,7 @@ interface KiritoDao {
                 ") " +
                 "order by indicador desc limit 1"
     )
-    fun getTurnoDeUnDia(fechaElegida: Long?): Flow<TurnoPrxTr>
+    fun getTurnoDeUnDia(fechaElegida: Int?): Flow<TurnoPrxTr>
 
 
     @Query(
@@ -358,7 +358,7 @@ interface KiritoDao {
                 "on tabla_cu_detalle.fecha = tabla_ot_festivos.fecha " +
                 "where tabla_cu_detalle.fecha = :fecha"
     )
-    fun getCuDetallesDeUnDia(fecha: Long?): Flow<CuDetalleConFestivoDBModel?>
+    fun getCuDetallesDeUnDia(fecha: Int?): Flow<CuDetalleConFestivoDBModel?>
 
 
     @Query(
@@ -850,7 +850,7 @@ interface KiritoDao {
     suspend fun insertOtFestivos(otFestivos: OtFestivo)
 
     @Query("Select Descripcion from tabla_ot_festivos where fecha = :fecha")
-    fun getFestivoDeUnDia(fecha: Long?): Flow<String?>
+    fun getFestivoDeUnDia(fecha: Int?): Flow<String?>
 
     @Query("Select * From tabla_ot_festivos order by fecha asc")
     fun getOtFestivos(): Flow<List<OtFestivo>>

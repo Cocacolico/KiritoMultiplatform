@@ -3,10 +3,13 @@ package es.kirito.kirito.core.domain.util
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.char
+import kotlinx.datetime.toInstant
 
 internal val formatJesus = DateTimeComponents.Format {
     date(LocalDate.Formats.ISO)
@@ -44,20 +47,20 @@ fun Long?.toInstant(): Instant {
 
 /** Devuelve el valor sin traducir, para usar en el back. */
 fun DayOfWeek.inicial(): String {
-    return when(this.ordinal){
-        1-> "L"
-        2-> "M"
-        3-> "X"
-        4-> "J"
-        5-> "V"
-        6-> "S"
-        7-> "D"
+    return when (this.ordinal) {
+        1 -> "L"
+        2 -> "M"
+        3 -> "X"
+        4 -> "J"
+        5 -> "V"
+        6 -> "S"
+        7 -> "D"
         else -> ""
     }
 }
 
 /*** En formato "yyyy-MM-dd HH:mm:ss" que busca Jesús. Devuelve null si es 0. */
-fun Instant.enFormatoDeSalida(): String?{
+fun Instant.enFormatoDeSalida(): String? {
     if (this.epochSeconds == 0L)
         return null
     return this.format(formatJesus)
@@ -111,10 +114,31 @@ fun String?.fromTimeWOSecsStringToInt(): Int {
     val hours = (parts[0].toIntOrNull() ?: 0).coerceAtMost(23)
     val minutes = (parts[1].toIntOrNull() ?: 0).coerceAtMost(59)
 
-    return LocalTime(hours,minutes).toSecondOfDay()
+    return LocalTime(hours, minutes).toSecondOfDay()
 }
 
+fun Instant.roundUpToHour(): Instant {
+    val minutes = this.epochSeconds / 60
+    val onlyMinutes = minutes % 60
+    val output = if (onlyMinutes < 30)
+        minutes - onlyMinutes
+    else
+        minutes - onlyMinutes + 60
+    return (output * 60).toInstant()
+}
 
+fun Int.toLocalTime(): LocalTime {
+    val minute = this / 60
+    val hora = minute / 60
+    return LocalTime(hora, minute)
+}
+fun Long.toLocalTime(): LocalTime{
+    return this.toInt().toLocalTime()
+}
+
+fun LocalDateTime.toEpochSeconds(): Long {
+   return this.toInstant(TimeZone.currentSystemDefault()).epochSeconds
+}
 
 
 
