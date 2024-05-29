@@ -27,11 +27,12 @@ fun String.normalizeAndRemoveAccents(): String {
     return this.replace(Regex("[^\\x00-\\x7F]"), "")
 }
 
-fun String?.fromHtmlWithBreaksToSpanned(): Spanned {
-
-    return Html.fromHtml( (this ?: "").replaceCommasWithHtmlBreaks(), Html.FROM_HTML_MODE_COMPACT)
-        .trim()
-        .toSpanned()
+fun String?.fromHtmlWithBreaksToSpanned(): String {
+    //TODO: Hacer la conversión de html correctamente.
+//    return Html.fromHtml( (this ?: "").replaceCommasWithHtmlBreaks(), Html.FROM_HTML_MODE_COMPACT)
+//        .trim()
+//        .toSpanned()
+    return this.toString()
 }
 
 fun String?.toComposeColor(): Color {

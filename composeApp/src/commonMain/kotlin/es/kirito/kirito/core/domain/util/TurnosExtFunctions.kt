@@ -61,9 +61,14 @@ import kirito.composeapp.generated.resources.lic_especial
 import kirito.composeapp.generated.resources.ausencia_maternidad_paternidad
 import kirito.composeapp.generated.resources.cambiado_con_
 import kirito.composeapp.generated.resources.dia_sin_asignar
+import kirito.composeapp.generated.resources.el_dia_anterior_tienes_x
+import kirito.composeapp.generated.resources.el_dia_siguiente_tienes_x
 import kirito.composeapp.generated.resources.haces_el_turno_a_
+import kirito.composeapp.generated.resources.prop_cambio_dia_anterior
+import kirito.composeapp.generated.resources.prop_cambio_dia_siguiente
 import kirito.composeapp.generated.resources.suspension_empleo_sueldo
 import kirito.composeapp.generated.resources.te_hace_el_turno_
+import kirito.composeapp.generated.resources.tienes_xtiempo_entre_turnos
 import kirito.composeapp.generated.resources.turno_cambiado
 import kirito.composeapp.generated.resources.vacaciones
 import kirito.composeapp.generated.resources.vacaciones_ano_pasado
@@ -71,6 +76,7 @@ import kirito.composeapp.generated.resources.turno_sin_trabajo_asignado
 import kirito.composeapp.generated.resources.turno_al_debe
 import kirito.composeapp.generated.resources.turno_oculto
 import kirito.composeapp.generated.resources.turnos_cambiables
+import kirito.composeapp.generated.resources.un_dia
 import kirito.composeapp.generated.resources.zcon
 import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.stringArrayResource
@@ -435,4 +441,111 @@ fun CuDetalleConFestivoDBModel.toTurnoPrxTr(): TurnoPrxTr {
         equivalencia = "",
         color = 0,
     )
+}
+
+@Composable
+fun fraseDescansoAntes(tAyer: TurnoPrxTr, tHoy: TurnoPrxTr): String{
+    var warningColor = "N"
+    val diferenciaHoras = tAyer.deAyerAHoy(tHoy.horaOrigen)
+
+    if (tAyer.esTurnoDeTrabajo()){
+        var texto = stringResource(
+            Res.string.prop_cambio_dia_anterior,
+            nombreTurnosConTipo(
+                tAyer.tipo,
+                tAyer.turno).lowercase(),
+            tAyer.horaFin?.toLocalTime().toString()
+        )
+
+        if (diferenciaHoras > -1) {
+            val diferenciaHorasText = if (diferenciaHoras < 86400) {
+                if (diferenciaHoras < 43200)
+                    warningColor = "R"
+                else if (diferenciaHoras < 50400)
+                    warningColor = "A"
+                stringResource(
+                    Res.string.tienes_xtiempo_entre_turnos,
+                    diferenciaHoras.toLocalTime()
+                )
+            } else {
+                stringResource(
+                    Res.string.tienes_xtiempo_entre_turnos,
+                    stringResource(Res.string.un_dia) + (diferenciaHoras - 86400).toLocalTime()
+                )
+            }
+            if (warningColor == "R" || warningColor == "A") {
+                val spannableTexto = "$texto$diferenciaHorasText"
+                val start = texto.length
+                val end = spannableTexto.length
+                //TODO: Meter los colores que no tiene.
+                return spannableTexto
+            } else {
+                //Este texto perdería los colores si los tuviese por el concat().
+                // Nos da igual porque no hay que colorear aquí.
+                return texto + diferenciaHorasText
+            }
+        }
+        return texto
+
+    }else{
+        return stringResource(
+            Res.string.el_dia_anterior_tienes_x,
+            tAyer.tipo.nombreLargoTiposDeTurnos().lowercase()
+        )
+    }
+
+}
+
+@Composable
+fun fraseDescansoDespues(tHoy: TurnoPrxTr, tManana: TurnoPrxTr): String{
+    var warningColor = "N"
+    val pasaPorMedianoche = tHoy.pasaPorMedianoche()
+    val diferenciaHoras = tManana.deMananaAHoy(tHoy.horaFin, pasaPorMedianoche)
+
+    if (tManana.esTurnoDeTrabajo()){
+        val texto = stringResource(
+            Res.string.prop_cambio_dia_siguiente,
+            nombreTurnosConTipo(
+                tManana.tipo,
+                tManana.turno).lowercase(),
+            tManana.horaOrigen?.toLocalTime().toString()
+        )
+
+        if (diferenciaHoras > -1) {
+            val diferenciaHorasText = if (diferenciaHoras < 86400) {
+                if (diferenciaHoras < 43200)
+                    warningColor = "R"
+                else if (diferenciaHoras < 50400)
+                    warningColor = "A"
+                stringResource(
+                    Res.string.tienes_xtiempo_entre_turnos,
+                    diferenciaHoras.toLocalTime()
+                )
+            } else {
+                stringResource(
+                    Res.string.tienes_xtiempo_entre_turnos,
+                    stringResource(Res.string.un_dia) + (diferenciaHoras - 86400).toLocalTime()
+                )
+            }
+            if (warningColor == "R" || warningColor == "A") {
+                val spannableTexto = "$texto$diferenciaHorasText"
+                val start = texto.length
+                val end = spannableTexto.length
+                //TODO: Meter los colores que no tiene.
+                return spannableTexto
+            } else {
+                //Este texto perdería los colores si los tuviese por el concat().
+                // Nos da igual porque no hay que colorear aquí.
+                return texto + diferenciaHorasText
+            }
+        }
+        return texto
+
+    }else{
+        return stringResource(
+            Res.string.el_dia_siguiente_tienes_x,
+            tManana.tipo.nombreLargoTiposDeTurnos().lowercase()
+        )
+    }
+
 }

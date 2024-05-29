@@ -70,6 +70,8 @@ import es.kirito.kirito.core.domain.util.colorTextoTurnos
 import es.kirito.kirito.core.domain.util.enFormatoDeSalida
 import es.kirito.kirito.core.domain.util.esTipoTurnoCambiable
 import es.kirito.kirito.core.domain.util.esTurnoConDias
+import es.kirito.kirito.core.domain.util.fraseDescansoAntes
+import es.kirito.kirito.core.domain.util.fraseDescansoDespues
 import es.kirito.kirito.core.domain.util.genNombreTextView
 import es.kirito.kirito.core.domain.util.isNotNullNorBlank
 import es.kirito.kirito.core.domain.util.nombreTurnosConTipo
@@ -507,8 +509,8 @@ fun HoyBody(
     val tareas by viewModel.tareas.collectAsState(initial = emptyList())
     val teleindicadores by viewModel.teleindicadores
         .collectAsState(initial = emptyList())
-    val notasUsuario by viewModel.notasUsuario.collectAsState(initial = buildSpannedString { })
-    val notasTurno by viewModel.notasTurno.collectAsState(initial = buildSpannedString { })
+    val notasUsuario by viewModel.notasUsuario.collectAsState(initial = "")
+    val notasTurno by viewModel.notasTurno.collectAsState(initial = "")
     val advMermasTurnosLaterales by viewModel.advMermasTurnosLaterales
         .collectAsState(initial = HoyViewModel.AdvmermasTurnosLaterales(false, null, null))
     val cuDetalle by viewModel.cuDetalleDelTurno.collectAsState(initial = null)
@@ -519,6 +521,20 @@ fun HoyBody(
     val selectedDate by viewModel.date.collectAsState(initial = null)
     var showErrors by remember { mutableStateOf(false) }
     val orientation = getScreenSizeInfo().orientation()
+
+    val showFraseAyer by remember{
+        derivedStateOf {
+            advMermasTurnosLaterales.tAyer != null &&
+                    advMermasTurnosLaterales.tHoy != null
+        }
+    }
+
+    val showFraseManana by remember{
+        derivedStateOf {
+            advMermasTurnosLaterales.tManana != null &&
+                    advMermasTurnosLaterales.tHoy != null
+        }
+    }
 
 
     //Un pequeño delay, para que no se vean por instantes los errores.
@@ -609,7 +625,7 @@ fun HoyBody(
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
                 ParagraphSubtitle(text = stringResource(Res.string.tus_notas))
-                MyTextStd(text = notasUsuario.toSpanned().toAnnotatedString())
+                MyTextStd(text = notasUsuario)
             }
         }
         if (localizador != null) {
@@ -626,26 +642,30 @@ fun HoyBody(
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
                 ParagraphSubtitle(text = stringResource(Res.string.notas_del_turno_))
-                MyTextStd(text = notasTurno.toSpanned().toAnnotatedString())
+                MyTextStd(text = notasTurno)
             }
         }
         if (advMermasTurnosLaterales.show) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
                 Row {
-                    if (advMermasTurnosLaterales.fraseAntes != null)
+                    if (showFraseAyer)
                         MyTextStd(
-                            text = advMermasTurnosLaterales.fraseAntes?.toAnnotatedString()
-                                ?: AnnotatedString(""),
+                            text = fraseDescansoAntes(
+                                advMermasTurnosLaterales.tAyer!!,
+                                advMermasTurnosLaterales.tHoy!!
+                            ),
                             Modifier
                                 .weight(1f)
                                 .padding(end = 8.dp)
 
                         )
-                    if (advMermasTurnosLaterales.fraseDespues != null)
+                    if (showFraseManana)
                         MyTextStd(
-                            text = advMermasTurnosLaterales.fraseDespues?.toAnnotatedString()
-                                ?: AnnotatedString(""),
+                            text = fraseDescansoDespues(
+                                advMermasTurnosLaterales.tHoy!!,
+                                advMermasTurnosLaterales.tManana!!
+                            ),
                             Modifier
                                 .weight(1f)
                                 .padding(start = 8.dp)

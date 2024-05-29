@@ -548,7 +548,7 @@ class PrecargaRepository() : KoinComponent {
             }
     }
 
-    private suspend fun descargarComplementosDelGrafico(idGrafico: Long) {
+    suspend fun descargarComplementosDelGrafico(idGrafico: Long) {
         refreshGrExcelIF(idGrafico)
         refreshGrTareas(idGrafico)
         refreshNotasTren(idGrafico)
