@@ -342,9 +342,9 @@
     <string name="soy_consciente">Soy consciente</string>
     <string name="advertencia_app_en_beta">"Esta aplicación está en desarrollo y puede contener fallos o mostrar información incorrecta.\nConsulta SIEMPRE el gráfico oficial al realizar un turno."</string>
     <string name="ir_a_la_ayuda_de_la_web">Ir a la ayuda de la web</string>
-    <string name="hoy__fechaxx">"Hoy, "</string>
-    <string name="manana__fechaxx">"Mañana, "</string>
-    <string name="ayer__fechaxx">"Ayer, "</string>
+    <string name="hoy__fechaxx">Hoy, </string>
+    <string name="manana__fechaxx">Mañana, </string>
+    <string name="ayer__fechaxx">Ayer, </string>
     <string name="tratamiento_de_datos">Tratamiento de datos</string>
     <string name="pol_tica_de_privacidad_y_tratamiento_de_datos">Política de privacidad y tratamiento de datos</string>
     <string name="politica_privacidad_1">Apreciado usuario, en Kirito valoramos tu privacidad y seguridad en línea. Por eso, queremos informarte sobre cómo tratamos tus datos personales.</string>

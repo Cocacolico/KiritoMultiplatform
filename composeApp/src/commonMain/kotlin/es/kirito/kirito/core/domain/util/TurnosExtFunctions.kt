@@ -399,7 +399,6 @@ fun colorDeFondoTurnos(tipo: String): String {
         "FA", "RHVE" -> return "#009B00"
         "FS", "H", "RSIM", "RM", "CGO", "DH", "LE", "LF", "LH", "LK", "LM", "LP", "LR",
         "LT", "LX", "LY", "RMTC", "ZRA6" -> return "#F5F5DB"
-
         "LIBRa" -> return "#64FF32"
         "LN", "LB", "LS", "LV" -> return "#FE9A00"
         "LZ", "LZA", "JT" -> return "#99CDFF"

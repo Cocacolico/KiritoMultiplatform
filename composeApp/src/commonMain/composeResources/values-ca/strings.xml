@@ -283,9 +283,9 @@
     <string name="soy_consciente">En soc concient</string>
     <string name="advertencia_app_en_beta">"Aquesta aplicació està en desenvolupament i pot tenir errors o mostrar informació incorrecta.\nConsulta SEMPRE el gràfic oficial a l\'hora de realitzar un torn"</string>
     <string name="ir_a_la_ayuda_de_la_web">Anar a l\'ajuda de la web</string>
-    <string name="hoy__fechaxx">"Avui, "</string>
-    <string name="manana__fechaxx">"Demà, "</string>
-    <string name="ayer__fechaxx">"Ahir, "</string>
+    <string name="hoy__fechaxx">Avui, </string>
+    <string name="manana__fechaxx">Demà, </string>
+    <string name="ayer__fechaxx">Ahir, </string>
     <string name="tratamiento_de_datos">Tractament de dades</string>
     <string name="pol_tica_de_privacidad_y_tratamiento_de_datos">Política de privacitat i tractament de dades</string>
     <string name="politica_privacidad_1">Benvolgut usuari, a Kirito valorem la teva privacitat i seguretat en línia. Per això, volem informar-te sobre com tractem les teves dades personals.</string>

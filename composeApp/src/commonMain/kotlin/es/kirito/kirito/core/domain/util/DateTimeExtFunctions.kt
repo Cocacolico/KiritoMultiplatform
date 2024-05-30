@@ -1,3 +1,5 @@
+@file:OptIn(FormatStringsInDatetimeFormats::class)
+
 package es.kirito.kirito.core.domain.util
 
 import androidx.compose.runtime.Composable
@@ -14,6 +16,8 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DateTimeComponents
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
@@ -136,8 +140,9 @@ fun Instant.roundUpToHour(): Instant {
 }
 
 fun Int.toLocalTime(): LocalTime {
-    val minute = this / 60
-    val hora = minute / 60
+    val enMinutos = this / 60
+    val hora = enMinutos / 60
+    val minute = enMinutos % 60
     return LocalTime(hora, minute)
 }
 fun Long.toLocalTime(): LocalTime{
@@ -156,6 +161,11 @@ fun Instant.toLocalTime(): LocalTime {
         .time
 }
 
+fun LocalTime.toStringUpToSeconds(): String {
+    val format = LocalTime.Formats.ISO
+    return LocalTime(this.hour, this.minute,this.second).format(format)
+}
+
 fun Instant.toLocalDate(): LocalDate {
    return this.toLocalDateTime(TimeZone.UTC)
         .date
@@ -172,13 +182,13 @@ fun Month.enCastellano(): String {
 
 @Composable
 fun DayOfWeek.enCastellano(): String {
-    return stringArrayResource(Res.array.full_days)[this.ordinal - 1]
+    return stringArrayResource(Res.array.full_days)[this.ordinal]
 }
 
 
 /** Formato 12/31/2022**/
 fun LocalDate.enMiFormato(): String {
-    return this.dayOfMonth.toString() + "/" + this.month.ordinal.toString() + "/" + this.year.toString()
+    return this.dayOfMonth.toString() + "/" + (this.month.ordinal + 1).toString() + "/" + this.year.toString()
 }
 
 @Composable
