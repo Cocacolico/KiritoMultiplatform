@@ -88,7 +88,7 @@ fun IconClimaWithTemp(tarea: GrTarea) {
             )
         else
             Icon(
-                painter = painterResource( Res.drawable.empty_24),
+                painter = painterResource(Res.drawable.empty_24),
                 contentDescription = "",
                 modifier = Modifier
                     .align(Alignment.Center)

@@ -55,7 +55,6 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,6 +78,7 @@ import es.kirito.kirito.core.domain.util.toComposeColor
 import es.kirito.kirito.core.domain.util.toInstant
 import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.domain.util.toLocalTime
+import es.kirito.kirito.core.domain.util.toStringUpToSeconds
 import es.kirito.kirito.core.domain.util.toTurnoPrxTr
 import es.kirito.kirito.core.presentation.components.HeaderWithPrevNext
 import es.kirito.kirito.core.presentation.components.MyDialogInformation
@@ -169,7 +169,7 @@ fun HoyScreen(navController: NavHostController) {
 
         LaunchedEffect(Unit) {
             while (true) {
-                nowTimeString = Clock.System.now().toLocalTime().toString()
+                nowTimeString = Clock.System.now().toLocalTime().toStringUpToSeconds()
                 delay(1.seconds)
             }
         }

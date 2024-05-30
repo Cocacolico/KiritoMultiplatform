@@ -57,7 +57,7 @@ interface KiritoDao {
                 ") " +
                 "order by indicador desc limit 1"
     )
-    fun getTurnoDeUnDia(fechaElegida: Int?): Flow<TurnoPrxTr>
+    fun getTurnoDeUnDia(fechaElegida: Int?): Flow<TurnoPrxTr?>
 
 
     @Query(

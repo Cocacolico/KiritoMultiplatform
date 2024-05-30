@@ -38,7 +38,5 @@ fun String?.fromHtmlWithBreaksToSpanned(): String {
 fun String?.toComposeColor(): Color {
     if (this == null)
         return Color.White
-    val colorString = this.removePrefix("#")
-    //Lo parseo como hexadecimal.
-    return Color(colorString.toInt(16))
+    return Color(this.removePrefix("#").toLong(16) or 0x00000000FF000000)
 }
