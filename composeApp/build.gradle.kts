@@ -2,13 +2,13 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
     alias(libs.plugins.jetbrainsCompose)//TREMENDAMENTE IMPORTANTE: NO ALTERES EL ORDEN DE ESTAS COSAS.
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.serialization)
 
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.room)
 }
 
 kotlin {

@@ -89,6 +89,7 @@ import es.kirito.kirito.core.presentation.theme.azulKirito
 import es.kirito.kirito.core.presentation.utils.Orientation
 import es.kirito.kirito.core.presentation.utils.getScreenSizeInfo
 import es.kirito.kirito.core.presentation.utils.orientation
+import es.kirito.kirito.turnos.domain.HoyState
 import es.kirito.kirito.turnos.domain.models.ErroresHoy
 import es.kirito.kirito.turnos.domain.models.Season
 import es.kirito.kirito.turnos.presentation.components.DateString
@@ -152,10 +153,9 @@ fun HoyScreen(navController: NavHostController) {
         }
         var textExcesos by rememberSaveable { mutableStateOf("") }
         var tarea by remember { mutableStateOf(GrTarea()) }
-        val iHaveShiftsShared by viewModel.iHaveShiftsShared.collectAsState(initial = false)
+
+        val hoyState by viewModel.hoyState.collectAsState(initial = HoyState())
         var nowTimeString by remember { mutableStateOf("") }
-        val cuDetalle by viewModel.cuDetalleDelTurno.collectAsState(initial = null)
-        val tareas by viewModel.tareas.collectAsState(initial = emptyList())
         val colorMatrix = floatArrayOf( //Es la matriz necesaria para invertir los colores.
             -1f, 0f, 0f, 0f, 255f,
             0f, -1f, 0f, 0f, 255f,
@@ -164,8 +164,6 @@ fun HoyScreen(navController: NavHostController) {
         )
         val orientation = getScreenSizeInfo().orientation()
         val novedades by viewModel.novedades.collectAsState(initial = false)
-        val showLocalizadorDialog by viewModel.showLocalizadorDialog.collectAsState(initial = false)
-        val localizador by viewModel.localizador.collectAsState(initial = null)
 
         LaunchedEffect(Unit) {
             while (true) {
@@ -223,9 +221,9 @@ fun HoyScreen(navController: NavHostController) {
                                 .fillMaxHeight()
                                 .padding(16.dp)
                         ) {
-                            if (tareas.isNotEmpty())
+                            if (hoyState.tareas.isNotEmpty())
                                 LazyColumn {
-                                    items(tareas) { thisTarea ->
+                                    items(hoyState.tareas) { thisTarea ->
                                         TareaConClima(
                                             tarea = thisTarea,
                                             Modifier.animateItemPlacement()
@@ -295,8 +293,8 @@ fun HoyScreen(navController: NavHostController) {
             }
 
             //Dibujo de las vacaciones.
-            if (cuDetalle?.tipo == "VL" || cuDetalle?.tipo == "VB") {
-                val estacion = cuDetalle?.fecha?.toLocalDate()?.getSeason()
+            if (hoyState.cuDetalle?.tipo == "VL" || hoyState.cuDetalle?.tipo == "VB") {
+                val estacion = hoyState.cuDetalle?.fecha?.toLocalDate()?.getSeason()
                 Image(
                     painter = painterResource(
                         resource =
@@ -375,7 +373,7 @@ fun HoyScreen(navController: NavHostController) {
 
         if (showEditDialog)
             DialogEditShift(
-                hasShiftsShared = iHaveShiftsShared,
+                hasShiftsShared = hoyState.iHaveShiftsShared,
                 onDismiss = { showEditDialog = false },
                 onBulkEditClick = {
                     showEditDialog = false
@@ -397,8 +395,8 @@ fun HoyScreen(navController: NavHostController) {
 
 
         MyDialogInformation(
-            show = showLocalizadorDialog,
-            text = localizador?.localizador ?: "",
+            show = hoyState.showLocalizadorDialog,
+            text = hoyState.localizador?.localizador ?: "",
             fontSize = 26.sp,
             onDismiss = {
                 viewModel.hideLocalizadorDialog()
@@ -420,16 +418,13 @@ fun HoyScreen(navController: NavHostController) {
 @Composable
 fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked: () -> Unit) {
 
-    val date by viewModel.date.collectAsState()
-    val cuDetalle by viewModel.cuDetalleDelTurno.collectAsState(initial = null)
-    val turnoPrxTr by viewModel.turnoPrxTr.collectAsState(initial = null)
+    val hoyState by viewModel.hoyState.collectAsState(HoyState())
     //TODO: Imagen ega
   //  val imagenEga by viewModel.imagenEga.collectAsState(initial = null)
-    val festivo by viewModel.festivo.collectAsState(initial = "")
 
     HeaderWithPrevNext(
-        title = DateString(date),
-        festivo = festivo,
+        title = DateString(hoyState.date),
+        festivo = hoyState.festivo,
         onDateClick = { onDateClicked() },
         onPrevClick = { viewModel.onPreviousDayClick(1) },
         onNextClick = { viewModel.onNextDayClick(1) },
@@ -440,33 +435,33 @@ fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked
          ///   context.showLongToast(festivo)
         }
     )
-    if (cuDetalle != null)
+    if (hoyState.cuDetalle != null)
         Text(
-            text = cuDetalle?.tipoYTurnoText(turnoPrxTr)
+            text = hoyState.cuDetalle?.tipoYTurnoText(hoyState.turnoPrxTr)
                 ?: "",
             Modifier
-                .background(color = colorDeFondoTurnos(cuDetalle?.tipo ?: "").toComposeColor())
+                .background(color = colorDeFondoTurnos(hoyState.cuDetalle?.tipo ?: "").toComposeColor())
                 .fillMaxWidth(),
-            color = colorTextoTurnos(cuDetalle?.tipo ?: ""),
+            color = colorTextoTurnos(hoyState.cuDetalle?.tipo ?: ""),
             textAlign = TextAlign.Center,
             fontSize = 18.sp
         )
-    if (cuDetalle?.esTurnoConDias() == true)
+    if (hoyState.cuDetalle?.esTurnoConDias() == true)
         Row(
             Modifier
                 .fillMaxWidth()
                 .clickable {
                     viewModel.onComjYLibraClick()
                 }) {
-            val COMJs = cuDetalle?.comj ?: 0
-            val LIBRas = cuDetalle?.libra ?: 0
+            val COMJs = hoyState.cuDetalle?.comj ?: 0
+            val LIBRas = hoyState.cuDetalle?.libra ?: 0
             if (COMJs > 0)
                 LabelComj(COMJs)
             if (LIBRas > 0)
                 LabelLibra(LIBRas)
         }
-    if (turnoPrxTr?.sitioOrigen != null || cuDetalle?.tipo == "7000")
-        TurnoProxTarHeader(turno = turnoPrxTr, cuDetalle)
+    if (hoyState.turnoPrxTr?.sitioOrigen != null || hoyState.cuDetalle?.tipo == "7000")
+        TurnoProxTarHeader(turno = hoyState.turnoPrxTr, hoyState.cuDetalle)
 
 //    //TODO: Imagen ega
 //    if (imagenEga != null) {
@@ -505,40 +500,32 @@ fun HoyBody(
     onGenerarCuadroVacioClick: () -> Unit,
     onGenerarCuadroClick: () -> Unit,
 ) {
+    val hoyState by viewModel.hoyState.collectAsState(HoyState())
 
-    val tareas by viewModel.tareas.collectAsState(initial = emptyList())
-    val teleindicadores by viewModel.teleindicadores
-        .collectAsState(initial = emptyList())
-    val notasUsuario by viewModel.notasUsuario.collectAsState(initial = "")
-    val notasTurno by viewModel.notasTurno.collectAsState(initial = "")
-    val advMermasTurnosLaterales by viewModel.advMermasTurnosLaterales
-        .collectAsState(initial = HoyViewModel.AdvmermasTurnosLaterales(false, null, null))
-    val cuDetalle by viewModel.cuDetalleDelTurno.collectAsState(initial = null)
-    val historial by viewModel.historial.collectAsState(initial = emptyList())
-    val errores by viewModel.erroresHoy.collectAsState(initial = ErroresHoy())
-    val localizador by viewModel.localizador.collectAsState(initial = null)
+
+
+
     val generarCuadroVacioClicked by rememberSaveable { mutableStateOf(false) }
-    val selectedDate by viewModel.date.collectAsState(initial = null)
     var showErrors by remember { mutableStateOf(false) }
     val orientation = getScreenSizeInfo().orientation()
 
     val showFraseAyer by remember{
         derivedStateOf {
-            advMermasTurnosLaterales.tAyer != null &&
-                    advMermasTurnosLaterales.tHoy != null
+            hoyState.advMermasTurnosLaterales.tAyer != null &&
+                    hoyState.advMermasTurnosLaterales.tHoy != null
         }
     }
 
     val showFraseManana by remember{
         derivedStateOf {
-            advMermasTurnosLaterales.tManana != null &&
-                    advMermasTurnosLaterales.tHoy != null
+            hoyState.advMermasTurnosLaterales.tManana != null &&
+                    hoyState.advMermasTurnosLaterales.tHoy != null
         }
     }
 
 
     //Un pequeño delay, para que no se vean por instantes los errores.
-    LaunchedEffect(selectedDate) {
+    LaunchedEffect(hoyState.date) {
         showErrors = false
         delay(300)
         showErrors = true
@@ -546,10 +533,10 @@ fun HoyBody(
 
     LazyColumn(Modifier.padding(horizontal = 16.dp)) {
 
-        if (errores.hayErrores && showErrors)
-            item {ErroresHoy(errores, cuDetalle, Modifier.animateItemPlacement()) }
+        if (hoyState.erroresHoy.hayErrores && showErrors)
+            item {ErroresHoy(hoyState.erroresHoy, hoyState.cuDetalle, Modifier.animateItemPlacement()) }
 
-        if (cuDetalle == null && showErrors) {
+        if (hoyState.cuDetalle == null && showErrors) {
             item {
                 Button(onClick = {
                     generarCuadroVacioClicked != generarCuadroVacioClicked
@@ -564,29 +551,29 @@ fun HoyBody(
         }
 
         //Solo mostramos aquí las tareas si estamos en vertical.
-        if (tareas.isNotEmpty() && orientation == Orientation.PORTRAIT)
-            items(tareas) { tarea ->
+        if (hoyState.tareas.isNotEmpty() && orientation == Orientation.PORTRAIT)
+            items(hoyState.tareas) { tarea ->
                 TareaConClima(tarea = tarea, Modifier.animateItemPlacement()) { estaTarea ->
                     onTareaClick(estaTarea)
                 }
             }
-        if (cuDetalle?.tipo?.esTipoTurnoCambiable() == true && cuDetalle?.nombreDebe.isNotNullNorBlank())
+        if (hoyState.cuDetalle?.tipo?.esTipoTurnoCambiable() == true && hoyState.cuDetalle?.nombreDebe.isNotNullNorBlank())
             item {
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 MyTextStd(
                     text = genNombreTextView(
-                        cuDetalle?.toTurnoPrxTr() ?: TurnoPrxTr()//Prefiero algo vacío que los !!.
+                        hoyState.cuDetalle?.toTurnoPrxTr() ?: TurnoPrxTr()//Prefiero algo vacío que los !!.
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-        if (teleindicadores.size > 1) {
+        if (hoyState.teleindicadores.size > 1) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
                 ParagraphSubtitle(text = stringResource( Res.string.teleindicadores_))
             }
 
-            itemsIndexed(teleindicadores) { index, teleindicadoresDeTren ->
+            itemsIndexed(hoyState.teleindicadores) { index, teleindicadoresDeTren ->
                 val gridWidth = with(LocalDensity.current) {
                     (teleindicadoresDeTren.stringLength * (8.sp).toDp()) + 8.dp
                 }
@@ -621,39 +608,39 @@ fun HoyBody(
                 }
             }
         }
-        if (notasUsuario.isNotBlank()) {
+        if (hoyState.notasUsuario.isNotBlank()) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
                 ParagraphSubtitle(text = stringResource(Res.string.tus_notas))
-                MyTextStd(text = notasUsuario)
+                MyTextStd(text = hoyState.notasUsuario)
             }
         }
-        if (localizador != null) {
+        if (hoyState.localizador != null) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
                 ParagraphSubtitle(text = stringResource(Res.string.localizador),
                     modifier = Modifier.clickable { viewModel.onLocalizadorClick() }.fillMaxWidth())
-                MyTextStd(text = localizador?.localizador ?: "",
+                MyTextStd(text = hoyState.localizador?.localizador ?: "",
                     modifier = Modifier.clickable { viewModel.onLocalizadorClick() }.fillMaxWidth())
             }
         }
 
-        if (notasTurno.isNotBlank()) {
+        if (hoyState.notasTurno.isNotBlank()) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
                 ParagraphSubtitle(text = stringResource(Res.string.notas_del_turno_))
-                MyTextStd(text = notasTurno)
+                MyTextStd(text = hoyState.notasTurno)
             }
         }
-        if (advMermasTurnosLaterales.show) {
+        if (hoyState.advMermasTurnosLaterales.show) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
                 Row {
                     if (showFraseAyer)
                         MyTextStd(
                             text = fraseDescansoAntes(
-                                advMermasTurnosLaterales.tAyer!!,
-                                advMermasTurnosLaterales.tHoy!!
+                                hoyState.advMermasTurnosLaterales.tAyer!!,
+                                hoyState.advMermasTurnosLaterales.tHoy!!
                             ),
                             Modifier
                                 .weight(1f)
@@ -663,8 +650,8 @@ fun HoyBody(
                     if (showFraseManana)
                         MyTextStd(
                             text = fraseDescansoDespues(
-                                advMermasTurnosLaterales.tHoy!!,
-                                advMermasTurnosLaterales.tManana!!
+                                hoyState.advMermasTurnosLaterales.tHoy!!,
+                                hoyState.advMermasTurnosLaterales.tManana!!
                             ),
                             Modifier
                                 .weight(1f)
@@ -674,10 +661,10 @@ fun HoyBody(
             }
         }
 
-        if ((cuDetalle?.mermas ?: 0) > 0 || (cuDetalle?.excesos ?: 0) > 0) {
+        if ((hoyState.cuDetalle?.mermas ?: 0) > 0 || (hoyState.cuDetalle?.excesos ?: 0) > 0) {
             item {
-                val excesos = cuDetalle?.excesos
-                val mermas = cuDetalle?.mermas
+                val excesos = hoyState.cuDetalle?.excesos
+                val mermas = hoyState.cuDetalle?.mermas
                 var texto = ""
                 if (excesos != null && excesos != 0)
                     texto = stringResource(
@@ -694,13 +681,13 @@ fun HoyBody(
 
 
 
-                ExcesosYMermas(cuDetalle) {
+                ExcesosYMermas(hoyState.cuDetalle) {
                     onExcesosClick(texto)
                 }
             }
         }
-        if (historial.isNotEmpty()) {
-            itemsIndexed(historial) { index, historia ->
+        if (hoyState.historial.isNotEmpty()) {
+            itemsIndexed(hoyState.historial) { index, historia ->
 
                 if (index == 0) {
                     HorizontalDivider(Modifier.padding(top = 4.dp))
