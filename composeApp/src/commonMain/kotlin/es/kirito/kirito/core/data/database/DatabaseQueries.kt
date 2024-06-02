@@ -385,7 +385,7 @@ interface KiritoDao {
     fun getGraficos(): Flow<List<GrGraficos>>
 
     @Query("Select * from tabla_gr_graficos order by fechaInicio ASC")
-    fun getGraficosRaw(): List<GrGraficos>
+    suspend fun getGraficosRaw(): List<GrGraficos>
 
 
     @Query(
@@ -406,7 +406,7 @@ interface KiritoDao {
     fun getGraficosConVar(): Flow<List<GrGraficosConVar>>
 
     @Query("delete from tabla_gr_graficos")
-    fun deleteAllGraficos()
+    suspend fun deleteAllGraficos()
 
     @Query(
         "Select * from tabla_gr_graficos " +
