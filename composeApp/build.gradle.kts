@@ -1,23 +1,24 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
     alias(libs.plugins.jetbrainsCompose)//TREMENDAMENTE IMPORTANTE: NO ALTERES EL ORDEN DE ESTAS COSAS.
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.serialization)
-
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.room)
 }
-@OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    androidTarget {
+    androidTarget()
+    /*androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
-    }
+    }*/
     
     listOf(
         iosX64(),
@@ -31,6 +32,9 @@ kotlin {
     }
     
     sourceSets {
+        sourceSets.commonMain {
+            kotlin.srcDir("build/generated/ksp/metadata")
+        }
         
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
@@ -138,13 +142,19 @@ android {
 }
 
 dependencies {
+    add("kspCommonMainMetadata", libs.androidx.room.compiler)
     // Room
-    add("kspAndroid", libs.androidx.room.compiler)
+    /*add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     add("kspIosX64", libs.androidx.room.compiler)
-    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)*/
 }
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata" ) {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
 }
