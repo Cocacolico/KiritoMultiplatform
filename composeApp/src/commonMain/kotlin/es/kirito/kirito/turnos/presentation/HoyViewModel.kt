@@ -1,20 +1,22 @@
 package es.kirito.kirito.turnos.presentation
 
-import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.core.data.constants.FlagLogout
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
+import es.kirito.kirito.core.data.database.CuHistorial
+import es.kirito.kirito.core.data.database.GrTareas
+import es.kirito.kirito.core.data.database.Localizador
+import es.kirito.kirito.core.data.database.OtColoresTrenes
 import es.kirito.kirito.core.domain.CoreRepository
+import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
 import es.kirito.kirito.core.domain.models.GrTarea
 import es.kirito.kirito.core.domain.models.TurnoPrxTr
 import es.kirito.kirito.core.domain.util.deAyerAHoy
 import es.kirito.kirito.core.domain.util.deMananaAHoy
 import es.kirito.kirito.core.domain.util.esTipoValido
 import es.kirito.kirito.core.domain.util.esTurnoDeTrabajo
-import es.kirito.kirito.core.domain.util.fraseDescansoAntes
-import es.kirito.kirito.core.domain.util.fraseDescansoDespues
 import es.kirito.kirito.core.domain.util.isNotNullNorBlank
 import es.kirito.kirito.core.domain.util.minuteTimerFlow
 import es.kirito.kirito.core.domain.util.pasaPorMedianoche
@@ -22,22 +24,20 @@ import es.kirito.kirito.core.domain.util.servicio
 import es.kirito.kirito.core.domain.util.toEpochSecondsZoned
 import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.domain.util.toLocalTime
-import es.kirito.kirito.login.domain.LoginRepository
 import es.kirito.kirito.precarga.domain.PrecargaRepository
+import es.kirito.kirito.turnos.domain.HoyState
 import es.kirito.kirito.turnos.domain.TurnosRepository
 import es.kirito.kirito.turnos.domain.models.CuadroAnualVacio
 import es.kirito.kirito.turnos.domain.models.ErroresHoy
 import es.kirito.kirito.turnos.domain.models.NavigationDestination
 import es.kirito.kirito.turnos.domain.models.NavigationObject
 import es.kirito.kirito.turnos.domain.models.TeleindicadoresDeTren
-import es.kirito.kirito.turnos.domain.utils.genComjYLibraString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -67,35 +67,34 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
 
 
-    private val _date: MutableStateFlow<LocalDate?> =
+    private val date: MutableStateFlow<LocalDate?> =
         MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
-    val date = _date.asStateFlow()
 
     val toastString = MutableSharedFlow<String?>()
 
 
-    val minuteTimer = minuteTimerFlow()
+    private val minuteTimer = minuteTimerFlow()
 
 
-    val cuDetalleDelTurno = _date.flatMapLatest { date ->
+    private val cuDetalleDelTurno = date.flatMapLatest { date ->
         repository.getCuDetallesDeUnDia(date?.toEpochDays())
     }
-    val turnoPrxTr = _date.flatMapLatest { date ->
+    private val turnoPrxTr = date.flatMapLatest { date ->
         repository.getTurnoDeUnDia(date?.toEpochDays())
     }
-    val coloresTrenes = repository.getAllColoresTrenes()
+    private val coloresTrenes = repository.getAllColoresTrenes()
 
-    val festivo = _date.flatMapLatest { date ->
+    private val festivo = date.flatMapLatest { date ->
         repository.getFestivoDeUnDia(date?.toEpochDays()).map { it ?: "" }
     }
 
-    val showLocalizadorDialog = MutableStateFlow(false)
+    private val showLocalizadorDialog = MutableStateFlow(false)
 
 
     val toastFestivo = festivo.map { it.isNotNullNorBlank() }
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
 
-    val tareasCortas = turnoPrxTr.flatMapLatest { turno ->
+    private val tareasCortas = turnoPrxTr.flatMapLatest { turno ->
         repository.getTareasCortasDeUnTurno(turno?.idGrafico, turno?.turno, turno?.diaSemana)
     }
 
@@ -126,7 +125,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
 
 
-    val tareas = turnoPrxTr.flatMapLatest { turno ->
+    private val tareas = turnoPrxTr.flatMapLatest { turno ->
         repository.getTareasDeUnTurnoDM(turno?.idGrafico, turno?.turno, turno?.diaSemana)
             .combine(minuteTimer) { list, minuteTimer ->
                 //   }
@@ -135,14 +134,14 @@ class HoyViewModel: ViewModel(), KoinComponent {
                     val climaO = repository.getOneClimaRounded(
                         time =
                         LocalDateTime(
-                            (_date.value ?: Clock.System.todayIn(TimeZone.currentSystemDefault())),
+                            (date.value ?: Clock.System.todayIn(TimeZone.currentSystemDefault())),
                             (tarea.horaOrigen ?: 0).toLocalTime()
                         ).toEpochSecondsZoned(),
                         station = tarea.sitioOrigen ?: ""
                     ).firstOrNull()
                     val climaF = repository.getOneClimaRounded(
                         time = LocalDateTime(
-                            (_date.value ?: Clock.System.todayIn(TimeZone.currentSystemDefault())),
+                            (date.value ?: Clock.System.todayIn(TimeZone.currentSystemDefault())),
                             (tarea.horaFin ?: 0).toLocalTime()
                         ).toEpochSecondsZoned(),
                         station = tarea.sitioFin ?: ""
@@ -164,7 +163,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
                         visibilidadF = climaF?.visibilidad,
                         //Inserted lo usamos para ver la hora de inicio y colorear las tareas si ya han empezado.
                         inserted = LocalDateTime(
-                            (_date.value ?: Clock.System.todayIn(TimeZone.currentSystemDefault())),
+                            (date.value ?: Clock.System.todayIn(TimeZone.currentSystemDefault())),
                             (turno?.horaOrigen ?: 0).toLocalTime()
                         ).toEpochSecondsZoned(),
                         tickMinute = minuteTimer
@@ -174,7 +173,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
     }
 
 
-    val teleindicadores = turnoPrxTr.flatMapLatest { turno ->
+    private val teleindicadores = turnoPrxTr.flatMapLatest { turno ->
         repository.getTeleindicadores(turno?.idGrafico, turno?.turno, turno?.diaSemana)
             .map { teleindicadores ->
                 teleindicadores.filterNot { teleindicador ->
@@ -228,14 +227,14 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
     }
 
-    val notasUsuario = cuDetalleDelTurno.map {
+    private val notasUsuario = cuDetalleDelTurno.map {
         //TODO: Parse HTML
        // Html.fromHtml(it?.notas ?: "", Html.FROM_HTML_MODE_COMPACT).trim()
         it?.notas.toString()
 
     }
 
-    val notasTurno = turnoPrxTr.flatMapLatest {
+    private val notasTurno = turnoPrxTr.flatMapLatest {
         repository.getNotasDelTurno(it?.idGrafico, it?.turno, it?.diaSemana)
             .map { lista ->
                 val concatenated = lista.joinToString(separator = "") { nota -> nota.nota }
@@ -255,8 +254,8 @@ class HoyViewModel: ViewModel(), KoinComponent {
     private val mostrarDescansoEntreTurnos =
         repository.configTiempoEntreTurnos //0 siempre visible, 1 a veces, 2 nunca.
 
-    val advMermasTurnosLaterales = combine(
-        _date,
+    private val advMermasTurnosLaterales = combine(
+        date,
         turnoPrxTr,
         mostrarDescansoEntreTurnos
     ) { fecha, tHoy, mostrarDescansoEntreTurnos ->
@@ -292,11 +291,11 @@ class HoyViewModel: ViewModel(), KoinComponent {
         }
     }
 
-    val historial = cuDetalleDelTurno.flatMapLatest { turno ->
+    private val historial = cuDetalleDelTurno.flatMapLatest { turno ->
         repository.getHistorialDeUnTurno(turno?.idDetalle)
     }
 
-    val iHaveShiftsShared = preferenciasKirito.map { it.userId }.flatMapLatest { id ->
+    private val iHaveShiftsShared = preferenciasKirito.map { it.userId }.flatMapLatest { id ->
         repository.tengoLosCambiosActivados(id)
     }
 
@@ -307,24 +306,24 @@ class HoyViewModel: ViewModel(), KoinComponent {
     val navigationDestination = _navigationDestination.asStateFlow()
 
 
-    val hayTareas = tareas.map { it.isNotEmpty() }
-    val hayGraficoEnVigor = _date
+    private val hayTareas = tareas.map { it.isNotEmpty() }
+    private val hayGraficoEnVigor = date
         .flatMapLatest { repository.getGraficoDeUnDia(it?.toEpochDays()?.toLong()) }
         .map { it != null }
-    val elTurnoTieneTareasEnOtrasVariaciones = turnoPrxTr.flatMapLatest { turno ->
+    private val elTurnoTieneTareasEnOtrasVariaciones = turnoPrxTr.flatMapLatest { turno ->
         repository.getTareasDeUnTurno(turno?.idGrafico, turno?.turno)
     }
-    val elTurnoEstaEnElGrafico = turnoPrxTr.flatMapLatest { turno ->
+    private val elTurnoEstaEnElGrafico = turnoPrxTr.flatMapLatest { turno ->
         repository.elTurnoTieneExcelIF(turno?.turno, turno?.idGrafico)
     }
-    val combined = combine(
+    private val combined = combine(
         elTurnoTieneTareasEnOtrasVariaciones,
         elTurnoEstaEnElGrafico
     ) { elTurnoTieneTareasEnOtrasVariaciones, elTurnoEstaEnElGrafico ->
         Pair(elTurnoTieneTareasEnOtrasVariaciones, elTurnoEstaEnElGrafico)
     }
 
-    val erroresHoy = combine(
+    private val erroresHoy = combine(
         cuDetalleDelTurno,
         turnoPrxTr,
         hayTareas,
@@ -362,6 +361,47 @@ class HoyViewModel: ViewModel(), KoinComponent {
         errores
     }
 
+    private val localizador = cuDetalleDelTurno.flatMapLatest { turno ->
+        repository.getOneLocalizador(
+            turno = turno?.turno ?: "",
+            date = turno?.fecha ?: 0L
+        )
+    }
+
+    private val novedadesVersion = 5
+
+    val novedades = preferenciasKirito.map {
+        it.novedades != novedadesVersion
+    }
+
+    val hoyState = combine(
+        date, cuDetalleDelTurno, turnoPrxTr, coloresTrenes,
+        festivo, tareasCortas, tareas, teleindicadores, notasUsuario,
+        notasTurno, advMermasTurnosLaterales, historial, iHaveShiftsShared,
+        erroresHoy, localizador, showLocalizadorDialog
+    ){ array ->
+        HoyState(
+            array[0] as LocalDate?,
+            array[1] as CuDetalleConFestivoDBModel?,
+            array[2] as TurnoPrxTr?,
+            array[3] as List<OtColoresTrenes>,
+            array[4] as String,
+            array[5] as List<GrTareas>,
+            array[6] as List<GrTarea>,
+            array[7] as List<TeleindicadoresDeTren>,
+            array[8] as String,
+            array[9] as String,
+            array[10] as AdvmermasTurnosLaterales,
+            array[11] as List<CuHistorial>,
+            array[12] as Boolean,
+            array[13] as ErroresHoy,
+            array[14] as Localizador?,
+            array[15] as Boolean,
+        )
+    }
+
+
+
 
     fun onSearchClick(tarea: GrTarea) {
         _navigationDestination.value = NavigationObject(
@@ -376,28 +416,28 @@ class HoyViewModel: ViewModel(), KoinComponent {
     fun onBulkEditClick() {
         _navigationDestination.value = NavigationObject(
             NavigationDestination.BulkEdit,
-            _date.value?.toEpochDays()?.toLong() ?: return
+            date.value?.toEpochDays()?.toLong() ?: return
         )
     }
 
     fun onExcessClick() {
         _navigationDestination.value = NavigationObject(
             NavigationDestination.Excess,
-            _date.value?.toEpochDays()?.toLong() ?: return
+            date.value?.toEpochDays()?.toLong() ?: return
         )
     }
 
     fun onEditClick() {
         _navigationDestination.value = NavigationObject(
             NavigationDestination.Edit,
-            _date.value?.toEpochDays()?.toLong() ?: return
+            date.value?.toEpochDays()?.toLong() ?: return
         )
     }
 
     fun onExchangeClick() {
         _navigationDestination.value = NavigationObject(
             NavigationDestination.Exchange,
-            _date.value?.toEpochDays()?.toLong() ?: return
+            date.value?.toEpochDays()?.toLong() ?: return
         )
     }
 
@@ -411,15 +451,15 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
 
     fun onPreviousDayClick(days: Int) {
-        _date.value = _date.value?.minus(days,DateTimeUnit.DAY)
+        date.value = date.value?.minus(days,DateTimeUnit.DAY)
     }
 
     fun onNextDayClick(days: Int) {
-        _date.value = _date.value?.plus(days,DateTimeUnit.DAY)
+        date.value = date.value?.plus(days,DateTimeUnit.DAY)
     }
 
     fun onDateSelected(date: LocalDate) {
-        _date.value = date
+        this.date.value = date
     }
 
 
@@ -434,12 +474,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
         }
     }
 
-    val localizador = cuDetalleDelTurno.flatMapLatest { turno ->
-        repository.getOneLocalizador(
-            turno = turno?.turno ?: "",
-            date = turno?.fecha ?: 0L
-        )
-    }
+
 
     //TODO: IMAGEN EGA
 //    fun onImageClicked(scroll: Int, offset: Float, turno: TurnoParaImagen, context: Context) {
@@ -448,13 +483,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
     fun setFechaFromOtherFragments(fecha: String?) {
         val epochDay = fecha?.toLongOrNull() ?: return
-        _date.value = epochDay.toLocalDate()
-    }
-
-    private val novedadesVersion = 5
-
-    val novedades = preferenciasKirito.map {
-        it.novedades != novedadesVersion
+        date.value = epochDay.toLocalDate()
     }
 
     fun onNovedadShown() {
@@ -530,7 +559,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
     fun onGenerarCuadroClick() {
         _navigationDestination.value = NavigationObject(
             NavigationDestination.NewChart,
-            _date.value?.toEpochDays()?.toLong() ?: return
+            date.value?.toEpochDays()?.toLong() ?: return
         )
 
     }
@@ -541,7 +570,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
             try {
                 repository.requestSubirCuadroVacio(
                     CuadroAnualVacio(
-                        year = _date.value?.year ?: Clock.System.todayIn(TimeZone.currentSystemDefault()).year,
+                        year = date.value?.year ?: Clock.System.todayIn(TimeZone.currentSystemDefault()).year,
                         sobrescribir = false
                     )
                 )
@@ -566,7 +595,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            _date.collect { fecha ->
+            date.collect { fecha ->
                 fecha?.let {
                     getCurrentChart(fecha.toEpochDays().toLong())
                 }

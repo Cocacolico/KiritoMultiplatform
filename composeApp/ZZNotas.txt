@@ -5,7 +5,6 @@ las transiciones.
 
 Referencias al viewmodel en fábricas para ios.
 
-usar sqlDelight.
 Mirar el tema de la paginación para el buscador y cosas enormes.
 
 Volver a intentar lo de la navegación.
