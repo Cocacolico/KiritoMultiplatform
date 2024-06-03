@@ -32,6 +32,9 @@ import es.kirito.kirito.turnos.domain.models.ErroresHoy
 import es.kirito.kirito.turnos.domain.models.NavigationDestination
 import es.kirito.kirito.turnos.domain.models.NavigationObject
 import es.kirito.kirito.turnos.domain.models.TeleindicadoresDeTren
+import es.kirito.kirito.turnos.domain.utils.genComjYLibraString
+import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources.cuadro_subido_correctamente
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
@@ -55,6 +58,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
+import org.jetbrains.compose.resources.StringResource
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -71,10 +75,10 @@ class HoyViewModel: ViewModel(), KoinComponent {
         MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
 
     val toastString = MutableSharedFlow<String?>()
-
+    val toastId = MutableSharedFlow<StringResource?>()
+    val showToastComjYLibra = MutableSharedFlow<Boolean>()
 
     private val minuteTimer = minuteTimerFlow()
-
 
     private val cuDetalleDelTurno = date.flatMapLatest { date ->
         repository.getCuDetallesDeUnDia(date?.toEpochDays())
@@ -88,11 +92,12 @@ class HoyViewModel: ViewModel(), KoinComponent {
         repository.getFestivoDeUnDia(date?.toEpochDays()).map { it ?: "" }
     }
 
-    private val showLocalizadorDialog = MutableStateFlow(false)
-
-
+    //Este advierte de que estás en un festivo, es diferente al resto de toasts.
     val toastFestivo = festivo.map { it.isNotNullNorBlank() }
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
+
+    private val showLocalizadorDialog = MutableStateFlow(false)
+
 
     private val tareasCortas = turnoPrxTr.flatMapLatest { turno ->
         repository.getTareasCortasDeUnTurno(turno?.idGrafico, turno?.turno, turno?.diaSemana)
@@ -465,12 +470,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
     fun onComjYLibraClick() {
         viewModelScope.launch(Dispatchers.IO) {
-            //TODO: Mostrar este toast correctamente.
-//            val turno = cuDetalleDelTurno.firstOrNull()
-//            val frase = turno?.genComjYLibraString()
-//            if (frase != null) {
-//                toastString.emit(frase)
-//            }
+            showToastComjYLibra.emit(true)
         }
     }
 
@@ -575,8 +575,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
                     )
                 )
                 repository.descargarCuadroAnual()
-                //TODO: Informar de este toast.
-            //    toastString.emit(application.applicationContext.getString(R.string.cuadro_subido_correctamente))
+                toastId.emit(Res.string.cuadro_subido_correctamente)
             } catch (e: Exception) {
                 toastString.emit(e.message)
                 println(e.message)
@@ -590,6 +589,25 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
     fun hideLocalizadorDialog() {
         showLocalizadorDialog.value = false
+    }
+
+    fun emitToast() {
+
+    }
+
+    fun emitToast(string: String) {
+        viewModelScope.launch {
+            toastString.emit(string)
+        }
+    }
+
+    fun onToastLaunched() {
+        //Limpiamos los toasts para que no se vuelvan a emitir.
+        viewModelScope.launch {
+            toastString.emit(null)
+            toastId.emit(null)
+            showToastComjYLibra.emit(false)
+        }
     }
 
 
