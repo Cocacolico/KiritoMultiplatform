@@ -76,11 +76,13 @@ import es.kirito.kirito.core.domain.util.isNotNullNorBlank
 import es.kirito.kirito.core.domain.util.nombreTurnosConTipo
 import es.kirito.kirito.core.domain.util.toComposeColor
 import es.kirito.kirito.core.domain.util.toInstant
+import es.kirito.kirito.core.domain.util.toIntIfNull
 import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.domain.util.toLocalTime
 import es.kirito.kirito.core.domain.util.toStringUpToSeconds
 import es.kirito.kirito.core.domain.util.toTurnoPrxTr
 import es.kirito.kirito.core.presentation.components.HeaderWithPrevNext
+import es.kirito.kirito.core.presentation.components.LongToast
 import es.kirito.kirito.core.presentation.components.MyDialogInformation
 import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.components.ParagraphSubtitle
@@ -90,8 +92,8 @@ import es.kirito.kirito.core.presentation.utils.Orientation
 import es.kirito.kirito.core.presentation.utils.getScreenSizeInfo
 import es.kirito.kirito.core.presentation.utils.orientation
 import es.kirito.kirito.turnos.domain.HoyState
-import es.kirito.kirito.turnos.domain.models.ErroresHoy
 import es.kirito.kirito.turnos.domain.models.Season
+import es.kirito.kirito.turnos.domain.utils.genComjYLibraString
 import es.kirito.kirito.turnos.presentation.components.DateString
 import es.kirito.kirito.turnos.presentation.components.DialogClimaTarea
 import es.kirito.kirito.turnos.presentation.components.DialogEditShift
@@ -102,7 +104,9 @@ import es.kirito.kirito.turnos.presentation.components.LabelLibra
 import es.kirito.kirito.turnos.presentation.components.TareaConClima
 import es.kirito.kirito.turnos.presentation.components.TurnoProxTarHeader
 import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources._0
 import kirito.composeapp.generated.resources._cambiado_con_
+import kirito.composeapp.generated.resources.advertencia_festivos
 import kirito.composeapp.generated.resources.antes_
 import kirito.composeapp.generated.resources.autumn1
 import kirito.composeapp.generated.resources.cancelar
@@ -165,18 +169,42 @@ fun HoyScreen(navController: NavHostController) {
         val orientation = getScreenSizeInfo().orientation()
         val novedades by viewModel.novedades.collectAsState(initial = false)
 
+        //TODO: Esto dará problemas, se recolectaban de otro modo.
+        val toastString by viewModel.toastString.collectAsState(null)
+        val toastId by viewModel.toastId.collectAsState(null)
+        val toastFestivo by viewModel.toastFestivo.collectAsState(false)
+        val showToastComjYLibra by viewModel.showToastComjYLibra.collectAsState(false)
+
         LaunchedEffect(Unit) {
             while (true) {
                 nowTimeString = Clock.System.now().toLocalTime().toStringUpToSeconds()
                 delay(1.seconds)
             }
         }
-        LaunchedEffect(Unit) {
-            viewModel.toastFestivo.collect { show ->
-                //TODO: Mostrar este toast.
-//                if (show)
-//                    context.showLongToast(context.getString(R.string.advertencia_festivos))
-            }
+
+        if (toastString != null){
+            LongToast(toastString)
+            viewModel.onToastLaunched()
+        }
+        if(toastId != null){
+            LongToast(stringResource(toastId ?: Res.string._0))
+            viewModel.onToastLaunched()
+        }
+        if (toastFestivo){
+            LongToast(stringResource(Res.string.advertencia_festivos))
+            viewModel.onToastLaunched()
+        }
+
+        val showFraseDiasEspeciales by remember { derivedStateOf {
+            showToastComjYLibra &&
+           ( hoyState.cuDetalle?.libra.toIntIfNull(-1) > 0 ||
+            hoyState.cuDetalle?.comj.toIntIfNull(-1) > 0)
+        } }
+
+        if (showFraseDiasEspeciales){
+            val fraseDiasEspeciales = hoyState.cuDetalle?.genComjYLibraString()
+            LongToast(fraseDiasEspeciales)
+            viewModel.onToastLaunched()
         }
 
         Box(
@@ -403,14 +431,6 @@ fun HoyScreen(navController: NavHostController) {
             }) {
             viewModel.hideLocalizadorDialog()
         }
-
-        //TODO: Mostrar este toast
-//        LaunchedEffect(Unit) {
-//            viewModel.toastString.collect {
-//                if (it != null)
-//                    context.showLongToast(it)
-//            }
-//        }
     }
 }
 
@@ -430,10 +450,7 @@ fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked
         onNextClick = { viewModel.onNextDayClick(1) },
         onPrevLongClick = { viewModel.onPreviousDayClick(7) },
         onNextLongClick = { viewModel.onNextDayClick(7) },
-        onFestivoClick = {
-            //TODO: Mostrar este toast.
-         ///   context.showLongToast(festivo)
-        }
+        onFestivoClick = { viewModel.emitToast(hoyState.festivo) }
     )
     if (hoyState.cuDetalle != null)
         Text(
@@ -501,10 +518,6 @@ fun HoyBody(
     onGenerarCuadroClick: () -> Unit,
 ) {
     val hoyState by viewModel.hoyState.collectAsState(HoyState())
-
-
-
-
     val generarCuadroVacioClicked by rememberSaveable { mutableStateOf(false) }
     var showErrors by remember { mutableStateOf(false) }
     val orientation = getScreenSizeInfo().orientation()
