@@ -15,8 +15,18 @@ import androidx.room.RoomDatabase
     version = 2,
     exportSchema = true
 )
-abstract class KiritoDatabase : RoomDatabase() {
+abstract class KiritoDatabase : RoomDatabase(), DB {
     abstract fun kiritoDao(): KiritoDao
+
+    override fun clearAllTables() {
+        super.clearAllTables()
+    }
 }
 
 internal const val dbFileName = "kiritoDatabase.db"
+
+// FIXME: Added a hack to resolve below issue:
+// Class 'AppDatabase_Impl' is not abstract and does not implement abstract base class member 'clearAllTables'.
+interface DB {
+    fun clearAllTables(): Unit {}
+}

@@ -1,4 +1,7 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,15 +13,13 @@ plugins {
     alias(libs.plugins.androidApplication)
 
 }
-
 kotlin {
-    androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-            }
+    androidTarget()
+    /*androidTarget {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
         }
-    }
+    }*/
     
     listOf(
         iosX64(),
@@ -32,6 +33,9 @@ kotlin {
     }
     
     sourceSets {
+        sourceSets.commonMain {
+            kotlin.srcDir("build/generated/ksp/metadata")
+        }
         
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
@@ -139,13 +143,19 @@ android {
 }
 
 dependencies {
+    add("kspCommonMainMetadata", libs.androidx.room.compiler)
     // Room
-    add("kspAndroid", libs.androidx.room.compiler)
+    /*add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     add("kspIosX64", libs.androidx.room.compiler)
-    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)*/
 }
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata" ) {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
 }
