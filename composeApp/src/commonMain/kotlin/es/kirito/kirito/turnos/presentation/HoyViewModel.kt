@@ -35,6 +35,7 @@ import es.kirito.kirito.turnos.domain.models.TeleindicadoresDeTren
 import es.kirito.kirito.turnos.domain.utils.genComjYLibraString
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.cuadro_subido_correctamente
+import kirito.composeapp.generated.resources.descargando_grafico
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
@@ -62,6 +63,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+@Suppress("UNCHECKED_CAST")
 @OptIn(ExperimentalCoroutinesApi::class)
 class HoyViewModel: ViewModel(), KoinComponent {
 
@@ -535,13 +537,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
             if (repository.getOneGrTareasFromGrafico(idGrafico) == null) {
                 println("No tengo idGrafico")
                 try {
-                    //TODO: Informar de que intento bajarme el gráfico.
-//                    toastString.emit(
-//                        application.applicationContext.getString(
-//                            R.string.descargando_grafico
-//                        )
-//                    )
-
+                    toastId.emit(Res.string.descargando_grafico)
                     precargaRepo.descargarComplementosDelGrafico(idGrafico)
                 } catch (e: Exception) {
                     if (e.message != "Ignorar") {
@@ -603,6 +599,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
     fun onToastLaunched() {
         //Limpiamos los toasts para que no se vuelvan a emitir.
+        //Esta mierda es necesaria, ya que no puedo recolectar los SharedFlows como me gustaría.
         viewModelScope.launch {
             toastString.emit(null)
             toastId.emit(null)

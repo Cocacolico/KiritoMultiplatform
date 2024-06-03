@@ -93,9 +93,9 @@
     <string name="elige_una_fecha">Elige una fecha</string>
     <string name="nombre_del_compa_ero">Nombre del compañero</string>
     <string name="compa_ero_con_el_que_has_cambiado_el_turno">Compañero con el que has cambiado el turno:</string>
-    <string name="te_hace_el_turno_">"Te hace el turno "</string>
-    <string name="haces_el_turno_a_">"Haces el turno a "</string>
-    <string name="cambiado_con_">"Cambiado con "</string>
+    <string name="te_hace_el_turno_">Te hace el turno </string>
+    <string name="haces_el_turno_a_">Haces el turno a </string>
+    <string name="cambiado_con_">Cambiado con </string>
     <string name="tus_notas">Tus notas:</string>
     <string name="historial_del_turno">Historial del turno:</string>
     <string name="la_empresa_te_da">La Empresa te da </string>
