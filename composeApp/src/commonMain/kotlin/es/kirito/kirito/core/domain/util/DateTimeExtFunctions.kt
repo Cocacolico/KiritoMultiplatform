@@ -7,6 +7,7 @@ import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.full_days
 import kirito.composeapp.generated.resources.full_months
 import kirito.composeapp.generated.resources.short_months
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -19,6 +20,8 @@ import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.format.char
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringArrayResource
@@ -177,7 +180,7 @@ fun Instant.isBefore(other: Instant): Boolean {
 
 @Composable
 fun Month.enCastellano(): String {
-    return stringArrayResource(Res.array.full_months)[this.ordinal - 1]
+    return stringArrayResource(Res.array.full_months)[this.ordinal]
 }
 
 @Composable
@@ -200,6 +203,23 @@ fun LocalDate.enMiFormatoMedio(): String {
 private fun Month.aMesCorto(): String {
     //IMPORTANTE!!!!: Le resto 1 porque si no, muestra el mes siguiente.
     return stringArrayResource(Res.array.short_months)[this.ordinal - 1]
+}
+
+fun LocalDate.withDayOfMonth(dayOfMonth: Int): LocalDate {
+    return LocalDate(this.year, this.month, dayOfMonth)
+}
+
+fun LocalDate.lastDayOfMonth(): LocalDate {
+    return this.plus(1, DateTimeUnit.MONTH)
+        .minus(3,DateTimeUnit.DAY)
+}
+
+/** Se usa sobre una hora de origen y se le resta la hora de fin. */
+fun Long.minusEndTime(endTime: Long): Long {
+    return if (this < endTime)
+        endTime - this
+    else
+        86400 - this + endTime
 }
 
 

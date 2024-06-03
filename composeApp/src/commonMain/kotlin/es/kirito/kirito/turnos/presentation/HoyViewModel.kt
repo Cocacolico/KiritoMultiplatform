@@ -69,9 +69,6 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
     private val repository: TurnosRepository by inject()
     private val coreRepo: CoreRepository by inject()
-    private val precargaRepo: PrecargaRepository by inject()
-
-
 
     private val date: MutableStateFlow<LocalDate?> =
         MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
@@ -538,7 +535,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
                 println("No tengo idGrafico")
                 try {
                     toastId.emit(Res.string.descargando_grafico)
-                    precargaRepo.descargarComplementosDelGrafico(idGrafico)
+                    coreRepo.descargarComplementosDelGrafico(idGrafico)
                 } catch (e: Exception) {
                     if (e.message != "Ignorar") {
                         //TODO: Firebase
