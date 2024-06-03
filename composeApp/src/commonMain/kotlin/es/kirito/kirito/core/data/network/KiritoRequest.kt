@@ -40,6 +40,7 @@ import es.kirito.kirito.precarga.data.network.models.ResponseTeleindicadorDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTurnoDeCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseUserDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseWeatherInfoDTO
+import es.kirito.kirito.turnos.data.network.models.RequestSubirCuadroVacioDTO
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -218,12 +219,16 @@ class KiritoRequest {
         return post<RequestUpdatedDTO, List<ResponseLocalizadoresDTO>>(request)
     }
 
-    suspend fun requestVersionAge(request: RequestSimpleDTO): ResponseKiritoDTO<Unit?> {
+    suspend fun requestSimpleEmptyResponse(request: RequestSimpleDTO): ResponseKiritoDTO<Unit?> {
         return post<RequestSimpleDTO, Unit?>(request)
     }
 
     suspend fun requestDelAndUpdElements(request: RequestSimpleDTO): ResponseKiritoDTO<List<ResponseDelAndUpdElementsDTO>> {
         return post<RequestSimpleDTO, List<ResponseDelAndUpdElementsDTO>>(request)
+    }
+
+    suspend fun requestSubirCuadroVacio(request: RequestSubirCuadroVacioDTO): ResponseKiritoDTO<Unit?> {
+        return post<RequestSubirCuadroVacioDTO, Unit?>(request)
     }
 
 

@@ -35,7 +35,7 @@ kotlin {
         sourceSets.commonMain {
             kotlin.srcDir("build/generated/ksp/metadata")
         }
-        
+
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)

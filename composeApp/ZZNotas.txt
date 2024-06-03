@@ -5,7 +5,6 @@ las transiciones.
 
 Referencias al viewmodel en fábricas para ios.
 
-usar sqlDelight.
 Mirar el tema de la paginación para el buscador y cosas enormes.
 
 Volver a intentar lo de la navegación.
@@ -17,4 +16,9 @@ https://github.com/mirzemehdi/KMPNotifier
 https://proandroiddev.com/how-to-implement-push-notification-in-kotlin-multiplatform-5006ff20f76c
 
 
+---- Errores conocidos ----
+- HoyScreen:
+No se ven correctamente los 7000.
+No está implementada la descarga automática desde aquí.
+No está metido el flag_logout para sacar a un usuario.
 
