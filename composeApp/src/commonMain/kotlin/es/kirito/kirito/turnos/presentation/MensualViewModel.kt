@@ -63,22 +63,30 @@ class MensualViewModel : ViewModel(), KoinComponent {
     }
 
 
+    private val selectedDates = combine(selectedDate, selectedMonth){ date, month ->
+        Pair(date, month)
+    }
 
-    private val turnosDelSemanal = selectedMonth.flatMapLatest { fecha ->
+    private val turnosDelSemanal = selectedDates.flatMapLatest { dates ->
+        val date = dates.first
+        val month = dates.second
         val flowHoraInicio = repository.getTurnosEntreFechas(
-            fecha.withDayOfMonth(1).toEpochDays().toLong(),
-            fecha.lastDayOfMonth().toEpochDays().toLong()
+            month.withDayOfMonth(1).toEpochDays().toLong(),
+            month.lastDayOfMonth().toEpochDays().toLong()
         )
         repository.getCuDetallesConFestivos(
-            fecha.withDayOfMonth(1).toEpochDays().toLong(),
-            fecha.lastDayOfMonth().toEpochDays().toLong()
-        )
+            month.withDayOfMonth(1).toEpochDays().toLong(),
+            month.lastDayOfMonth().toEpochDays().toLong()
+        ).map {lista ->
+            lista.map {turno ->
+                  turno.copy(isSelected = turno.fecha == date)
+            }
+        }
             .zip(flowHoraInicio) { cuDetallesConFestivosModels: List<CuDetalleConFestivoSemanal>, turnosPrxTrs: List<TurnoPrxTr> ->
                 cuDetallesConFestivosModels.map { semanalObj ->
                     val matchingPruebaObj =
                         turnosPrxTrs.find { it.fecha.toLocalDate() == semanalObj.fecha }
                     if (matchingPruebaObj != null) {
-                        println("Estamos portando y ${matchingPruebaObj}")
                         if (matchingPruebaObj.indicador != 0)
                             semanalObj.copy(
                                 horaInicio = matchingPruebaObj.horaOrigen,
@@ -152,10 +160,8 @@ class MensualViewModel : ViewModel(), KoinComponent {
         selectedDate.value = null
     }
 
-    //Cuando pinchas en un día.
-    fun selectDay(fechaSeleccionada: LocalDate) {
-        selectedDate.value = fechaSeleccionada
-
+    fun onDateSelected(turno: CuDetalleConFestivoSemanal){
+        selectedDate.value = turno.fecha
     }
 
     fun isGraficoDownloaded() {
@@ -194,49 +200,6 @@ class MensualViewModel : ViewModel(), KoinComponent {
         }
     }
 
-
-//    var textoResumenTurno = MutableLiveData("")
-//    fun onTurnoObservado(turno: TurnoPrxTr) {
-//        textoResumenTurno.value = ""
-//        if (turno.esTurnoDeTrabajo()) {
-//            if (turno.idGrafico == null || turno.idGrafico == 0L) {
-//                if (turno.tipo == "7000") {
-//                    textoResumenTurno.value = textoResumenTurno.value.plus(
-//                        "" + turno.hOrigenSietemil() + " - " + turno.hFinSietemil()
-//                    )
-//                } else if (turno.tipo == "ESP") {
-//                    textoResumenTurno.value = textoResumenTurno.value.plus(
-//                        " " + turno.sitioOrigen + " " + turno.hora_origen.toLocalTime() +
-//                                " - " + turno.sitioFin + " " + turno.hora_fin.toLocalTime()
-//                    )
-//                } else {
-//                    println("Este turno no tiene id_grafico ni es sietemil: $turno")
-//                    textoResumenTurno.value = textoResumenTurno.value.plus(
-//                        context.getString(
-//                            R.string.este_turno_no_esta_en_el_grafico
-//                        )
-//                    )
-//                }
-//            } else if (turno.indicador == 0) {
-//                //Entonces el turno no pertenece a este día.
-//                textoResumenTurno.value = textoResumenTurno.value.plus(
-//                    context.getString(R.string.este_turno_no_esta_en_) +
-//                            turno.diaSemana.diaSemanaEntero(context)
-//                )
-//            } else {
-//                if (turno.equivalencia != null) {
-//                    textoResumenTurno.value =
-//                        textoResumenTurno.value.plus(
-//                            context.getString(R.string.equivale_a___, turno.equivalencia)
-//                        )
-//                }
-//                textoResumenTurno.value = textoResumenTurno.value.plus(
-//                    " " + turno.sitioOrigen + " " + turno.hora_origen.toLocalTime() +
-//                            " - " + turno.sitioFin + " " + turno.hora_fin.toLocalTime()
-//                )
-//            }
-//        }
-//    }
 
 
     init {

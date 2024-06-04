@@ -168,6 +168,23 @@ fun GrTarea.servicio(): String{
     return this.servicio
 }
 
+/** Devuelve la hora inicial de un sietemil. **/
+fun TurnoPrxTr.hOrigenSietemil(): LocalTime {
+    var horas = 0
+    var minutos = 0
+
+    //Compruebo que no me haya llegado un texto en vez de números.
+    if (this.turno.length > 3 && this.turno.toIntOrNull() != null) {
+        horas = this.turno.substring(1, 3).toInt()
+        minutos = if (this.turno.dropLast(3) == "8")
+            30
+        else
+            0
+    }
+    while (horas > 23)
+        horas -= 24
+    return LocalTime(horas, minutos)
+}
 
 /** Devuelve la hora inicial de un sietemil. **/
 fun String.hOrigenSietemil(): LocalTime {
@@ -546,5 +563,13 @@ fun fraseDescansoDespues(tHoy: TurnoPrxTr, tManana: TurnoPrxTr): String{
             tManana.tipo.nombreLargoTiposDeTurnos().lowercase()
         )
     }
+}
 
+fun String?.calcularTipoDelTurno(): String {
+    if (this == null)
+        return "-"
+    return if (this.toIntOrNull() == null)
+        this
+    else
+        "T"
 }

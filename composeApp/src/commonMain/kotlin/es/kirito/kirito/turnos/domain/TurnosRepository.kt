@@ -186,7 +186,7 @@ private fun List<CuDetalleConFestivoDBModel>.asSemanalModel(): List<CuDetalleCon
             horaInicio = null,
             color = 0,
             excesos = it.excesos,
-            mermas = it.mermas
+            mermas = it.mermas,
         )
     }
 }
