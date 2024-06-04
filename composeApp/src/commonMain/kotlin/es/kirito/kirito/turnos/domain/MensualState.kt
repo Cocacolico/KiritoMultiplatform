@@ -17,5 +17,6 @@ data class MensualState(
     val selectedPrxTr: TurnoPrxTr? = null,
     val esteDiaTieneGrafico: Boolean = false,
     val turnosDelSemanal: List<CuDetalleConFestivoSemanal> = emptyList(),
-    val festivo: String? = null
+    val festivo: String? = null,
+    val iHaveShiftsShared: Boolean = false,
 )

@@ -17,7 +17,6 @@ import org.jetbrains.compose.resources.stringResource
  * Tiene un botón de confirmar y otro de cancelar.
  * @param okText Para cambiar el texto de confirmar.
  * **/
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun MyDialogConfirmation(
     show: Boolean,
@@ -52,7 +51,6 @@ fun MyDialogConfirmation(
  * @param okText Para cambiar el texto de confirmar.
  * @param isDismissable si true, se puede descartar pinchando fuera.
  * **/
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun MyDialogInformation(
     show: Boolean,

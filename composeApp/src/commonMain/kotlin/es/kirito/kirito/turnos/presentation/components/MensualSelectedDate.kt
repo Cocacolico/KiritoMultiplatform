@@ -1,9 +1,12 @@
 package es.kirito.kirito.turnos.presentation.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import es.kirito.kirito.core.domain.util.enMiFormato
 import es.kirito.kirito.core.domain.util.esTurnoConDias
@@ -44,7 +48,8 @@ fun MensualSelectedDate(
     onExcesosClick: () -> Unit,
 ) {
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column {
+        Spacer(Modifier.padding(bottom = 8.dp))
         MyTextSubTitle(text = stringResource(Res.string.detalle_del_turno_seleccionado))
 
         Row(
@@ -53,59 +58,68 @@ fun MensualSelectedDate(
         ) {
             MyTextStd(
                 modifier = Modifier.weight(1f),
-                text = state.selectedDate?.enMiFormato() ?: ""
+                text = state.selectedDate?.enMiFormato() ?: "",
+                textAlign = TextAlign.Center
             )
-            if (state.festivo != null)
+            AnimatedVisibility(state.festivo != null) {
                 Text(
                     text = stringResource(Res.string.festivo),
                     color = Color.Black,
                     modifier = Modifier
+                        .padding(horizontal = 16.dp)
                         .clip(RoundedCornerShape(24.dp))
                         .clickable { onFestivoClick() }
                         .background(color = KiritoColors().FESTIVO)
                         .padding(horizontal = 8.dp, vertical = 4.dp)
-                        .weight(1f)
                 )
+            }
+
             Button(onClick = { onMasDetallesClick() }) {
                 Text(stringResource(Res.string.detalles))
             }
         }
 
-        if (state.selectedCuDetalle != null)
+        AnimatedVisibility(state.selectedCuDetalle != null) {
             MyTextTurno(
-                state.selectedCuDetalle.tipo,
-                state.selectedCuDetalle.turno,
+                state.selectedCuDetalle?.tipo,
+                state.selectedCuDetalle?.turno,
             )
+        }
+        Spacer(Modifier.padding(bottom = 8.dp))
 
-        if (state.selectedPrxTr != null)
-            MyTextStd(TextoResumenTurno(turno = state.selectedPrxTr))
+        AnimatedVisibility(state.selectedPrxTr != null) {
+            MyTextStd(TextoResumenTurno(state.selectedPrxTr))
+        }
 
-        if (state.selectedCuDetalle?.esTurnoConDias() == true)
+        AnimatedVisibility(state.selectedCuDetalle?.esTurnoConDias() == true) {
             Row(
                 Modifier
                     .fillMaxWidth()
                     .clickable {
                         onComjYLibraClick()
                     }) {
-                val COMJs = state.selectedCuDetalle.comj ?: 0
-                val LIBRas = state.selectedCuDetalle.libra ?: 0
+                val COMJs = state.selectedCuDetalle?.comj ?: 0
+                val LIBRas = state.selectedCuDetalle?.libra ?: 0
                 if (COMJs > 0)
                     LabelComj(COMJs)
                 if (LIBRas > 0)
                     LabelLibra(LIBRas)
             }
+        }
 
 
-        if (state.selectedCuDetalle?.notas.isNotNullNorBlank()) {
+        AnimatedVisibility(state.selectedCuDetalle?.notas.isNotNullNorBlank()) {
             MyTextStd(
                 stringResource(Res.string.nota__, state.selectedCuDetalle?.notas ?: "")
             )
         }
 
-        if (!(state.selectedCuDetalle?.excesos == null || state.selectedCuDetalle.excesos == 0)
-            || !(state.selectedCuDetalle?.mermas == null || state.selectedCuDetalle.mermas == 0)) {
-            val mermas = state.selectedCuDetalle.mermas ?: 0
-            val excesos = state.selectedCuDetalle.excesos ?: 0
+        AnimatedVisibility(
+            !(state.selectedCuDetalle?.excesos == null || state.selectedCuDetalle.excesos == 0)
+                    || !(state.selectedCuDetalle?.mermas == null || state.selectedCuDetalle.mermas == 0)
+        ) {
+            val mermas = state.selectedCuDetalle?.mermas ?: 0
+            val excesos = state.selectedCuDetalle?.excesos ?: 0
             var texto = ""
             if (excesos > 0) {
                 texto =
@@ -114,9 +128,10 @@ fun MensualSelectedDate(
             if (mermas > 0) {
                 texto += stringResource(Res.string.mermas) + " " + mermas.toLocalTime()
             }
-           MyTextStd(text = texto, modifier = Modifier.clickable {
-               onExcesosClick()
-           })
+            MyTextStd(text = texto, modifier = Modifier
+                .clickable { onExcesosClick() }
+                .fillMaxWidth()
+                .padding(vertical = 12.dp))
         }
     }
 

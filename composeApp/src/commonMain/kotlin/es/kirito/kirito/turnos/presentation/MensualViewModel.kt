@@ -14,6 +14,8 @@ import es.kirito.kirito.core.domain.util.withDayOfMonth
 import es.kirito.kirito.turnos.domain.MensualState
 import es.kirito.kirito.turnos.domain.TurnosRepository
 import es.kirito.kirito.turnos.domain.models.CuDetalleConFestivoSemanal
+import es.kirito.kirito.turnos.domain.models.NavigationDestination
+import es.kirito.kirito.turnos.domain.models.NavigationObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
@@ -110,11 +112,15 @@ class MensualViewModel : ViewModel(), KoinComponent {
     private val festivo = selectedDate.flatMapLatest {
         repository.getFestivoDeUnDia(it?.toEpochDays())
     }
+    private val iHaveShiftsShared = preferenciasKirito.map { it.userId }.flatMapLatest { id ->
+        repository.tengoLosCambiosActivados(id)
+    }
     val toastString = MutableSharedFlow<String?>()
 
     val mensualState = combine(
         cambiosActivados, selectedMonth, selectedDate, selectedCuDetalle,
-        selectedPrxTr, esteDiaTieneGrafico, turnosDelSemanal, festivo
+        selectedPrxTr, esteDiaTieneGrafico, turnosDelSemanal, festivo,
+        iHaveShiftsShared
     ){array ->
         MensualState(
             array[0] as Boolean,
@@ -124,7 +130,8 @@ class MensualViewModel : ViewModel(), KoinComponent {
             array[4] as TurnoPrxTr?,
             array[5] as Boolean,
             array[6] as List<CuDetalleConFestivoSemanal>,
-            array[7] as String?
+            array[7] as String?,
+            array[8] as Boolean,
         )
     }
 
@@ -137,6 +144,23 @@ class MensualViewModel : ViewModel(), KoinComponent {
 //            repository.nukeAll(context)
 //        }
 //    }
+
+
+    fun onBulkEditClick() {
+        //TODO: NAvegar
+    }
+
+    fun onExcessClick() {
+        //TODO: NAvegar
+    }
+
+    fun onEditClick() {
+        //TODO: NAvegar
+    }
+
+    fun onExchangeClick() {
+        //TODO: NAvegar
+    }
 
     fun setSelectedMonth(fecha: LocalDate) {
         selectedMonth.value = fecha

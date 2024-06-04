@@ -19,7 +19,8 @@ import org.jetbrains.compose.resources.stringResource
  * Genera una frase del estilo: TODO ACEER 
  * **/
 @Composable
-fun TextoResumenTurno(turno: TurnoPrxTr): String {
+fun TextoResumenTurno(entrada: TurnoPrxTr?): String {
+    val turno = entrada ?: return ""
     var texto = ""
     if (turno.esTurnoDeTrabajo()) {
         if (turno.idGrafico == null || turno.idGrafico == 0L) {
