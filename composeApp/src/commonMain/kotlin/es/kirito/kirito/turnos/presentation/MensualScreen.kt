@@ -41,6 +41,7 @@ import es.kirito.kirito.turnos.presentation.components.MensualSelectedDate
 import es.kirito.kirito.turnos.presentation.utils.TextoExplicComjsYLibras
 import es.kirito.kirito.turnos.presentation.utils.TextoExplicMermaGenerada
 import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources._0
 import kirito.composeapp.generated.resources.month_and_year
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
@@ -56,6 +57,8 @@ fun MensualScreen(navController: NavHostController) {
     var comjLibraToast by remember { mutableStateOf(false) }
     var showExcesosDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
+    val toastString by viewModel.toastString.collectAsState(null)
+    val toastId by viewModel.toastId.collectAsState(null)
 
 
 
@@ -104,6 +107,15 @@ fun MensualScreen(navController: NavHostController) {
         }
 
         //DIALOGOS y otros complementos:
+        if(toastString != null){
+            LongToast(toastString)
+            viewModel.clearToasts()
+        }
+        if (toastId != null){
+            LongToast(stringResource(toastId ?: Res.string._0))
+            viewModel.clearToasts()
+        }
+
         if (festivoToast != "") {
             LongToast(festivoToast)
             festivoToast = ""

@@ -14,19 +14,22 @@ import es.kirito.kirito.core.domain.util.withDayOfMonth
 import es.kirito.kirito.turnos.domain.MensualState
 import es.kirito.kirito.turnos.domain.TurnosRepository
 import es.kirito.kirito.turnos.domain.models.CuDetalleConFestivoSemanal
-import es.kirito.kirito.turnos.domain.models.NavigationDestination
-import es.kirito.kirito.turnos.domain.models.NavigationObject
+import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources.descargando_grafico
+import kirito.composeapp.generated.resources.no_hay_grafico_en_vigor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -34,6 +37,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
+import org.jetbrains.compose.resources.StringResource
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -65,7 +69,7 @@ class MensualViewModel : ViewModel(), KoinComponent {
     }
 
 
-    private val selectedDates = combine(selectedDate, selectedMonth){ date, month ->
+    private val selectedDates = combine(selectedDate, selectedMonth) { date, month ->
         Pair(date, month)
     }
 
@@ -79,9 +83,9 @@ class MensualViewModel : ViewModel(), KoinComponent {
         repository.getCuDetallesConFestivos(
             month.withDayOfMonth(1).toEpochDays().toLong(),
             month.lastDayOfMonth().toEpochDays().toLong()
-        ).map {lista ->
-            lista.map {turno ->
-                  turno.copy(isSelected = turno.fecha == date)
+        ).map { lista ->
+            lista.map { turno ->
+                turno.copy(isSelected = turno.fecha == date)
             }
         }
             .zip(flowHoraInicio) { cuDetallesConFestivosModels: List<CuDetalleConFestivoSemanal>, turnosPrxTrs: List<TurnoPrxTr> ->
@@ -108,7 +112,6 @@ class MensualViewModel : ViewModel(), KoinComponent {
     }
 
 
-
     private val festivo = selectedDate.flatMapLatest {
         repository.getFestivoDeUnDia(it?.toEpochDays())
     }
@@ -116,12 +119,13 @@ class MensualViewModel : ViewModel(), KoinComponent {
         repository.tengoLosCambiosActivados(id)
     }
     val toastString = MutableSharedFlow<String?>()
+    val toastId = MutableSharedFlow<StringResource?>()
 
     val mensualState = combine(
         cambiosActivados, selectedMonth, selectedDate, selectedCuDetalle,
         selectedPrxTr, esteDiaTieneGrafico, turnosDelSemanal, festivo,
         iHaveShiftsShared
-    ){array ->
+    ) { array ->
         MensualState(
             array[0] as Boolean,
             array[1] as LocalDate,
@@ -136,7 +140,6 @@ class MensualViewModel : ViewModel(), KoinComponent {
     }
 
 
-
     //TODO: Flag logout.
 //    val flagLogout = repository.checkLogoutFlag()
 //    fun logout(context: Context) {
@@ -145,21 +148,28 @@ class MensualViewModel : ViewModel(), KoinComponent {
 //        }
 //    }
 
+    fun clearToasts() {
+        viewModelScope.launch {
+            toastId.emit(null)
+            toastString.emit(null)
+        }
+    }
+
 
     fun onBulkEditClick() {
-        //TODO: NAvegar
+        //TODO: Navegar
     }
 
     fun onExcessClick() {
-        //TODO: NAvegar
+        //TODO: Navegar
     }
 
     fun onEditClick() {
-        //TODO: NAvegar
+        //TODO: Navegar
     }
 
     fun onExchangeClick() {
-        //TODO: NAvegar
+        //TODO: Navegar
     }
 
     fun setSelectedMonth(fecha: LocalDate) {
@@ -179,23 +189,29 @@ class MensualViewModel : ViewModel(), KoinComponent {
     }
 
 
-
     fun clearSelectedDate() {
         selectedDate.value = null
     }
 
-    fun onDateSelected(turno: CuDetalleConFestivoSemanal){
+    fun onDateSelected(turno: CuDetalleConFestivoSemanal) {
         selectedDate.value = turno.fecha
     }
 
-    fun isGraficoDownloaded() {
-        // Timber.i("Resulta que no tiene gráfico: ${selectedDate.value}")
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                if (selectedDate.value != null) {//No hay gráfico? Nos lo bajamos.
-                    descargarUnGrafico(selectedDate.value!!.toEpochDays())
+    private fun isGraficoDownloaded() {
+        viewModelScope.launch(Dispatchers.IO) {
+            mensualState
+                .map { state ->
+                    if (state.selectedDate != null && !state.esteDiaTieneGrafico)
+                        state.selectedDate
+                    else null
                 }
-            }
+                .distinctUntilChanged()
+                .collectLatest { fechaQueDescargar ->
+                    delay(50)//Junto con collectLatest, me garantiza que solo se ejecuta
+                    // cuando de verdad debe.
+                    if (fechaQueDescargar != null)
+                        descargarUnGrafico(fechaQueDescargar.toEpochDays())
+                }
         }
     }
 
@@ -207,6 +223,7 @@ class MensualViewModel : ViewModel(), KoinComponent {
         if (idGrafico != null// && hayInternet() //TODO: Comprobar si hay internet.
         ) {
             try {
+                toastId.emit(Res.string.descargando_grafico)
                 println("Descargando gráfico $idGrafico")
                 coreRepo.descargarComplementosDelGrafico(idGrafico)
 
@@ -220,14 +237,14 @@ class MensualViewModel : ViewModel(), KoinComponent {
             }
 
         } else if (idGrafico == null) {//Realmente es que este día no hay un gráfico asignado.
-            toastString.emit("ESinGr")
+            toastId.emit(Res.string.no_hay_grafico_en_vigor)
         }
     }
 
 
-
     init {
         selectedMonth.value = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        isGraficoDownloaded()
     }
 
 
