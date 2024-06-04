@@ -1,5 +1,6 @@
 package es.kirito.kirito.precarga.domain
 
+import androidx.compose.ui.graphics.toArgb
 import es.kirito.kirito.core.data.constants.FlagLogout
 import es.kirito.kirito.core.data.constants.MyConstants
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
@@ -487,42 +488,42 @@ class PrecargaRepository() : KoinComponent {
         listOf(
             ColoresHoraTurnos(
                 0,
-                DarkOrchid.value.toInt(),
+                DarkOrchid.toArgb(),
                 LocalTime(3, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                RoyalBlue.value.toInt(),
+                RoyalBlue.toArgb(),
                 LocalTime(6, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                SkyBlue.value.toInt(),
+                SkyBlue.toArgb(),
                 LocalTime(8, 30).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                ForestGreen.value.toInt(),
+                ForestGreen.toArgb(),
                 LocalTime(11, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                Gold.value.toInt(),
+                Gold.toArgb(),
                 LocalTime(15, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                Coral.value.toInt(),
+                Coral.toArgb(),
                 LocalTime(18, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                Maroon.value.toInt(),
+                Maroon.toArgb(),
                 LocalTime(20, 30).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                DarkOrchid.value.toInt(),
+                DarkOrchid.toArgb(),
                 LocalTime(23, 59).toSecondOfDay().toLong()
             )
         ).forEach {

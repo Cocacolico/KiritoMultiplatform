@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import es.kirito.kirito.core.domain.util.enCastellano
 import es.kirito.kirito.core.presentation.components.HeaderWithPrevNext
+import es.kirito.kirito.core.presentation.theme.DarkOrchid
 import es.kirito.kirito.turnos.domain.MensualState
 import es.kirito.kirito.turnos.presentation.components.MensualGridItem
 import kirito.composeapp.generated.resources.Res
@@ -31,8 +32,9 @@ import org.koin.core.annotation.KoinExperimentalAPI
 @Composable
 fun MensualScreen(navController: NavHostController) {
     val viewModel = koinViewModel<MensualViewModel>()
-
     val mensualState by viewModel.mensualState.collectAsState(initial = MensualState())
+
+
 
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxWidth()){

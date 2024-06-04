@@ -64,8 +64,6 @@ class MensualViewModel : ViewModel(), KoinComponent {
 
 
 
-
-
     private val turnosDelSemanal = selectedMonth.flatMapLatest { fecha ->
         val flowHoraInicio = repository.getTurnosEntreFechas(
             fecha.withDayOfMonth(1).toEpochDays().toLong(),
@@ -80,6 +78,7 @@ class MensualViewModel : ViewModel(), KoinComponent {
                     val matchingPruebaObj =
                         turnosPrxTrs.find { it.fecha.toLocalDate() == semanalObj.fecha }
                     if (matchingPruebaObj != null) {
+                        println("Estamos portando y ${matchingPruebaObj}")
                         if (matchingPruebaObj.indicador != 0)
                             semanalObj.copy(
                                 horaInicio = matchingPruebaObj.horaOrigen,

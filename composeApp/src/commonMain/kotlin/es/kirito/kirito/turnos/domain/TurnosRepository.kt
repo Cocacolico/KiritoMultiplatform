@@ -1,6 +1,7 @@
 package es.kirito.kirito.turnos.domain
 
 import es.kirito.kirito.core.data.database.Clima
+import es.kirito.kirito.core.data.database.ColoresHoraTurnos
 import es.kirito.kirito.core.data.database.CuHistorial
 import es.kirito.kirito.core.data.database.GrGraficos
 import es.kirito.kirito.core.data.database.GrNotasTurno
