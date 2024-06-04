@@ -17,17 +17,15 @@ import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun PrecargaScreen(navController: NavHostController) {
-
+fun PrecargaScreen(
+    onNavigateToHoy: () -> Unit
+) {
     val viewModel = koinViewModel<PrecargaViewModel>()
     val timer by viewModel.timer.collectAsState()
 
     LaunchedEffect(timer) {
         if (timer == 3)
-            navController.navigate("kirito") {
-                // De esta forma eliminamos el backstack anterior hasta la screen de Login
-                popUpTo("login") { inclusive = true }
-            }
+            onNavigateToHoy.invoke()
     }
 
     Surface(Modifier.fillMaxSize()) {
@@ -40,9 +38,5 @@ fun PrecargaScreen(navController: NavHostController) {
                 Text("Avanzamos a la siguiente screen en: $timer")
             }
         }
-
-
     }
-
-
 }
