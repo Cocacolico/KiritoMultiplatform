@@ -83,7 +83,7 @@ import es.kirito.kirito.core.domain.util.toStringUpToSeconds
 import es.kirito.kirito.core.domain.util.toTurnoPrxTr
 import es.kirito.kirito.core.presentation.components.HeaderWithPrevNext
 import es.kirito.kirito.core.presentation.components.LongToast
-import es.kirito.kirito.core.presentation.components.MyDialogInformation
+import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
 import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.components.ParagraphSubtitle
 import es.kirito.kirito.core.presentation.components.detectSwipe

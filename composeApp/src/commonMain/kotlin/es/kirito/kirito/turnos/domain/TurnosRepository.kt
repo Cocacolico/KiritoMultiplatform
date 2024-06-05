@@ -1,6 +1,8 @@
 package es.kirito.kirito.turnos.domain
 
 import es.kirito.kirito.core.data.database.Clima
+import es.kirito.kirito.core.data.database.ColoresHoraTurnos
+import es.kirito.kirito.core.data.database.CuDetalle
 import es.kirito.kirito.core.data.database.CuHistorial
 import es.kirito.kirito.core.data.database.GrGraficos
 import es.kirito.kirito.core.data.database.GrNotasTurno
@@ -9,13 +11,18 @@ import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.database.OtColoresTrenes
 import es.kirito.kirito.core.data.database.OtTeleindicadores
 import es.kirito.kirito.core.data.network.KiritoRequest
+import es.kirito.kirito.core.data.network.models.RequestComplementosGraficoDTO
+import es.kirito.kirito.core.domain.CoreRepository
 import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
 import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
 import es.kirito.kirito.core.domain.models.GrTarea
 import es.kirito.kirito.core.domain.models.TurnoPrxTr
 import es.kirito.kirito.core.domain.util.roundUpToHour
 import es.kirito.kirito.core.domain.util.toInstant
+import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.turnos.data.network.models.RequestSubirCuadroVacioDTO
+import es.kirito.kirito.turnos.data.network.models.ResponseCuadroVacioDTO
+import es.kirito.kirito.turnos.domain.models.CuDetalleConFestivoSemanal
 import es.kirito.kirito.turnos.domain.models.CuadroAnualVacio
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -130,24 +137,48 @@ class TurnosRepository: KoinComponent {
             return respuesta.error.lanzarExcepcion()
         }
     }
-    suspend fun getOneGrTareasFromGrafico(idGrafico: Long): GrTareas? {
+    fun getOneGrTareasFromGrafico(idGrafico: Long): Flow<GrTareas?> {
         return dao.getOneGrTareasFromGrafico(idGrafico)
     }
 
-    fun descargarCuadroAnual() {
-        //TODO: Descargar asíncronamente algún día.
-//        val workManager = WorkManager.getInstance(context)
-//        val worker = OneTimeWorkRequest.Builder(DownloadCuadroWorker::class.java)
-//        val constraints = Constraints.Builder()
-//            .setRequiredNetworkType(NetworkType.CONNECTED)
-//            .build()
-//        worker
-//            .addTag("BAJAR_CUADRO")
-//            .setConstraints(constraints)
-//            .build()
-//        workManager.enqueue(worker.build())
+
+    fun fechaTieneExcelIF(fecha: Long?): Flow<Boolean> {
+        return dao.fechaTieneExcelIF(fecha)
+    }
+
+    fun getCuDetallesConFestivos(
+        fechaInicial: Long?,
+        fechaFinal: Long?
+    ): Flow<List<CuDetalleConFestivoSemanal>> =
+        dao.getCuDetallesConFestivos(fechaInicial, fechaFinal).map {
+            it.asSemanalModel()
+        }
+
+    fun getTurnosEntreFechas(fechaInicial: Long?, fechaFinal: Long?): Flow<List<TurnoPrxTr>> {
+        return dao.getTurnosEntreFechas(fechaInicial, fechaFinal)
     }
 
 
+}
 
+
+private fun List<CuDetalleConFestivoDBModel>.asSemanalModel(): List<CuDetalleConFestivoSemanal> {
+    return map {
+        CuDetalleConFestivoSemanal(
+            idDetalle = it.idDetalle,
+            fecha = it.fecha.toLocalDate(),
+            tipo = it.tipo,
+            turno = it.turno,
+            nombreDebe = it.nombreDebe,
+            notas = it.notas,
+            idFestivo = it.idFestivo,
+            descripcionFestivo = it.descripcion,
+            libra = it.libra ?: 0,
+            comj = it.comj ?: 0,
+            horaInicio = null,
+            color = 0,
+            excesos = it.excesos,
+            mermas = it.mermas,
+        )
+    }
 }

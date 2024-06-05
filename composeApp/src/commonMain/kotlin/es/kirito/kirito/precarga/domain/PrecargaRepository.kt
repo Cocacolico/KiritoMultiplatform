@@ -1,5 +1,6 @@
 package es.kirito.kirito.precarga.domain
 
+import androidx.compose.ui.graphics.toArgb
 import es.kirito.kirito.core.data.constants.FlagLogout
 import es.kirito.kirito.core.data.constants.MyConstants
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
@@ -146,13 +147,13 @@ class PrecargaRepository() : KoinComponent {
         updatePasosCompletados(PreloadStep.GRAFICOS)
         refreshGraficos(bdActualizada)
         updatePasosCompletados(PreloadStep.TURNOS)
-        refreshCuDetalles(bdActualizada)
+        coreRepo.refreshCuDetalles(bdActualizada)
         refreshExcesosGrafico()//Solo en esta primera vez.
         updatePasosCompletados(PreloadStep.MENSAJES_ADMIN)
         refreshMensajesAdmin(bdActualizada)
         updatePasosCompletados(PreloadStep.ELEMENTOS_GENERALES)
         refreshColoresTrenes()
-        refreshCambios(bdActualizada)
+        coreRepo.refreshCambios(bdActualizada)
         refreshTelefonosDeEmpresa(bdActualizada)
         refreshTablonAnuncios(bdActualizada)
         refreshDiasIniciales(
@@ -207,20 +208,20 @@ class PrecargaRepository() : KoinComponent {
         processUpdatedElements(bdActualizada)
         deleteOldElements()
         updatePasosCompletados(PreloadStep.TURNOS)
-        refreshCuDetalles(bdActualizada)
+        coreRepo.refreshCuDetalles(bdActualizada)
         updatePasosCompletados(PreloadStep.FESTIVOS)
         refreshOtFestivos(bdActualizada)
         updatePasosCompletados(PreloadStep.MENSAJES_ADMIN)
         refreshMensajesAdmin(bdActualizada)
         updatePasosCompletados(PreloadStep.ELEMENTOS_GENERALES)
-        refreshCambios(bdActualizada)
+        coreRepo.refreshCambios(bdActualizada)
         refreshTablonAnuncios(bdActualizada)
         refreshTelefonosDeEmpresa(bdActualizada)
 
         updatePasosCompletados(PreloadStep.USUARIOS)
         refreshUsuarios(bdActualizada)
         //TODO: Hacerlo cuando tengamos alarmas
-     //   refreshAlarmas(applicationContext)
+        //   refreshAlarmas(applicationContext)
         updatePasosCompletados(PreloadStep.TURNOS_COMPIS)
 
         dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString())
@@ -271,33 +272,6 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
-    private suspend fun refreshCuDetalles(bdActualizada: Instant) {
-        refreshComplementosTurnos(bdActualizada)
-        val salida = RequestUpdatedDTO("turnos.obtener", bdActualizada.enFormatoDeSalida())
-        val respuesta = ktor.requestCuDetalles(salida)
-        if (respuesta.error.lanzarExcepcion())
-            respuesta.respuesta?.forEach {
-                dao.insertCuDetalles(it.asDatabaseModel())
-            }
-
-    }
-
-    private suspend fun refreshComplementosTurnos(bdActualizada: Instant) {
-        refreshHistorial(bdActualizada)
-    }
-
-    private suspend fun refreshHistorial(bdActualizada: Instant) {
-        bdActualizada.enFormatoDeSalida().let { updatedString ->
-            RequestUpdatedDTO("turnos.obtener_historial_anio", updatedString).let { salida ->
-                val respuesta = ktor.requestHistorial(salida)
-                if (respuesta.error.lanzarExcepcion()) {
-                    respuesta.respuesta?.forEach {
-                        dao.insertCuHistorial(it.asDatabaseModel())
-                    }
-                }
-            }
-        }
-    }
 
     private suspend fun refreshExcesosGrafico(
         year: Int = Clock.System.now().toLocalDateTime(TimeZone.UTC).year
@@ -346,18 +320,6 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
-    private suspend fun refreshCambios(bdActualizada: Instant) {
-        bdActualizada.enFormatoDeSalida().let { updatedString ->
-            RequestUpdatedDTO("cambios.obtener", updatedString).let { salida ->
-                val respuesta = ktor.requestCaPeticiones(salida)
-                if (respuesta.error.lanzarExcepcion()) {
-                    respuesta.respuesta?.forEach {
-                        dao.upsertCaPeticiones(it.asDatabaseModel())
-                    }
-                }
-            }
-        }
-    }
 
     private suspend fun refreshTelefonosDeEmpresa(bdActualizada: Instant) {
         bdActualizada.enFormatoDeSalida().let { updatedString ->
@@ -487,42 +449,42 @@ class PrecargaRepository() : KoinComponent {
         listOf(
             ColoresHoraTurnos(
                 0,
-                DarkOrchid.value.toInt(),
+                DarkOrchid.toArgb(),
                 LocalTime(3, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                RoyalBlue.value.toInt(),
+                RoyalBlue.toArgb(),
                 LocalTime(6, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                SkyBlue.value.toInt(),
+                SkyBlue.toArgb(),
                 LocalTime(8, 30).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                ForestGreen.value.toInt(),
+                ForestGreen.toArgb(),
                 LocalTime(11, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                Gold.value.toInt(),
+                Gold.toArgb(),
                 LocalTime(15, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                Coral.value.toInt(),
+                Coral.toArgb(),
                 LocalTime(18, 0).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                Maroon.value.toInt(),
+                Maroon.toArgb(),
                 LocalTime(20, 30).toSecondOfDay().toLong()
             ),
             ColoresHoraTurnos(
                 0,
-                DarkOrchid.value.toInt(),
+                DarkOrchid.toArgb(),
                 LocalTime(23, 59).toSecondOfDay().toLong()
             )
         ).forEach {
@@ -538,83 +500,20 @@ class PrecargaRepository() : KoinComponent {
                     it.fechaUltimoCambio == null ||
                             bdActualizada.epochSeconds == 0L ||//O todos si la bd está sin actualizar.
                             it.fechaUltimoCambio.toInstant() > bdActualizada
+                }.filter { grafico ->
+                    //Este segundo filtro es para no hacer tantas queries, que tardan.
+                    dao.graficoTieneExcelIF(grafico.idGrafico).first().let { yaDescargado ->
+                        (grafico.fechaUltimoCambio == null && !yaDescargado || grafico.fechaUltimoCambio != null)
+                        //Me bajo los que tengan fecha null y no se hayan bajado y el resto.
+                    }
                 }
-            }.first().forEach { grafico ->
-                dao.graficoTieneExcelIF(grafico.idGrafico).let { yaDescargado ->
-                    if (grafico.fechaUltimoCambio == null && !yaDescargado || grafico.fechaUltimoCambio != null)
-                    //Me bajo los que tengan fecha null y no se hayan bajado y el resto.
-                        descargarComplementosDelGrafico(grafico.idGrafico)
-                }
+            }.map { lista -> lista.map { grafico -> grafico.idGrafico.toString() } }
+            .first().let { idGraficos ->
+                if (idGraficos.isNotEmpty())
+                    coreRepo.descargarComplementosDelGrafico(idGraficos)
             }
     }
 
-    suspend fun descargarComplementosDelGrafico(idGrafico: Long) {
-        refreshGrExcelIF(idGrafico)
-        refreshGrTareas(idGrafico)
-        refreshNotasTren(idGrafico)
-        refreshNotasTurno(idGrafico)
-        refreshEquivalencias(idGrafico)
-    }
-
-    private suspend fun refreshGrExcelIF(idGrafico: Long) {
-        RequestGraficoDTO("excelif.obtener", idGrafico.toString()).let { salida ->
-            val respuesta = ktor.requestExcelIf(salida)
-            if (respuesta.error.lanzarExcepcion()) {
-                dao.deleteGrExcelIF(idGrafico)
-                respuesta.respuesta?.forEach {
-                    dao.insertGrExcelIF(it.asDatabaseModel())
-                }
-            }
-        }
-    }
-
-    private suspend fun refreshGrTareas(idGrafico: Long) {
-        RequestGraficoDTO("excellibreta.obtener", idGrafico.toString()).let { salida ->
-            val respuesta = ktor.requestGrTareas(salida)
-            if (respuesta.error.lanzarExcepcion()) {
-                dao.deleteAGrTareas(idGrafico)
-                respuesta.respuesta?.forEach {
-                    dao.insertGrTareas(it.asDatabaseModel())
-                }
-            }
-        }
-    }
-
-    private suspend fun refreshNotasTren(idGrafico: Long) {
-        RequestGraficoDTO("graficos.notas_trenes.obtener", idGrafico.toString()).let { salida ->
-            val respuesta = ktor.requestNotasTren(salida)
-            if (respuesta.error.lanzarExcepcion()) {
-                dao.deleteGrNotasTrenDelGrafico(idGrafico)
-                respuesta.respuesta?.forEach {
-                    dao.insertGrNotasTren(it.asDatabaseModel())
-                }
-            }
-        }
-    }
-
-    private suspend fun refreshNotasTurno(idGrafico: Long) {
-        RequestGraficoDTO("graficos.notas_turnos.obtener", idGrafico.toString()).let { salida ->
-            val respuesta = ktor.requestNotasTurno(salida)
-            if (respuesta.error.lanzarExcepcion()) {
-                dao.deleteGrNotasTurnoDelGrafico(idGrafico)
-                respuesta.respuesta?.forEach {
-                    dao.insertGrNotasTurno(it.asDatabaseModel())
-                }
-            }
-        }
-    }
-
-    private suspend fun refreshEquivalencias(idGrafico: Long) {
-        RequestGraficoDTO("graficos.equivalencias.obtener", idGrafico.toString()).let { salida ->
-            val respuesta = ktor.requestEquivalencias(salida)
-            if (respuesta.error.lanzarExcepcion()) {
-                dao.deleteGrEquivalenciasDelGrafico(idGrafico)
-                respuesta.respuesta?.forEach {
-                    dao.insertGrEquivalencias(it.asDatabaseModel())
-                }
-            }
-        }
-    }
 
     private suspend fun saveUpdatedDB() {
         val now = Clock.System.now()
@@ -881,7 +780,7 @@ class PrecargaRepository() : KoinComponent {
             val respuesta = ktor.requestDelAndUpdElements(salida)
             if (respuesta.error.lanzarExcepcion()) {
 
-                respuesta.respuesta?.forEach {elemento ->
+                respuesta.respuesta?.forEach { elemento ->
                     when (elemento.tabla) {
                         "OT_festivos" -> dao.deletedElementFestivo(elemento.idElemento?.toLongOrNull())
                         "OT_telefonos_residencia" -> Unit
@@ -895,10 +794,12 @@ class PrecargaRepository() : KoinComponent {
             }
         }
     }
+
     private suspend fun deleteUserAndComplements(idUser: Long?) {
         dao.deleteTurnosCompisOfUser(idUser)
         dao.deletedElementUsuario(idUser)
     }
+
     private suspend fun deleteMensajeDeAdminLocally(id: Long?) {
         dao.deleteMensajeDeAdmin(id)
     }
@@ -942,94 +843,6 @@ private fun ResponseWeatherInfoDTO.asClimas(estacion: Estaciones): List<Clima> {
         salida.add(clima)
     }
     return salida
-}
-
-private fun ResponseEquivalenciasDTO.asDatabaseModel(): GrEquivalencias {
-    return GrEquivalencias(
-        idGrafico = idGrafico.toLong(), turno = turno, equivalencia = equivalencia
-    )
-}
-
-private fun ResponseNotasTurnoDTO.asDatabaseModel(): GrNotasTurno {
-    return GrNotasTurno(
-        id = id.toLong(),
-        idGrafico = idGrafico.toLong(),
-        turno = turno,
-        lunes = lunes.toMyBoolean(),
-        martes = martes.toMyBoolean(),
-        miercoles = miercoles.toMyBoolean(),
-        jueves = jueves.toMyBoolean(),
-        viernes = viernes.toMyBoolean(),
-        sabado = sabado.toMyBoolean(),
-        domingo = domingo.toMyBoolean(),
-        festivo = festivo.toMyBoolean(),
-        nota = nota
-    )
-}
-
-private fun ResponseNotasTrenDTO.asDatabaseModel(): GrNotasTren {
-    return GrNotasTren(
-        id = id.toLong(),
-        idGrafico = idGrafico.toLong(),
-        tren = tren,
-        lunes = lunes.toMyBoolean(),
-        martes = martes.toMyBoolean(),
-        miercoles = miercoles.toMyBoolean(),
-        jueves = jueves.toMyBoolean(),
-        viernes = viernes.toMyBoolean(),
-        sabado = sabado.toMyBoolean(),
-        domingo = domingo.toMyBoolean(),
-        festivo = festivo.toMyBoolean(),
-        nota = nota
-    )
-}
-
-private fun ResponseGrTareasDTO.asDatabaseModel(): GrTareas {
-    val formattedHoraOrigen = horaOrigen.fromTimeStringToInt()
-    val formattedHoraFin = horaFin.fromTimeStringToInt()
-    val formattedInserted = inserted.fromDateTimeStringToLong()
-    return GrTareas(
-        id = idDetalleLibreta.toLong(),
-        idGrafico = idGrafico.toLong(),
-        turno = turno,
-        ordenServicio = ordenServicio.toInt(),
-        servicio = servicio,
-        tipoServicio = tipoServicio,
-        diaSemana = diaSemana,
-        sitioOrigen = sitioOrigen,
-        horaOrigen = formattedHoraOrigen,
-        sitioFin = sitioFin,
-        horaFin = formattedHoraFin,
-        vehiculo = vehiculo,
-        observaciones = observaciones,
-        inserted = formattedInserted
-    )
-}
-
-private fun ResponseExcelIfDTO.asDatabaseModel(): GrExcelIF {
-    val formattedHoraOrigen = this.horaOrigen.fromTimeStringToInt()
-    val formattedHoraFin = this.horaFin.fromTimeStringToInt()
-
-    return GrExcelIF(
-        id = idDetalleGrafico.toLong(),
-        idGrafico = idGrafico.toLong(),
-        numeroTurno = numeroTurno.toInt(),
-        ordenTarea = ordenTarea.toInt(),
-        lunes = lunes.toMyBoolean(),
-        martes = martes.toMyBoolean(),
-        miercoles = miercoles.toMyBoolean(),
-        jueves = jueves.toMyBoolean(),
-        viernes = viernes.toMyBoolean(),
-        sabado = sabado.toMyBoolean(),
-        domingo = domingo.toMyBoolean(),
-        festivo = festivo.toMyBoolean(),
-        comentarioAlTurno = comentarioAlTurno,
-        turnoReal = turnoReal,
-        sitioOrigen = sitioOrigen,
-        horaOrigen = formattedHoraOrigen,
-        sitioFin = sitioFin,
-        horaFin = formattedHoraFin
-    )
 }
 
 private fun ResponseOtEstacionesDTO.asDatabaseModel(): Estaciones {
@@ -1136,20 +949,6 @@ private fun ResponseTelefonoEmpresaDTO.asDatabaseModel(): TelefonoImportante {
     )
 }
 
-private fun ResponseCaPeticionesDTO.asDatabaseModel(): CaPeticiones {
-    return CaPeticiones(
-        id = id?.toLong() ?: 0,
-        idUsuarioPide = idUsuarioPide?.toLong() ?: 0,
-        idUsuarioRecibe = idUsuarioRecibe?.toLong() ?: 0,
-        fecha = fecha?.fromDateStringToLong() ?: 0,
-        dtPeticion = dtPeticion?.fromDateTimeStringToLong() ?: 0,
-        dtRespuesta = dtRespuesta?.fromDateTimeStringToLong() ?: 0,
-        estado = estado.toStringIfNull("null").lowercase(),
-        turnoUsuarioPide = turnoUsuarioPide ?: "-",
-        turnoUsuarioRecibe = turnoUsuarioRecibe ?: "-",
-    )
-}
-
 private fun ResponseColoresTrenesDTO.asDatabaseModel(): OtColoresTrenes {
     return OtColoresTrenes(filtro, color)
 }
@@ -1162,39 +961,6 @@ private fun ResponseMensajesAdminDTO.asDatabaseModel(): OtMensajesAdmin {
         enviado = this.enviado?.fromDateTimeStringToLong() ?: 0L,
         enviadoPor = this.enviadoPor ?: "",
         estado = this.estado?.toIntOrNull() ?: 0,
-    )
-}
-
-private fun ResponseCuDetallesDTO.asDatabaseModel(): CuDetalle {
-    val formattedFecha = fecha.fromDateStringToLong()
-    val formattedUpdated = updated.fromDateTimeStringToLong()
-    return CuDetalle(
-        idDetalle = idDetalle.toLong(),
-        idUsuario = idUsuario.toLong(),
-        fecha = formattedFecha,
-        diaSemana = diaSemana,
-        turno = turno ?: "",
-        tipo = tipo,
-        notas = notas,
-        nombreDebe = nombreDebe,
-        updated = formattedUpdated,
-        libra = libra?.toInt(),
-        comj = comj?.toInt(),
-        mermas = mermas?.fromTimeWOSecsStringToInt(),
-        excesos = excesos?.fromTimeWOSecsStringToInt(),
-        excesosGrafico = 0,//Estos se actualizan al pedir excesosGrafico.
-    )
-
-}
-
-private fun ResponseCuHistorialDTO.asDatabaseModel(): CuHistorial {
-    return CuHistorial(
-        id = id.toLong(),
-        idDetalle = idDetalle.toLong(),
-        turno = turno,
-        tipo = tipo,
-        nombreDebe = nombreDebe,
-        updated = updated.fromDateTimeStringToLong() ?: 0L
     )
 }
 

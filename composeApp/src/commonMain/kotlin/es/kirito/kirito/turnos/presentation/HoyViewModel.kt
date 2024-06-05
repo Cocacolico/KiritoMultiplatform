@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -69,9 +70,6 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
     private val repository: TurnosRepository by inject()
     private val coreRepo: CoreRepository by inject()
-    private val precargaRepo: PrecargaRepository by inject()
-
-
 
     private val date: MutableStateFlow<LocalDate?> =
         MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
@@ -483,6 +481,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
 //        imagenEgaDialog.value = DialogImageEga(turno.genImage(context, 5), scroll, offset)
 //    }
 
+    //TODO: Manejar cuando venimos de otro fragmento con una fecha concreta.
     fun setFechaFromOtherFragments(fecha: String?) {
         val epochDay = fecha?.toLongOrNull() ?: return
         date.value = epochDay.toLocalDate()
@@ -534,11 +533,11 @@ class HoyViewModel: ViewModel(), KoinComponent {
             ) {
             //Si tenemos gráfico asignado...
 
-            if (repository.getOneGrTareasFromGrafico(idGrafico) == null) {
+            if (repository.getOneGrTareasFromGrafico(idGrafico).first() == null) {
                 println("No tengo idGrafico")
                 try {
                     toastId.emit(Res.string.descargando_grafico)
-                    precargaRepo.descargarComplementosDelGrafico(idGrafico)
+                    coreRepo.descargarComplementosDelGrafico(listOf(idGrafico.toString()))
                 } catch (e: Exception) {
                     if (e.message != "Ignorar") {
                         //TODO: Firebase
@@ -570,7 +569,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
                         sobrescribir = false
                     )
                 )
-                repository.descargarCuadroAnual()
+                coreRepo.descargarCuadroAnual()
                 toastId.emit(Res.string.cuadro_subido_correctamente)
             } catch (e: Exception) {
                 toastString.emit(e.message)

@@ -3,6 +3,7 @@ package es.kirito.kirito.core.data.network
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.network.models.RequestAnioDTO
 import es.kirito.kirito.core.data.network.models.RequestAnioUpdatedDTO
+import es.kirito.kirito.core.data.network.models.RequestComplementosGraficoDTO
 import es.kirito.kirito.core.data.network.models.RequestIncluidosDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
@@ -19,6 +20,7 @@ import es.kirito.kirito.precarga.data.network.models.RequestStationCoordinatesDT
 import es.kirito.kirito.precarga.data.network.models.RequestTurnosCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCaPeticionesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseColoresTrenesDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseComplementosGraficoDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuDetallesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuHistorialDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseDelAndUpdElementsDTO
@@ -41,6 +43,7 @@ import es.kirito.kirito.precarga.data.network.models.ResponseTurnoDeCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseUserDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseWeatherInfoDTO
 import es.kirito.kirito.turnos.data.network.models.RequestSubirCuadroVacioDTO
+import es.kirito.kirito.turnos.data.network.models.ResponseCuadroVacioDTO
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -227,8 +230,12 @@ class KiritoRequest {
         return post<RequestSimpleDTO, List<ResponseDelAndUpdElementsDTO>>(request)
     }
 
-    suspend fun requestSubirCuadroVacio(request: RequestSubirCuadroVacioDTO): ResponseKiritoDTO<Unit?> {
-        return post<RequestSubirCuadroVacioDTO, Unit?>(request)
+    suspend fun requestSubirCuadroVacio(request: RequestSubirCuadroVacioDTO): ResponseKiritoDTO<List<ResponseCuadroVacioDTO>> {
+        return post<RequestSubirCuadroVacioDTO, List<ResponseCuadroVacioDTO>>(request)
+    }
+
+    suspend fun requestComplementosGrafico(request: RequestComplementosGraficoDTO): ResponseKiritoDTO<List<ResponseComplementosGraficoDTO>> {
+        return post<RequestComplementosGraficoDTO, List<ResponseComplementosGraficoDTO>>(request)
     }
 
 
