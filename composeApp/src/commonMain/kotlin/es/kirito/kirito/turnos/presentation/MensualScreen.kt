@@ -15,10 +15,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,7 +46,9 @@ import es.kirito.kirito.turnos.presentation.utils.TextoExplicComjsYLibras
 import es.kirito.kirito.turnos.presentation.utils.TextoExplicMermaGenerada
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources._0
+import kirito.composeapp.generated.resources.generar_cuadro_anual_con_claves_vac_as
 import kirito.composeapp.generated.resources.month_and_year
+import kirito.composeapp.generated.resources.otras_opciones
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -89,6 +94,10 @@ fun MensualScreen(navController: NavHostController) {
                     },
                     onComjYLibraClick = { comjLibraToast = true },
                     onExcesosClick = { showExcesosDialog = true },
+                    onGenerarCuadroVacioClick = {viewModel.generarCuadroVacio()},
+                    onGenerarCuadroClick = {
+                        //TODO: Navegar a generar cuadros con el año.
+                    },
                 )
             }
             FloatingActionButton(
@@ -172,11 +181,13 @@ fun MensualBody(
     onMasDetallesClick: (Int) -> Unit,
     onComjYLibraClick: () -> Unit,
     onExcesosClick: () -> Unit,
+    onGenerarCuadroClick: () -> Unit,
+    onGenerarCuadroVacioClick: () -> Unit,
 ) {
 
     val mensualState by viewModel.mensualState.collectAsState(initial = MensualState())
     val primerDia = (mensualState.turnosDelSemanal.getOrNull(0)?.fecha?.dayOfWeek?.ordinal) ?: 0
-
+    var generarCuadroVacioClicked by mutableStateOf(false)
 
 
     LazyVerticalGrid(GridCells.Fixed(7), modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -190,6 +201,20 @@ fun MensualBody(
                 viewModel.onDateSelected(turno)
             }
         }
+        if (mensualState.turnosDelSemanal.isEmpty())
+            item(span = { GridItemSpan(7) }) {
+                Column {
+                    Button(onClick = {
+                        generarCuadroVacioClicked = !generarCuadroVacioClicked
+                        onGenerarCuadroVacioClick()
+                    }, enabled = !generarCuadroVacioClicked) {
+                        Text(text = stringResource(Res.string.generar_cuadro_anual_con_claves_vac_as))
+                    }
+                    OutlinedButton(onClick = { onGenerarCuadroClick() }) {
+                        Text(text = stringResource(Res.string.otras_opciones))
+                    }
+                }
+            }
 
         item(span = { GridItemSpan(7) }) {
             AnimatedVisibility(visible = mensualState.selectedDate != null) {

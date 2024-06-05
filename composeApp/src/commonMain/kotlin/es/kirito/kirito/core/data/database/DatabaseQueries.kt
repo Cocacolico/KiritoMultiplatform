@@ -558,7 +558,7 @@ interface KiritoDao {
     suspend fun insertGrExcelIF(grExcelIF: GrExcelIF)
 
     @Query("Select EXISTS(Select * from tabla_gr_excel_if where idGrafico = :key limit 1)")
-    suspend fun graficoTieneExcelIF(key: Long): Boolean
+    fun graficoTieneExcelIF(key: Long): Flow<Boolean>
 
     @Query(
         "Select " +
@@ -593,10 +593,10 @@ interface KiritoDao {
     fun getGrTareasFromGrafico(key: Long): Flow<List<GrTareas>>
 
     @Query("Select * from tabla_gr_tareas where idGrafico = :key LIMIT 1")
-    suspend fun getOneGrTareasFromGrafico(key: Long): GrTareas?
+    fun getOneGrTareasFromGrafico(key: Long): Flow<GrTareas?>
 
     @Query("Select * from tabla_gr_tareas where idGrafico = :key LIMIT 1")
-    fun areThereTareasFromGrafico(key: Long): Flow<GrTareas>
+    fun areThereTareasFromGrafico(key: Long): Flow<GrTareas?>
 
     @Query("delete from tabla_gr_tareas")
     suspend fun deleteAllGrTareas()

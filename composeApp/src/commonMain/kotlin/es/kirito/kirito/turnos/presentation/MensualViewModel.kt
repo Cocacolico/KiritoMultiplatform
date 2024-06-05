@@ -14,7 +14,9 @@ import es.kirito.kirito.core.domain.util.withDayOfMonth
 import es.kirito.kirito.turnos.domain.MensualState
 import es.kirito.kirito.turnos.domain.TurnosRepository
 import es.kirito.kirito.turnos.domain.models.CuDetalleConFestivoSemanal
+import es.kirito.kirito.turnos.domain.models.CuadroAnualVacio
 import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources.cuadro_subido_correctamente
 import kirito.composeapp.generated.resources.descargando_grafico
 import kirito.composeapp.generated.resources.no_hay_grafico_en_vigor
 import kotlinx.coroutines.Dispatchers
@@ -148,6 +150,24 @@ class MensualViewModel : ViewModel(), KoinComponent {
 //        }
 //    }
 
+    fun generarCuadroVacio(){
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repository.requestSubirCuadroVacio(
+                    CuadroAnualVacio(
+                        year = selectedMonth.value.year,
+                        sobrescribir = false
+                    )
+                )
+                coreRepo.descargarCuadroAnual()
+                toastId.emit(Res.string.cuadro_subido_correctamente)
+            } catch (e: Exception) {
+                toastString.emit(e.message)
+                println(e.message)
+            }
+        }
+    }
+
     fun clearToasts() {
         viewModelScope.launch {
             toastId.emit(null)
@@ -225,7 +245,7 @@ class MensualViewModel : ViewModel(), KoinComponent {
             try {
                 toastId.emit(Res.string.descargando_grafico)
                 println("Descargando gráfico $idGrafico")
-                coreRepo.descargarComplementosDelGrafico(idGrafico)
+                coreRepo.descargarComplementosDelGrafico(listOf(idGrafico.toString()))
 
             } catch (e: Exception) {
                 if (e.message != "Ignorar") {

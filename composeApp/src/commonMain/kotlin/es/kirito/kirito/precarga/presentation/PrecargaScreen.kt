@@ -59,7 +59,7 @@ fun PrecargaScreen(navController: NavHostController) {
 
     LaunchedEffect(state.elementBeingUpdated) {
         if (state.elementBeingUpdated == PreloadStep.FINISHED) {
-            navController.navigate("vistaMensual")
+            navController.navigate("vistaHoy")
         }
     }
 

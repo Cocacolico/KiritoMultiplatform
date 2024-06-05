@@ -174,7 +174,6 @@ fun MensualGridItem(turno: CuDetalleConFestivoSemanal, onClick: () -> Unit) {
                 }
             }
 
-            println("el ancho es $width y color es $color original ${turno.color}")
             Box(
                 modifier = Modifier
                     .fillMaxWidth(width)

@@ -147,13 +147,13 @@ class PrecargaRepository() : KoinComponent {
         updatePasosCompletados(PreloadStep.GRAFICOS)
         refreshGraficos(bdActualizada)
         updatePasosCompletados(PreloadStep.TURNOS)
-        refreshCuDetalles(bdActualizada)
+        coreRepo.refreshCuDetalles(bdActualizada)
         refreshExcesosGrafico()//Solo en esta primera vez.
         updatePasosCompletados(PreloadStep.MENSAJES_ADMIN)
         refreshMensajesAdmin(bdActualizada)
         updatePasosCompletados(PreloadStep.ELEMENTOS_GENERALES)
         refreshColoresTrenes()
-        refreshCambios(bdActualizada)
+        coreRepo.refreshCambios(bdActualizada)
         refreshTelefonosDeEmpresa(bdActualizada)
         refreshTablonAnuncios(bdActualizada)
         refreshDiasIniciales(
@@ -208,20 +208,20 @@ class PrecargaRepository() : KoinComponent {
         processUpdatedElements(bdActualizada)
         deleteOldElements()
         updatePasosCompletados(PreloadStep.TURNOS)
-        refreshCuDetalles(bdActualizada)
+        coreRepo.refreshCuDetalles(bdActualizada)
         updatePasosCompletados(PreloadStep.FESTIVOS)
         refreshOtFestivos(bdActualizada)
         updatePasosCompletados(PreloadStep.MENSAJES_ADMIN)
         refreshMensajesAdmin(bdActualizada)
         updatePasosCompletados(PreloadStep.ELEMENTOS_GENERALES)
-        refreshCambios(bdActualizada)
+        coreRepo.refreshCambios(bdActualizada)
         refreshTablonAnuncios(bdActualizada)
         refreshTelefonosDeEmpresa(bdActualizada)
 
         updatePasosCompletados(PreloadStep.USUARIOS)
         refreshUsuarios(bdActualizada)
         //TODO: Hacerlo cuando tengamos alarmas
-     //   refreshAlarmas(applicationContext)
+        //   refreshAlarmas(applicationContext)
         updatePasosCompletados(PreloadStep.TURNOS_COMPIS)
 
         dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString())
@@ -272,33 +272,6 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
-    private suspend fun refreshCuDetalles(bdActualizada: Instant) {
-        refreshComplementosTurnos(bdActualizada)
-        val salida = RequestUpdatedDTO("turnos.obtener", bdActualizada.enFormatoDeSalida())
-        val respuesta = ktor.requestCuDetalles(salida)
-        if (respuesta.error.lanzarExcepcion())
-            respuesta.respuesta?.forEach {
-                dao.insertCuDetalles(it.asDatabaseModel())
-            }
-
-    }
-
-    private suspend fun refreshComplementosTurnos(bdActualizada: Instant) {
-        refreshHistorial(bdActualizada)
-    }
-
-    private suspend fun refreshHistorial(bdActualizada: Instant) {
-        bdActualizada.enFormatoDeSalida().let { updatedString ->
-            RequestUpdatedDTO("turnos.obtener_historial_anio", updatedString).let { salida ->
-                val respuesta = ktor.requestHistorial(salida)
-                if (respuesta.error.lanzarExcepcion()) {
-                    respuesta.respuesta?.forEach {
-                        dao.insertCuHistorial(it.asDatabaseModel())
-                    }
-                }
-            }
-        }
-    }
 
     private suspend fun refreshExcesosGrafico(
         year: Int = Clock.System.now().toLocalDateTime(TimeZone.UTC).year
@@ -347,18 +320,6 @@ class PrecargaRepository() : KoinComponent {
         }
     }
 
-    private suspend fun refreshCambios(bdActualizada: Instant) {
-        bdActualizada.enFormatoDeSalida().let { updatedString ->
-            RequestUpdatedDTO("cambios.obtener", updatedString).let { salida ->
-                val respuesta = ktor.requestCaPeticiones(salida)
-                if (respuesta.error.lanzarExcepcion()) {
-                    respuesta.respuesta?.forEach {
-                        dao.upsertCaPeticiones(it.asDatabaseModel())
-                    }
-                }
-            }
-        }
-    }
 
     private suspend fun refreshTelefonosDeEmpresa(bdActualizada: Instant) {
         bdActualizada.enFormatoDeSalida().let { updatedString ->
@@ -539,13 +500,17 @@ class PrecargaRepository() : KoinComponent {
                     it.fechaUltimoCambio == null ||
                             bdActualizada.epochSeconds == 0L ||//O todos si la bd está sin actualizar.
                             it.fechaUltimoCambio.toInstant() > bdActualizada
+                }.filter { grafico ->
+                    //Este segundo filtro es para no hacer tantas queries, que tardan.
+                    dao.graficoTieneExcelIF(grafico.idGrafico).first().let { yaDescargado ->
+                        (grafico.fechaUltimoCambio == null && !yaDescargado || grafico.fechaUltimoCambio != null)
+                        //Me bajo los que tengan fecha null y no se hayan bajado y el resto.
+                    }
                 }
-            }.first().forEach { grafico ->
-                dao.graficoTieneExcelIF(grafico.idGrafico).let { yaDescargado ->
-                    if (grafico.fechaUltimoCambio == null && !yaDescargado || grafico.fechaUltimoCambio != null)
-                    //Me bajo los que tengan fecha null y no se hayan bajado y el resto.
-                        coreRepo.descargarComplementosDelGrafico(grafico.idGrafico)
-                }
+            }.map { lista -> lista.map { grafico -> grafico.idGrafico.toString() } }
+            .first().let { idGraficos ->
+                if (idGraficos.isNotEmpty())
+                    coreRepo.descargarComplementosDelGrafico(idGraficos)
             }
     }
 
@@ -815,7 +780,7 @@ class PrecargaRepository() : KoinComponent {
             val respuesta = ktor.requestDelAndUpdElements(salida)
             if (respuesta.error.lanzarExcepcion()) {
 
-                respuesta.respuesta?.forEach {elemento ->
+                respuesta.respuesta?.forEach { elemento ->
                     when (elemento.tabla) {
                         "OT_festivos" -> dao.deletedElementFestivo(elemento.idElemento?.toLongOrNull())
                         "OT_telefonos_residencia" -> Unit
@@ -829,10 +794,12 @@ class PrecargaRepository() : KoinComponent {
             }
         }
     }
+
     private suspend fun deleteUserAndComplements(idUser: Long?) {
         dao.deleteTurnosCompisOfUser(idUser)
         dao.deletedElementUsuario(idUser)
     }
+
     private suspend fun deleteMensajeDeAdminLocally(id: Long?) {
         dao.deleteMensajeDeAdmin(id)
     }
@@ -982,20 +949,6 @@ private fun ResponseTelefonoEmpresaDTO.asDatabaseModel(): TelefonoImportante {
     )
 }
 
-private fun ResponseCaPeticionesDTO.asDatabaseModel(): CaPeticiones {
-    return CaPeticiones(
-        id = id?.toLong() ?: 0,
-        idUsuarioPide = idUsuarioPide?.toLong() ?: 0,
-        idUsuarioRecibe = idUsuarioRecibe?.toLong() ?: 0,
-        fecha = fecha?.fromDateStringToLong() ?: 0,
-        dtPeticion = dtPeticion?.fromDateTimeStringToLong() ?: 0,
-        dtRespuesta = dtRespuesta?.fromDateTimeStringToLong() ?: 0,
-        estado = estado.toStringIfNull("null").lowercase(),
-        turnoUsuarioPide = turnoUsuarioPide ?: "-",
-        turnoUsuarioRecibe = turnoUsuarioRecibe ?: "-",
-    )
-}
-
 private fun ResponseColoresTrenesDTO.asDatabaseModel(): OtColoresTrenes {
     return OtColoresTrenes(filtro, color)
 }
@@ -1008,39 +961,6 @@ private fun ResponseMensajesAdminDTO.asDatabaseModel(): OtMensajesAdmin {
         enviado = this.enviado?.fromDateTimeStringToLong() ?: 0L,
         enviadoPor = this.enviadoPor ?: "",
         estado = this.estado?.toIntOrNull() ?: 0,
-    )
-}
-
-private fun ResponseCuDetallesDTO.asDatabaseModel(): CuDetalle {
-    val formattedFecha = fecha.fromDateStringToLong()
-    val formattedUpdated = updated.fromDateTimeStringToLong()
-    return CuDetalle(
-        idDetalle = idDetalle.toLong(),
-        idUsuario = idUsuario.toLong(),
-        fecha = formattedFecha,
-        diaSemana = diaSemana,
-        turno = turno ?: "",
-        tipo = tipo,
-        notas = notas,
-        nombreDebe = nombreDebe,
-        updated = formattedUpdated,
-        libra = libra?.toInt(),
-        comj = comj?.toInt(),
-        mermas = mermas?.fromTimeWOSecsStringToInt(),
-        excesos = excesos?.fromTimeWOSecsStringToInt(),
-        excesosGrafico = 0,//Estos se actualizan al pedir excesosGrafico.
-    )
-
-}
-
-private fun ResponseCuHistorialDTO.asDatabaseModel(): CuHistorial {
-    return CuHistorial(
-        id = id.toLong(),
-        idDetalle = idDetalle.toLong(),
-        turno = turno,
-        tipo = tipo,
-        nombreDebe = nombreDebe,
-        updated = updated.fromDateTimeStringToLong() ?: 0L
     )
 }
 
