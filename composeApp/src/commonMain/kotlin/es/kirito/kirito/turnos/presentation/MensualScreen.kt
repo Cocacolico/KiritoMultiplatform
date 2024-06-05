@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import es.kirito.kirito.core.domain.models.MonthYear
 import es.kirito.kirito.core.domain.util.enCastellano
 import es.kirito.kirito.core.presentation.components.HeaderWithPrevNext
 import es.kirito.kirito.core.presentation.components.LongToast
-import es.kirito.kirito.core.presentation.components.MyDialogInformation
+import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
+import es.kirito.kirito.core.presentation.components.dialogs.MyDialogMonthYear
 import es.kirito.kirito.turnos.domain.MensualState
 import es.kirito.kirito.turnos.presentation.components.DialogEditShift
 import es.kirito.kirito.turnos.presentation.components.MensualGridItem
@@ -43,7 +44,6 @@ import es.kirito.kirito.turnos.presentation.utils.TextoExplicMermaGenerada
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources._0
 import kirito.composeapp.generated.resources.month_and_year
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -59,7 +59,7 @@ fun MensualScreen(navController: NavHostController) {
     var showEditDialog by remember { mutableStateOf(false) }
     val toastString by viewModel.toastString.collectAsState(null)
     val toastId by viewModel.toastId.collectAsState(null)
-
+    var showMonthYearDialog by remember{ mutableStateOf(false)}
 
 
     Surface(Modifier.fillMaxSize()) {
@@ -73,8 +73,7 @@ fun MensualScreen(navController: NavHostController) {
                     ),
                     festivo = "",
                     onDateClick = {
-                        //TODO: Hacer el diálogo!
-                        //   viewModel.setSelectedMonth()
+                        showMonthYearDialog = true
                     },
                     onFestivoClick = {},//No lo usamos.
                     onNextClick = { viewModel.nextMonth(1) },
@@ -153,6 +152,15 @@ fun MensualScreen(navController: NavHostController) {
                     viewModel.onExchangeClick()
                 })
 
+        MyDialogMonthYear(
+            show = showMonthYearDialog,
+            initialValue = MonthYear(mensualState.selectedMonth.month, mensualState.selectedMonth.year),
+            onDismiss = {showMonthYearDialog = false},
+            onConfirm = {monthYear ->
+                showMonthYearDialog = false
+                viewModel.setSelectedMonth(monthYear.toLocalDate())
+            }
+        )
 
     }
 }
