@@ -56,6 +56,13 @@ fun PrecargaScreen(
 ) {
     val viewModel = koinViewModel<PrecargaViewModel>()
 
+    val state by viewModel.state.collectAsState(PrecargaState())
+
+    LaunchedEffect(state.elementBeingUpdated) {
+        if (state.elementBeingUpdated == PreloadStep.FINISHED) {
+            onNavigateToHoy.invoke()
+        }
+    }
     Surface(
         Modifier.fillMaxSize()
 
