@@ -51,17 +51,10 @@ import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun PrecargaScreen(navController: NavHostController) {
-
+fun PrecargaScreen(
+    onNavigateToHoy: () -> Unit
+) {
     val viewModel = koinViewModel<PrecargaViewModel>()
-
-    val state by viewModel.state.collectAsState(PrecargaState())
-
-    LaunchedEffect(state.elementBeingUpdated) {
-        if (state.elementBeingUpdated == PreloadStep.FINISHED) {
-            navController.navigate("vistaHoy")
-        }
-    }
 
     Surface(
         Modifier.fillMaxSize()

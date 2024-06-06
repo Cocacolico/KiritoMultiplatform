@@ -231,6 +231,5 @@ fun MensualBody(
                 )
             }
         }
-
     }
 }
