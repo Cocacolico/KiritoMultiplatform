@@ -2,16 +2,19 @@ package es.kirito.kirito.core.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ViewModule
+import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -24,13 +27,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kirito.composeapp.generated.resources.Res
-import kirito.composeapp.generated.resources.turnos
+import es.kirito.kirito.core.presentation.theme.amarilloKirito
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -48,7 +52,7 @@ fun MyIconButtonWLClick(
             .size(40.dp)
             .clip(CircleShape)
             .background(color = MaterialTheme.colorScheme.primary)
-            .combinedClickable (
+            .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick,
                 role = Role.Button
@@ -67,30 +71,87 @@ fun ButtonMenuPrincipal(
     text: StringResource,
     modifier: Modifier = Modifier,
 ) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        shape = RoundedCornerShape(8.dp),
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
         modifier = modifier
-            .minimumInteractiveComponentSize()
-            .clip(CircleShape)
-            .padding(8.dp)
+            .padding(6.dp)
+            .clip(shape = RoundedCornerShape(20))
+            .clickable(onClick = onClick)
+            .background(color = MaterialTheme.colorScheme.surfaceVariant)
+            .size(height = 95.dp, width = 110.dp)
+            .fillMaxSize()
     ) {
-        Column (
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = modifier
+                .size(40.dp)
+        )
+        Text(
+            text = stringResource(text),
+            fontSize = 12.sp,
+            maxLines = 2,
+            lineHeight = 10.sp,
+            overflow = TextOverflow.Visible,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            //modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun ButtonMenuPrincipalBadge(
+    onClick: () -> Unit,
+    icon: ImageVector,
+    text: StringResource,
+    numNotificaciones: Int = 0,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .padding(6.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = modifier
+                .clip(shape = RoundedCornerShape(20))
+                .clickable(onClick = onClick)
+                .background(color = MaterialTheme.colorScheme.surfaceVariant)
+                .size(height = 95.dp, width = 110.dp)
+                .fillMaxSize()
+        ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = modifier
+                    .size(40.dp)
             )
             Text(
                 text = stringResource(text),
                 fontSize = 12.sp,
                 maxLines = 2,
                 lineHeight = 10.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Visible,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                //modifier = Modifier.weight(1f)
             )
         }
+        if (numNotificaciones > 0)
+            Badge(
+                containerColor = amarilloKirito,
+                contentColor = Color.Black,
+                modifier = modifier
+                    //.border(1.dp, color = Color.White, shape = CircleShape)
+                    .align(Alignment.TopEnd)
+                    .clip(CircleShape)
+            ) {
+                Text(text = numNotificaciones.toString())
+            }
     }
 }

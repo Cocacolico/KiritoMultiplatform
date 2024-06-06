@@ -11,13 +11,9 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -32,15 +28,8 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Celebration
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Comment
-import androidx.compose.material.icons.outlined.ContactSupport
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Handshake
-import androidx.compose.material.icons.outlined.Help
-import androidx.compose.material.icons.outlined.HelpCenter
-import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.Message
-import androidx.compose.material.icons.outlined.Notes
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Policy
@@ -49,9 +38,8 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material.icons.outlined.ViewModule
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,24 +47,22 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import es.kirito.kirito.core.presentation.components.ButtonMenuPrincipal
+import es.kirito.kirito.core.presentation.components.ButtonMenuPrincipalBadge
 import es.kirito.kirito.core.presentation.components.MyTextSubTitle
+import es.kirito.kirito.core.presentation.theme.amarilloKirito
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.admin
 import kirito.composeapp.generated.resources.ajustes
-import kirito.composeapp.generated.resources.avisos
 import kirito.composeapp.generated.resources.ayuda
 import kirito.composeapp.generated.resources.bienvenido_a
 import kirito.composeapp.generated.resources.borrar_cuadro
@@ -119,11 +105,13 @@ fun MenuScreen(navController: NavHostController) {
     val viewModel = koinViewModel<MenuViewModel>()
     Surface(Modifier.fillMaxSize()) {
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, bottom = 16.dp, end = 16.dp),
             contentAlignment = Alignment.TopCenter
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(
@@ -161,7 +149,7 @@ fun MenuScreen(navController: NavHostController) {
                 }
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
                     Card(
@@ -188,7 +176,7 @@ fun MenuScreen(navController: NavHostController) {
                         )
                     }
                     MyTextSubTitle(text = stringResource(Res.string.mis_turnos))
-                    Row(
+                    FlowRow(
                         Modifier.fillMaxWidth()
                     ) {
                         ButtonMenuPrincipal(
@@ -198,13 +186,13 @@ fun MenuScreen(navController: NavHostController) {
 
                             }
                         )
-
-                        ButtonMenuPrincipal(
+                        ButtonMenuPrincipalBadge(
                             icon = Icons.Outlined.Celebration,
                             text = Res.string.d_as_especiales,
                             onClick = {
 
-                            }
+                            },
+                            numNotificaciones = 2
                         )
                         ButtonMenuPrincipal(
                             icon = Icons.AutoMirrored.Outlined.Notes,
@@ -232,20 +220,24 @@ fun MenuScreen(navController: NavHostController) {
 
                             }
                         )
-                        ButtonMenuPrincipal(
+                        ButtonMenuPrincipalBadge(
                             icon = Icons.Outlined.Handshake,
                             text = Res.string.peticiones_de_cambios,
                             onClick = {
 
-                            }
+                            },
+                            numNotificaciones = 2
                         )
-                        ButtonMenuPrincipal(
-                            icon = Icons.AutoMirrored.Outlined.Comment,
-                            text = Res.string.tabl_n_de_anuncios,
-                            onClick = {
+                        ButtonMenuPrincipalBadge(
+                                icon = Icons.AutoMirrored.Outlined.Comment,
+                                text = Res.string.tabl_n_de_anuncios,
+                            numNotificaciones = 8,
+                                onClick = {
 
-                            }
-                        )
+                                }
+                            )
+
+
                     }
                     MyTextSubTitle(text = stringResource(Res.string.utilidades))
                     FlowRow(
@@ -314,7 +306,7 @@ fun MenuScreen(navController: NavHostController) {
                         )
                     }
                     MyTextSubTitle(text = stringResource(Res.string.admin))
-                    Row(
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         ButtonMenuPrincipal(
@@ -372,16 +364,20 @@ fun MenuScreen(navController: NavHostController) {
                             }
                         )
                     }
-                    FloatingActionButton(
-                        onClick = {
-                            navController.navigateUp()
-                                  },
-                        modifier = Modifier
-                            .padding(8.dp)
-                    ) {
-                        Icon(Icons.Outlined.Close, contentDescription = null)
-                    }
                 }
+
+            }
+            FloatingActionButton(
+                onClick = {
+                    navController.navigateUp()
+                },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
             }
         }
     }
