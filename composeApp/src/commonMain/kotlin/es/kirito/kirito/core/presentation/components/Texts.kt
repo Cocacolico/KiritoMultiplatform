@@ -1,10 +1,12 @@
 package es.kirito.kirito.core.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -28,6 +31,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import es.kirito.kirito.core.domain.util.calcularTipoDelTurno
+import es.kirito.kirito.core.domain.util.colorDeFondoTurnos
+import es.kirito.kirito.core.domain.util.colorTextoTurnos
+import es.kirito.kirito.core.domain.util.nombreTurnosConTipo
+import es.kirito.kirito.core.domain.util.toComposeColor
 import es.kirito.kirito.core.presentation.theme.azulKirito
 import es.kirito.kirito.core.presentation.theme.azulKiritoClaro
 import es.kirito.kirito.core.presentation.theme.customColors
@@ -434,4 +442,39 @@ fun NotaAlPie(
         fontSize = fontSize,
         maxLines = maxLines
     )
+}
+
+
+/**
+ * Típica burbujita que tanto usamos en Kirito.
+ * @param tipo si es null, se calcula del [turno]
+ * **/
+@Composable
+fun MyTextTurno(tipo: String?, turno: String?, modifier: Modifier = Modifier) {
+
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(
+                color =
+                    colorDeFondoTurnos(tipo ?: turno.calcularTipoDelTurno()).toComposeColor()
+               , shape = CircleShape
+            )
+    ) {
+
+        Text(
+            text = nombreTurnosConTipo(
+                tipo ?: turno.calcularTipoDelTurno(),
+                turno ?: "-"
+            ),
+            color =
+                colorTextoTurnos(tipo ?: turno.calcularTipoDelTurno()),
+            style = TextStyle(
+                background =
+                    colorDeFondoTurnos(tipo ?: turno.calcularTipoDelTurno()).toComposeColor()
+            ),
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        )
+    }
 }

@@ -93,13 +93,13 @@
     <string name="elige_una_fecha">Elige una fecha</string>
     <string name="nombre_del_compa_ero">Nombre del compañero</string>
     <string name="compa_ero_con_el_que_has_cambiado_el_turno">Compañero con el que has cambiado el turno:</string>
-    <string name="te_hace_el_turno_">"Te hace el turno "</string>
-    <string name="haces_el_turno_a_">"Haces el turno a "</string>
-    <string name="cambiado_con_">"Cambiado con "</string>
+    <string name="te_hace_el_turno_">Te hace el turno </string>
+    <string name="haces_el_turno_a_">Haces el turno a </string>
+    <string name="cambiado_con_">Cambiado con </string>
     <string name="tus_notas">Tus notas:</string>
     <string name="historial_del_turno">Historial del turno:</string>
-    <string name="la_empresa_te_da">"La Empresa te da "</string>
-    <string name="por_hacer_este_turno">"%1$s por hacer este turno."</string>
+    <string name="la_empresa_te_da">La Empresa te da </string>
+    <string name="por_hacer_este_turno">%1$s por hacer este turno.</string>
     <string name="mi_perfil">Mi perfil</string>
     <string name="nombre">Nombre</string>
     <string name="apellidos">Apellidos</string>
@@ -114,8 +114,8 @@
     <string name="cambiar_contrase_a">Cambiar contraseña</string>
     <string name="la_contrasena_debe_tener_5_caracteres">La contraseña debe tener al menos 5 caracteres</string>
     <string name="actualizando_datos">Actualizando datos</string>
-    <string name="y_">"y "</string>
-    <string name="nota__" translatable="false">"Nota: %1$s"</string>
+    <string name="y_">y </string>
+    <string name="nota__" translatable="false">Nota: %1$s</string>
     <string name="las_contrasenas_no_coinciden">Las contraseñas no coinciden</string>
     <string name="no_tienes_internet">No tienes internet</string>
     <string name="no_hay_grafico_para_este_dia">No hay gráfico para este día.</string>
@@ -160,8 +160,8 @@
     <string name="__vehiculo_">": Vehículo "</string>
     <string name="_codigo_">" Código "</string>
     <string name="festivo">Festivo</string>
-    <string name="_cambiado_con_">" cambiado con %1$s"</string>
-    <string name="antes_">"Antes %1$s"</string>
+    <string name="_cambiado_con_"> cambiado con %1$s</string>
+    <string name="antes_">Antes %1$s</string>
     <string name="reg_strate">Regístrate</string>
     <string name="mis_compa_eros_pueden_ver_mis_tel_fonos_de_empresa">Mis compañeros pueden ver mis teléfonos de empresa.</string>
     <string name="mis_compa_eros_pueden_ver_mi_tel_fono_personal">Mis compañeros pueden ver mi teléfono personal.</string>
@@ -187,8 +187,8 @@
     <string name="turno_pendiente_de_modificar">Turno pendiente de modificar</string>
     <string name="completado">Completado</string>
     <string name="no_tienes_conexi_n_a_internet">No tienes conexión a Internet</string>
-    <string name="paso_maniobra_">"Paso "</string>
-    <string name="tren_" translatable="false">"Tren "</string>
+    <string name="paso_maniobra_">Paso </string>
+    <string name="tren_" translatable="false">Tren </string>
     <string name="descargando_turnos">Descargando turnos</string>
     <string name="descarga_cancelada">Descarga cancelada</string>
     <string name="error_al_guardar">Error al guardar</string>
@@ -201,15 +201,15 @@
     <string name="selecciona_un_mes">Selecciona un mes</string>
     <string name="ok" translatable="false">Ok</string>
     <string name="mensual" translatable="false">Mensual</string>
-    <string name="month_and_year" translatable="false">"%1$s %2$d"</string>
-    <string name="nombre_largo_turnos_y_turno" translatable="false">"%1$s %2$s"</string>
-    <string name="equivale_a___">"Equivale a %1$s "</string>
-    <string name="_coma_espacio_" translatable="false">"%1$s, %2$s"</string>
-    <string name="bienvenido_a__">"Bienvenido/a, %1$s"</string>
-    <string name="_espacio_" translatable="false">"%1$s %2$s"</string>
-    <string name="_tres_espacios_" translatable="false">"%1$s %2$s %3$s %4$s"</string>
-    <string name="modificado_el_dia_xxx">" el día %1$s"</string>
-    <string name="este_dia_tienes_un__en_un__">"Este día tienes un %1$s en un %2$s."</string>
+    <string name="month_and_year" translatable="false">%1$s %2$d</string>
+    <string name="nombre_largo_turnos_y_turno" translatable="false">%1$s %2$s</string>
+    <string name="equivale_a___">Equivale a %1$s </string>
+    <string name="_coma_espacio_" translatable="false">%1$s, %2$s</string>
+    <string name="bienvenido_a__">Bienvenido/a, %1$s</string>
+    <string name="_espacio_" translatable="false">%1$s %2$s</string>
+    <string name="_tres_espacios_" translatable="false">%1$s %2$s %3$s %4$s</string>
+    <string name="modificado_el_dia_xxx"> el día %1$s</string>
+    <string name="este_dia_tienes_un__en_un__">Este día tienes un %1$s en un %2$s.</string>
     <string name="este_turno_no_tiene_tareas">Este turno no tiene tareas.</string>
     <string name="te_han_dado_de_alta">Te han dado de alta</string>
     <string name="cambio_recibido">Te han pedido un cambio de turno</string>
@@ -228,7 +228,7 @@
     <string name="los_dem_s_usuarios_pueden_ver_mis_tel_fonos_de_empresa">Los demás usuarios pueden ver mis teléfonos de empresa</string>
     <string name="los_dem_s_usuarios_pueden_ver_mi_tel_fono_personal">Los demás usuarios pueden ver mi teléfono personal</string>
     <string name="los_dem_s_usuarios_pueden_ver_mi_cuadro_anual">Los demás usuarios pueden ver mi cuadro anual</string>
-    <string name="cuadro_anual_w_warning">"%1$s\nBloqueado hasta el %2$s"</string>
+    <string name="cuadro_anual_w_warning">%1$s\nBloqueado hasta el %2$s</string>
     <string name="general" translatable="false">General</string>
     <string name="versi_n_de_la_app">Versión de la app:</string>
     <string name="estoy_en_el_sistema_de_cambios">Participo en el sistema de cambios</string>
@@ -253,9 +253,9 @@
 \nVamos a insertar turnos en Kirito desde el día %1$s hasta %2$s y %3$s.</string>
     <string name="Se_han_modificado_n_claves">Se han modificado %1$s claves</string>
     <string name="cuadro_borrado_con_exito">El cuadro de %1$s se ha borrado con éxito.</string>
-    <string name="plus1_COMJ" translatable="false">"+%1$d COMJ"</string>
-    <string name="plus1_LIBRa" translatable="false">"+%1$d LIBRa"</string>
-    <string name="enviado_el_xxfecha">"Enviado el %1$s"</string>
+    <string name="plus1_COMJ" translatable="false">+%1$d COMJ</string>
+    <string name="plus1_LIBRa" translatable="false">+%1$d LIBRa</string>
+    <string name="enviado_el_xxfecha">Enviado el %1$s</string>
     <string name="contacto">Contacto</string>
     <string name="explicacion_seccion_contacto_admin">Antes de escribir a un administrador, consulta si tu problema está explicado en la sección de ayuda. \nSi tu duda o problema no está en la ayuda o aún así algo no te queda claro, escríbenos y te intentaremos solucionar el problema.\nTambién puedes enviarnos sugerencias que ayuden a mejorar la app.</string>
     <string name="mensaje">Mensaje</string>
@@ -278,7 +278,7 @@
     <string name="rellenaremos_los_turnos_con_claves_sin_asignar">final de año.\nPara ello rellenaremos los turnos con claves sin asignar</string>
     <string name="importaremos_los_turnos_que_estan_en_el_pdf">el último turno que haya en tu cuadro anual.\nPara ello importaremos los turnos que están en el pdf que nos mandas</string>
     <string name="rellenar_anio">Rellenar año</string>
-    <string name="archivo_seleccionado">"Archivo seleccionado: "</string>
+    <string name="archivo_seleccionado">Archivo seleccionado: </string>
     <string name="seleccionar_pdf" translatable="false">Seleccionar pdf</string>
     <string name="quieres_subir_el_pdf">¿Quieres subir el pdf?</string>
     <string name="quieres_llenar_el_anio_de_claves">¿Quieres llenar el año de claves?</string>
@@ -293,9 +293,9 @@
     <string name="elige_el_a_o_que_quieres_borrar">Elige el año que quieres borrar:</string>
     <string name="ajustes">Ajustes</string>
     <string name="modificar_mis_datos">Modificar mis datos</string>
-    <string name="fecha_de_alta__">"Fecha de alta: "</string>
+    <string name="fecha_de_alta__">Fecha de alta: </string>
     <string name="eres_administrador">Eres administrador</string>
-    <string name="estas_en_residencia">"Estás en "</string>
+    <string name="estas_en_residencia">Estás en </string>
     <string name="escribe_la_contrase_a">Escribe la contraseña</string>
     <string name="nueva_contrase_a">Nueva contraseña</string>
     <string name="contrase_a_vieja">Contraseña vieja</string>
@@ -340,11 +340,11 @@
     <string name="descargando_turnos_de_compa_eros">Descargando turnos de compañeros</string>
     <string name="finalizando_descarga">Finalizando descarga</string>
     <string name="soy_consciente">Soy consciente</string>
-    <string name="advertencia_app_en_beta">"Esta aplicación está en desarrollo y puede contener fallos o mostrar información incorrecta.\nConsulta SIEMPRE el gráfico oficial al realizar un turno."</string>
+    <string name="advertencia_app_en_beta">Esta aplicación está en desarrollo y puede contener fallos o mostrar información incorrecta.\nConsulta SIEMPRE el gráfico oficial al realizar un turno.</string>
     <string name="ir_a_la_ayuda_de_la_web">Ir a la ayuda de la web</string>
-    <string name="hoy__fechaxx">"Hoy, "</string>
-    <string name="manana__fechaxx">"Mañana, "</string>
-    <string name="ayer__fechaxx">"Ayer, "</string>
+    <string name="hoy__fechaxx">Hoy, </string>
+    <string name="manana__fechaxx">Mañana, </string>
+    <string name="ayer__fechaxx">Ayer, </string>
     <string name="tratamiento_de_datos">Tratamiento de datos</string>
     <string name="pol_tica_de_privacidad_y_tratamiento_de_datos">Política de privacidad y tratamiento de datos</string>
     <string name="politica_privacidad_1">Apreciado usuario, en Kirito valoramos tu privacidad y seguridad en línea. Por eso, queremos informarte sobre cómo tratamos tus datos personales.</string>
@@ -358,7 +358,7 @@
     <string name="politica_privacidad_5">Se prohíbe la reproducción total o parcial de los contenidos publicados en el portal. \nGracias por utilizar Kirito.</string>
     <string name="buscar" translatable="false">Buscar</string>
     <string name="turno_o_tren">Turno o tren</string>
-    <string name="buscar__" translatable="false">"Buscar: "</string>
+    <string name="buscar__" translatable="false">Buscar: </string>
     <string name="trenes">Trenes</string>
     <string name="inicio">Inicio:</string>
     <string name="fin">Fin:</string>
@@ -387,9 +387,9 @@
     <string name="segunda_noti_puesta">Segunda notificación puesta</string>
     <string name="tercera_noti_quitada">Tercera notificación quitada</string>
     <string name="tercera_noti_puesta">Tercera notificación puesta</string>
-    <string name="tu_clave_de_hoy_empieza_en_xxhora">"Tu clave de hoy empieza en %1$s"</string>
-    <string name="tu_clave_de_manana_empieza_en_xxhora">"Tu clave de mañana empieza en %1$s"</string>
-    <string name="turno_xxx_empieza_a_las_xxx">"Turno %1$s. Empieza a las %2$s"</string>
+    <string name="tu_clave_de_hoy_empieza_en_xxhora">Tu clave de hoy empieza en %1$s</string>
+    <string name="tu_clave_de_manana_empieza_en_xxhora">Tu clave de mañana empieza en %1$s</string>
+    <string name="turno_xxx_empieza_a_las_xxx">Turno %1$s. Empieza a las %2$s</string>
     <string name="pdf_gr_fico">PDF gráfico</string>
     <string name="pdf_anexo">PDF anexo</string>
     <string name="ver_el_pdf_del_gr_fico">Ver el PDF del gráfico</string>
@@ -473,24 +473,24 @@
     <string name="comparar" translatable="false">Comparar</string>
     <string name="tu_clave">Tu clave:</string>
     <string name="tu_clave_">Tu clave</string>
-    <string name="clave_de__">"Clave de %1$s:"</string>
-    <string name="clave_de___">"Clave de %1$s"</string>
-    <string name="prop_cambio_dia_anterior">"El día anterior tienes %1$s y termina a las %2$s. "</string>
-    <string name="prop_cambio_dia_siguiente">"El día siguiente tienes %1$s y empieza a las %2$s. "</string>
-    <string name="las_tareas_de_tu_clave_xxx">"Las tareas de tu clave %1$s"</string>
-    <string name="las_tareas_de_xxx__clave__">"Las tareas de %1$s, clave %2$s"</string>
+    <string name="clave_de__">Clave de %1$s:</string>
+    <string name="clave_de___">Clave de %1$s</string>
+    <string name="prop_cambio_dia_anterior">El día anterior tienes %1$s y termina a las %2$s. </string>
+    <string name="prop_cambio_dia_siguiente">El día siguiente tienes %1$s y empieza a las %2$s. </string>
+    <string name="las_tareas_de_tu_clave_xxx">Las tareas de tu clave %1$s</string>
+    <string name="las_tareas_de_xxx__clave__">Las tareas de %1$s, clave %2$s</string>
     <string name="cerrar">Cerrar</string>
-    <string name="el_dia_anterior_tienes_x">"El día anterior tienes %1$s."</string>
-    <string name="el_dia_siguiente_tienes_x">"El día siguiente tienes %1$s."</string>
+    <string name="el_dia_anterior_tienes_x">El día anterior tienes %1$s.</string>
+    <string name="el_dia_siguiente_tienes_x">El día siguiente tienes %1$s.</string>
     <string name="tienes_xtiempo_entre_turnos">Tienes %1$s entre turnos.</string>
-    <string name="un_dia">"1 día y "</string>
+    <string name="un_dia">1 día y </string>
     <string name="ver_tareas">Ver tareas</string>
     <string name="volver">Volver</string>
     <string name="propuesta_de_cambio">Propuesta de cambio</string>
     <string name="comparar_turnos">Comparar turnos</string>
     <string name="ver_clave_en_el_buscador">Ver %1$s en el buscador</string>
     <string name="duracion">Duración</string>
-    <string name="xxx_horas_antes_del_turno">" horas antes del turno."</string>
+    <string name="xxx_horas_antes_del_turno"> horas antes del turno.</string>
     <string name="ajusta_una_hora" translatable="false">Ajusta una hora.</string>
     <string name="mostrar_tiempo_de_descanso_entre_turnos">Mostrar tiempo de descanso entre turnos</string>
     <string name="mostrar_siempre">Mostrar siempre</string>
@@ -518,15 +518,15 @@
     <string name="excesos_de_jornada">Excesos de jornada</string>
     <string name="no_tienes_turnos_cerca">No tienes turnos cerca.</string>
     <string name="agregar_exceso_de_jornada">Agregar exceso de jornada</string>
-    <string name="_d_as_">"%1$d días "</string>
+    <string name="_d_as_">%1$d días </string>
     <string name="editar_excesos">Editar excesos de jornada</string>
     <string name="excesos_modificados">Excesos modificados</string>
     <string name="exceso_de_jornada">Exceso de jornada:</string>
     <string name="mermas" translatable="false">Merma:</string>
     <string name="excesos">Excesos:</string>
     <string name="explic_excesos">Calculamos el exceso de jornada a partir de las 7:13 desde el inicio del turno.\nMayor dedicación resulta del tiempo excedido multiplicado por x1.65.\nLa merma de jornada se produce cuando se descansa menos de 14h en residencia o 9h fuera, se ganan minutos a razón de x1.5. Si hay descansos en medio no debes tenerlos en cuenta y se produciría la merma igualmente (si trabajas un viernes por la tarde y luego un lunes por la mañana). Esto último NO SE CUMPLE si son descansos acordados con la Empresa.\nTras 7 horas y 13 minutos generados consigues un DCOM: un día libre que normalmente la Empresa elige donde colocar.</string>
-    <string name="xx_dias_y_xx_horas">"%1$d días y %2$s horas."</string>
-    <string name="xx_dcoms">"%1$s DCOMs y %2$s horas."</string>
+    <string name="xx_dias_y_xx_horas">%1$d días y %2$s horas.</string>
+    <string name="xx_dcoms">%1$s DCOMs y %2$s horas.</string>
     <string name="para_a_adir_excesos_a_un_turno_mant_n_pulsado_sobre_el_bot_n_editar_desde_la_vista_quot_hoy_quot_o_quot_mensual_quot">No tienes turnos con excesos generados.\nPara añadir excesos a un turno, mantén pulsado sobre el botón editar desde la vista \"hoy\" o \"mensual\".</string>
     <string name="turnos_con_excesos_de_jornada">Turnos con excesos de jornada</string>
     <string name="merma" translatable="false">Merma</string>
@@ -567,8 +567,8 @@
     <string name="tu_descanso_se_vio_mermado_en_x_horas_y_generaste_x">Tu descanso se vio mermado en %1$s horas y generaste %2$s.</string>
     <string name="m_s_tarde">Más tarde</string>
     <string name="peticiones_de_cambios">Peticiones de cambios</string>
-    <string name="enviaste_una_propuesta_a">"Enviada a %1$s"</string>
-    <string name="recibiste_una_propuesta_de">"Recibida de %1$s"</string>
+    <string name="enviaste_una_propuesta_a">Enviada a %1$s</string>
+    <string name="recibiste_una_propuesta_de">Recibida de %1$s</string>
     <string name="un_compa_ero">Un compañero</string>
     <string name="comparar_y_cambiar">Comparar y cambiar</string>
     <string name="proponer_cambio">Proponer cambio</string>
@@ -586,13 +586,13 @@
     <string name="aceptar_cambio">Aceptar cambio</string>
     <string name="advertencia_aceptar_cambio">Tras aceptar el cambio, tu clave y la del compañero serán modificadas. Él recibirá un aviso y entenderá que ha de realizar tu clave.</string>
     <string name="ver_cambio">Ver cambio</string>
-    <string name="clave_de_xx">"Clave de %1$s:"</string>
+    <string name="clave_de_xx">Clave de %1$s:</string>
     <string name="compa_ero2">compañero</string>
     <string name="a_n_sin_responder">Aún sin responder</string>
     <string name="cancelar_o_ver_la_petici_n">Cancelar o ver la petición</string>
     <string name="anular_petici_n">Anular petición</string>
     <string name="pendiente_de_aceptar_por_el_compa_ero">Pendiente de aceptar por el compañero</string>
-    <string name="cambiado_el_d_a">"Cambiado el día %1$s"</string>
+    <string name="cambiado_el_d_a">Cambiado el día %1$s</string>
     <string name="rechazado_por_el_compa_ero">Rechazado por el compañero</string>
     <string name="cancelado">Cancelado</string>
     <string name="rechazar_petici_n">Rechazar petición</string>
@@ -602,12 +602,12 @@
     <string name="cambio_propuesto_al_compa_ero">Cambio propuesto al compañero</string>
     <string name="respuesta_enviada">Respuesta enviada</string>
     <string name="cambios_con_compa_eros">Cambios con compañeros</string>
-    <string name="uno_de_tus_cambios_ha_sido_xx">"Uno de tus cambios ha sido %1$s"</string>
+    <string name="uno_de_tus_cambios_ha_sido_xx">Uno de tus cambios ha sido %1$s</string>
     <string name="aceptado">aceptado</string>
     <string name="rechazado_">rechazado</string>
     <string name="cancelado_">cancelado</string>
     <string name="pendiente">pendiente</string>
-    <string name="tu_cambio_del_d_a">"Tu cambio del día %1$s"</string>
+    <string name="tu_cambio_del_d_a">Tu cambio del día %1$s</string>
     <string name="advertencia_aceptar_ca_pendientes">\nEste mismo día tienes otras peticiones pendientes, serán canceladas.</string>
     <string name="cuadro_oculto">Cuadro oculto</string>
     <string name="turno_oculto">Turno desconocido</string>
@@ -640,13 +640,13 @@
     <string name="solo_ocultar">Solo ocultar</string>
     <string name="poner_d_as_iniciales_de_este_a_o">Poner días iniciales del año</string>
     <string name="no_tienes_clave">No tienes clave</string>
-    <string name="xx_quiere_cambiarte_su_clave_xx_por_tu_clave_yy_para_el_d_a_zz">"%1$s quiere cambiarte su clave %2$s por tu clave %3$s para el día %4$s."</string>
+    <string name="xx_quiere_cambiarte_su_clave_xx_por_tu_clave_yy_para_el_d_a_zz">%1$s quiere cambiarte su clave %2$s por tu clave %3$s para el día %4$s.</string>
     <string name="has_recibido_una_nueva_petici_n_de_cambio">Has recibido una nueva petición de cambio.</string>
-    <string name="xx_ha_yy_tu_petici_n_de_cambio_del_d_a_zz">"%1$s ha %2$s tu petición de cambio del día %3$s"</string>
-    <string name="xx_ha_yy_su_petici_n_de_cambio_del_d_a_zz">"%1$s ha %2$s su petición de cambio del día %3$s"</string>
+    <string name="xx_ha_yy_tu_petici_n_de_cambio_del_d_a_zz">%1$s ha %2$s tu petición de cambio del día %3$s</string>
+    <string name="xx_ha_yy_su_petici_n_de_cambio_del_d_a_zz">%1$s ha %2$s su petición de cambio del día %3$s</string>
     <string name="has_recibido_respuesta_a_una_de_tus_peticiones_de_cambio_pendientes">Has recibido respuesta a una de tus peticiones de cambio pendientes.</string>
     <string name="propuesta_pedida_por_m">Propuesta pedida por mí</string>
-    <string name="propuesta_hecha_por_el_compa_ero">"Propuesta hecha por %1$s"</string>
+    <string name="propuesta_hecha_por_el_compa_ero">Propuesta hecha por %1$s</string>
     <string name="el_compa_ero">el compañero</string>
     <string name="info_no_estas_en_sis_cambios">No estás en el sistema de cambios.\nSi quieres participar, actívalo en la configuración de la app.</string>
     <string name="el_compa_ero_no_est_en_el_sistema_de_cambios">El compañero no está en el sistema de cambios</string>
@@ -703,11 +703,11 @@
     <string name="descansos_durante_el_turno">Descansos durante el turno</string>
     <string name="text_notification_cambia_grafico_manana">Mañana cambia el gráfico, entra en vigor: %1$s</string>
     <string name="text_notification_cambia_grafico_hoy">Hoy ha empezado el gráfico: %1$s</string>
-    <string name="celsius" translatable="false">"%1$sºC   %2$s km/h"</string>
-    <string name="__mm_de_lluvia" translatable="false">" %1$s mm"</string>
-    <string name="xx_cm_de_nieve" translatable="false">" %1$scm"</string>
-    <string name="prob_lluvia">"Prob. lluvia: %1$s"</string>
-    <string name="prob_nieve">"Prob. nieve: %1$s"</string>
+    <string name="celsius" translatable="false">%1$sºC   %2$s km/h</string>
+    <string name="__mm_de_lluvia" translatable="false"> %1$s mm</string>
+    <string name="xx_cm_de_nieve" translatable="false"> %1$scm</string>
+    <string name="prob_lluvia">Prob. lluvia: %1$s</string>
+    <string name="prob_nieve">Prob. nieve: %1$s</string>
     <string name="descargando_info_tiempo">Descargando información meteorológica</string>
     <string name="veh_culo">Vehículo</string>
     <string name="teleindicador">Teleindicador</string>
@@ -732,9 +732,9 @@
     <string name="turnos_de_compa_eros">Turnos de compañeros</string>
     <string name="exceso">Exceso: %1$s</string>
     <string name="mermas__">" Mermas: %1$s"</string>
-    <string name="_excesos_del_gr_fico">" Excesos del gráfico: %1$s"</string>
-    <string name="excesos_del_gr_fico">"Excesos del gráfico: %1$s"</string>
-    <string name="excesos_del_gr_fico_">"Excesos del gráfico:"</string>
+    <string name="_excesos_del_gr_fico"> Excesos del gráfico: %1$s</string>
+    <string name="excesos_del_gr_fico">Excesos del gráfico: %1$s</string>
+    <string name="excesos_del_gr_fico_">Excesos del gráfico:</string>
     <string name="generar_cuadro_anual_con_claves_vac_as">Generar cuadro anual con claves vacías</string>
     <string name="otras_opciones">Otras opciones</string>
     <string name="advertencia_festivos">Recuerda que en festivos algunas claves pueden sufrir modificaciones que no aparecen en Kirito.</string>
@@ -798,7 +798,7 @@
     <string name="no_viene_el_campo_con_el_tipo_de_turno">No viene el campo con el tipo de turno</string>
     <string name="no_viene_el_campo_con_el_nombre_del_cambio">No viene el campo con el nombre del cambio</string>
     <string name="no_viene_el_campo_con_las_notas_del_turno">No viene el campo con las notas del turno</string>
-    <string name="error_con_el_id_detalle_o_fecha_no_corresponden">Error con el id_detalle o fecha. No corresponden</string>
+    <string name="error_con_el_id_detalle_o_fecha_no_corresponden">Error con el idDetalle o fecha. No corresponden</string>
     <string name="error_con_la_fecha_recibida_no_es_valida">Error con la fecha recibida. No es valida</string>
     <string name="error_con_el_turno_recibido_no_tiene_valor">Error con el turno recibido. No tiene valor</string>
     <string name="error_con_el_tipo_de_turno_recibido_no_es_valido">Error con el tipo de turno recibido. No es valido</string>
@@ -843,8 +843,9 @@
     <string name="no_encuentro_el_fichero_en_el_directorio">No encuentro el fichero en el directorio</string>
     <string name="el_fichero_adjunto_supera_los_20mb_no_se_guarda">El fichero adjunto supera los 20MB, no se guarda</string>
     <string name="c_digo_de_error_desconocido">Código de error desconocido</string>
+<!--    TODO: Traducir desde aquí! -->
     <string name="titulo_anadir_telefono_importante">Añadir Teléfono</string>
-    <string name="texto_tfImportante_not_found">No se encuentran telefonos en la base de datos.</string>
+    <string name="texto_tfImportante_not_found">No se encuentran telefonos en la base de datos</string>
     <string name="titulo_telefonos_importantes">Teléfonos Importantes</string>
     <string name="label_tfImportante_servicio">Servicio</string>
     <string name="label_tfImportante_nombre">Nombre</string>

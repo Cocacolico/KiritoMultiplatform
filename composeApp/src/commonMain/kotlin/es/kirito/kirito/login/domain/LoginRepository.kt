@@ -1,10 +1,9 @@
 package es.kirito.kirito.login.domain
 
 import es.kirito.kirito.core.data.dataStore.updatePreferenciasKirito
-import es.kirito.kirito.core.data.database.Estaciones
 import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.network.KiritoRequest
-import es.kirito.kirito.core.data.network.ResponseKiritoDTO
+import es.kirito.kirito.core.data.network.models.ResponseKiritoDTO
 import es.kirito.kirito.core.data.utils.KiritoException
 import es.kirito.kirito.core.data.utils.KiritoUserBlockedException
 import es.kirito.kirito.core.data.utils.KiritoWrongTokenException
@@ -48,7 +47,7 @@ class LoginRepository : KoinComponent {
             }
 
             val kiritoToken = respuesta.respuesta?.login ?: throw KiritoWrongTokenException()
-           // println("Login correcto, id es ${kiritoToken.id_usuario} y token es ${kiritoToken.token}")
+           // println("Login correcto, id es ${kiritoToken.idUsuario} y token es ${kiritoToken.token}")
 
             updatePreferenciasKirito { appSettings ->
                 appSettings.copy(
@@ -65,43 +64,6 @@ class LoginRepository : KoinComponent {
         }
     }
 
-    val estaciones = dao.getAllEstaciones()
-
-    suspend fun refreshEstaciones() {
-        listOf(
-            Estaciones(
-                nombre = "Estación Central",
-                acronimo = "EC",
-                numero = "001",
-                longitud = -58.3816f,
-                latitud = -34.6037f,
-                esDelGrafico = true
-            ), Estaciones(
-                nombre = "Estación Norte",
-                acronimo = "EN",
-                numero = "002",
-                longitud = -58.3838f,
-                latitud = -34.6158f,
-                esDelGrafico = false
-            ), Estaciones(
-                nombre = "Estación Sur",
-                acronimo = "ES",
-                numero = "003",
-                longitud = -58.3912f,
-                latitud = -34.6262f,
-                esDelGrafico = true
-            ), Estaciones(
-                nombre = "Estación Este",
-                acronimo = "EE",
-                numero = "004",
-                longitud = -58.3700f,
-                latitud = -34.6032f,
-                esDelGrafico = false
-            )
-        ).forEach {
-            dao.insertEstacion(it)
-        }
-    }
 
 
     /* suspend fun registerNewUser(
@@ -124,10 +86,10 @@ class LoginRepository : KoinComponent {
                  if (!miToken?.respuesta?.login?.token.isNullOrBlank()) {
                      //Tenemos un token válido, entonces:
                      dataStore.updateData {
-                         Timber.i("nombreDataStore repo1 ${miToken?.respuesta?.login?.id_usuario}")
+                         Timber.i("nombreDataStore repo1 ${miToken?.respuesta?.login?.idUsuario}")
                          it.copy(
                              matricula = userToBeRegistered.username,
-                             userId = miToken?.respuesta?.login?.id_usuario?.toLong() ?: -1L,
+                             userId = miToken?.respuesta?.login?.idUsuario?.toLong() ?: -1L,
                              token = miToken!!.respuesta!!.login.token,
                              residenciaURL = urlSeleccionada,
                              residenciaName = residenciaSeleccionada
