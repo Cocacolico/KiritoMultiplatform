@@ -82,6 +82,7 @@ import es.kirito.kirito.core.domain.util.toLocalTime
 import es.kirito.kirito.core.domain.util.toStringUpToSeconds
 import es.kirito.kirito.core.domain.util.toTurnoPrxTr
 import es.kirito.kirito.core.presentation.components.HeaderWithPrevNext
+import es.kirito.kirito.core.presentation.components.ImagenEga
 import es.kirito.kirito.core.presentation.components.LongToast
 import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
 import es.kirito.kirito.core.presentation.components.MyTextStd
@@ -130,6 +131,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.Month
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -562,6 +565,19 @@ fun HoyBody(
                 }
             }
         }
+
+        if (hoyState.tareasCortas.isNotEmpty()
+            && hoyState.turnoPrxTr?.horaOrigen != null
+            && hoyState.turnoPrxTr?.horaFin != null)
+            item {
+                ImagenEga(
+                    timeInicio = hoyState.turnoPrxTr?.horaOrigen ?: 0,
+                    timeFin = hoyState.turnoPrxTr?.horaFin ?: 0,
+                    tareas = hoyState.tareasCortas,
+                    dia = Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays().toLong(),
+                    coloresTrenes = hoyState.coloresTrenes,
+                )
+            }
 
         //Solo mostramos aquí las tareas si estamos en vertical.
         if (hoyState.tareas.isNotEmpty() && orientation == Orientation.PORTRAIT)

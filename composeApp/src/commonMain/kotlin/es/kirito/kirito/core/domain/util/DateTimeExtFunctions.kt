@@ -178,6 +178,20 @@ fun Instant.isBefore(other: Instant): Boolean {
     return this < other
 }
 
+fun Long.restar24(): Long {
+    return this % 24
+}
+
+/** Devuelve una String con varios ceros por delante, por defecto 2.
+ * @param leadingZeros Número de ceros por delante. **/
+fun Int.withLeadingZeros(leadingZeros: Int = 2): String{
+    var output = this.toString()
+    while (output.length < leadingZeros){
+        output = "0$output"
+    }
+    return output
+}
+
 @Composable
 fun Month.enCastellano(): String {
     return stringArrayResource(Res.array.full_months)[this.ordinal]

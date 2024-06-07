@@ -13,20 +13,23 @@ data class CustomColors(
     val colorSecondaryVariant: Color = Color.Unspecified,
     val fondoTareaPasada: Color = Color.Unspecified,
     val textoPocoImportante: Color = Color.Unspecified,
+    val textoContraste: Color = Color.Unspecified,
 )
 
 val OnLightCustomColors = CustomColors(
     smallFABContainer = azulKiritoOscuro,
     colorSecondaryVariant = amarilloKiritoSemi,
     fondoTareaPasada = amarilloKiritoTransparente,
-    textoPocoImportante = Color(444444)
+    textoPocoImportante = Color(0xff444444),
+    textoContraste = Color(0xff000000),
 )
 
 val OnDarkCustomColors = CustomColors(
     smallFABContainer = azulKiritoClaro,
     colorSecondaryVariant = amarilloKiritoSemi,
     fondoTareaPasada = amarilloKiritoTransparenteNight,
-    textoPocoImportante = Color(808080)
+    textoPocoImportante = Color(0xff808080),
+    textoContraste = Color(0xffFFFFFF),
 )
 
 val LocalCustomColors = staticCompositionLocalOf { CustomColors() }
