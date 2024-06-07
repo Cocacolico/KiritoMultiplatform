@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -110,7 +111,19 @@ fun ButtonMenuPrincipalBadge(
     numNotificaciones: Int = 0,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    BadgedBox(
+        badge = {
+            if (numNotificaciones > 0)
+                Badge(
+                    containerColor = amarilloKirito,
+                    contentColor = Color.Black,
+                ) {
+                    Text(
+                        fontSize = 14.sp,
+                        text = numNotificaciones.toString()
+                    )
+                }
+        },
         modifier = modifier
             .padding(6.dp)
     ) {
@@ -139,19 +152,7 @@ fun ButtonMenuPrincipalBadge(
                 textAlign = TextAlign.Center,
                 overflow = TextOverflow.Visible,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                //modifier = Modifier.weight(1f)
             )
         }
-        if (numNotificaciones > 0)
-            Badge(
-                containerColor = amarilloKirito,
-                contentColor = Color.Black,
-                modifier = modifier
-                    //.border(1.dp, color = Color.White, shape = CircleShape)
-                    .align(Alignment.TopEnd)
-                    .clip(CircleShape)
-            ) {
-                Text(text = numNotificaciones.toString())
-            }
     }
 }
