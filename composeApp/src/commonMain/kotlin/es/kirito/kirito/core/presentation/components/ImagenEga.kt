@@ -1,32 +1,38 @@
 package es.kirito.kirito.core.presentation.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import es.kirito.kirito.core.data.database.GrTareas
 import es.kirito.kirito.core.data.database.OtColoresTrenes
+import es.kirito.kirito.core.domain.util.media
+import es.kirito.kirito.core.domain.util.minusHours
 import es.kirito.kirito.core.domain.util.restar24
+import es.kirito.kirito.core.domain.util.restar60
 import es.kirito.kirito.core.domain.util.toComposeColor
+import es.kirito.kirito.core.domain.util.toLocalDate
+import es.kirito.kirito.core.domain.util.toMinuteOfDay
 import es.kirito.kirito.core.domain.util.withLeadingZeros
+import es.kirito.kirito.core.presentation.theme.colorTextoContraste
 import es.kirito.kirito.core.presentation.theme.customColors
+import es.kirito.kirito.core.presentation.utils.pxToDP
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.minus
 
 
 @Composable
@@ -39,14 +45,15 @@ fun ImagenEga(
     factorZoom: Int = 2,
     textColor: Int? = null,
 ) {
-    val height: Int = 75 * factorZoom
+    // val height: Int = 75 * factorZoom
+    val height: Int = 82 * factorZoom
     val alturaLineas = 50f * factorZoom
-    val alturaSitios = 43f * factorZoom
-    val alturaServicios = 33f * factorZoom
-    val alturaServicios2 = 23f * factorZoom
-    val alturaServicios3 = 13f * factorZoom
-    val alturaHoras = 65f * factorZoom
-    val alturaTextHoras = 75f * factorZoom
+    val alturaSitios = 33f * factorZoom
+    val alturaServicios = 23f * factorZoom
+    val alturaServicios2 = 13f * factorZoom
+    val alturaServicios3 = 3f * factorZoom
+    val alturaHoras = 53f * factorZoom
+    val alturaTextHoras = 65f * factorZoom
     val esNoche = timeInicio < timeFin
     val segundosHastaMedianoche = if (esNoche) 86400 - timeInicio else 0L
     val dMinEntreTextos = 15 * factorZoom
@@ -62,14 +69,14 @@ fun ImagenEga(
         esNoche,
         segundosHastaMedianoche,
         factorZoom
-    ).dp
+    ).pxToDP()
 
     println("El ancho será $width")
 
     val textMeasurer = rememberTextMeasurer()
 
     Canvas(modifier = Modifier
-        .height(height.dp)
+        .height(height.pxToDP())
         .width(width),
         onDraw = {
             drawTimeLines(
@@ -78,7 +85,33 @@ fun ImagenEga(
                 factorZoom,
                 alturaHoras,
                 textMeasurer,
-                colorTextoContraste
+                colorTextoContraste,
+                alturaTextHoras
+            )
+            drawNowLine(
+                dia = dia,
+                timeInicio = timeInicio,
+                timeFin = timeFin,
+                alturaLineas = alturaLineas,
+                alturaFinal = height.toFloat(),
+                factorZoom = factorZoom,
+            )
+            drawServicios(
+                tareas,
+                timeInicio.toInt(),
+                factorZoom,
+                dMinEntreTextos,
+                dMinEntreTextServicios,
+                alturaSitios,
+                alturaServicios,
+                alturaServicios2,
+                alturaServicios3,
+                alturaHoras,
+                segundosHastaMedianoche,
+                textMeasurer,
+                dDesplHoras,
+                alturaLineas,
+                coloresTrenes
             )
         }
     )
@@ -91,6 +124,7 @@ private fun DrawScope.drawTimeLines(
     alturaHoras: Float,
     textMeasurer: TextMeasurer,
     colorTextoContraste: Color,
+    alturaTextHoras: Float,
 ) {
     val horaInicial = timeInicio / 3600
     val minutoInicial = (timeInicio % 3600) / 60 // calculate minutes
@@ -100,14 +134,18 @@ private fun DrawScope.drawTimeLines(
     } else {
         60 - minutoInicial
     }
-    val minutesFin = timeFin / 60
-    println("RemainingMinutes start: $remainingMinutes, $timeFin")
 
-    while (remainingMinutes < minutesFin) {
+    val finIteraciones = ((timeFin / 3600) + 1).restar24()
+        .toInt() //Pintaremos 1 hora más, la segunda será en la que no se cumpla.
+    var iteraciones = -1 //Empiezo en un número que no es una hora real.
+
+    // while (remainingMinutes < minutesFin) {
+    while (iteraciones != finIteraciones) {
+        println("La iteración actual es $iteraciones y $finIteraciones")
         drawLine(
             color = colorTextoContraste.copy(alpha = 0.7f),
             start = Offset(remainingMinutes.toFloat() * factorZoom, 0f),
-            end = Offset(remainingMinutes.toFloat() * factorZoom, alturaHoras),
+            end = Offset(remainingMinutes.toFloat() * factorZoom, alturaTextHoras),
             strokeWidth = Stroke.HairlineWidth
         )
         val textHour = (
@@ -117,67 +155,84 @@ private fun DrawScope.drawTimeLines(
                     remainingMinutes / 60 + horaInicial
                 ).restar24().toInt().withLeadingZeros()
 
-        val textResult = textMeasurer.measure(textHour)
+        val textResult = textMeasurer.measure(textHour, style = TextStyle(fontSize = (4 * factorZoom).sp))
         val subOffset = textResult.size.width / 4 //Para centrar el número.
-        drawText(textResult, topLeft = Offset((remainingMinutes - subOffset).toFloat() * factorZoom, alturaHoras))
-
-        println("remaininMinutes before $remainingMinutes")
-        remainingMinutes += 60L
-        println("remaininMinutes after $remainingMinutes")
-
-
-    }
-
-}
-
-/*
-
-
-
-private fun drawNowLine(dia: Long?) {
-    var dibujar = false
-    val minutoActual = LocalTime.now().toMinuteOfDay()
-    val minutoInicio = if (timeInicio != null) timeInicio / 60 else 0
-    var pasaPorMedianoche = false
-    if (timeInicio != null && timeFin != null) {
-        pasaPorMedianoche = (timeInicio > timeFin)
-        if (dia.toLocalDate() == LocalDate.now() && !pasaPorMedianoche)
-            dibujar = true//Pintamos el día si es hoy y no pasa por medianoche.
-        else if (pasaPorMedianoche) {
-            if (minutoInicio < minutoActual) {//Antes de medianoche.
-                if (dia.toLocalDate() == LocalDate.now())//Pintamos el día de hoy.
-                    dibujar = true
-            } else {//Las 00 y después. Pintamos en el día de ayer.
-                if (dia.toLocalDate() == LocalDate.now().minusDays(1))
-                    dibujar = true
-            }
-        }
-    }
-    val hora = if (timeInicio != null) {
-        //Si es después de la medianoche en un turno nocturno:
-        if (pasaPorMedianoche && LocalTime.now().toMinuteOfDay() < minutoInicio)
-            (minutoActual + 1440 + 60 - minutoInicio)
-        //El minuto, más los minutos de un día, más la hora de desfase, menos cuando empezó.
-        else
-            minutoActual + 60 - minutoInicio
-
-    } else
-        0
-
-    if (dibujar)
-        canvas.drawLine(
-            hora.toFloat() * factorZoom,
-            alturaLineas,
-            hora.toFloat() * factorZoom,
-            alturaTextHoras,
-            createThinColorPaint(Color.RED, 50)
+        drawText(
+            textResult,
+            topLeft = Offset((remainingMinutes - subOffset).toFloat() * factorZoom, alturaTextHoras)
         )
 
+        remainingMinutes += 60L
+        iteraciones = textHour.toInt()
+    }
 }
 
 
-private fun drawServicios(tareas: List<GrTareas>?) {
-    if (!tareas.isNullOrEmpty() && timeInicio != null) {
+private fun DrawScope.drawNowLine(
+    dia: Long?,
+    timeInicio: Long,
+    timeFin: Long,
+    alturaLineas: Float,
+    alturaFinal: Float,
+    factorZoom: Int
+) {
+    val now = Clock.System.now()
+    var dibujar = false
+    val minutoActual = now.toMinuteOfDay()
+    val minutoInicio = timeInicio / 60
+    var pasaPorMedianoche = false
+    pasaPorMedianoche = (timeInicio > timeFin)
+    if (dia.toLocalDate() == now.toLocalDate() && !pasaPorMedianoche)
+        dibujar = true//Pintamos el día si es hoy y no pasa por medianoche.
+    else if (pasaPorMedianoche) {
+        if (minutoInicio < minutoActual) {//Antes de medianoche.
+            if (dia.toLocalDate() == now.toLocalDate())//Pintamos el día de hoy.
+                dibujar = true
+        } else {//Las 00 y después. Pintamos en el día de ayer.
+            if (dia.toLocalDate() == now.toLocalDate().minus(1, DateTimeUnit.DAY))
+                dibujar = true
+        }
+    }
+    val hora = if (pasaPorMedianoche && now.toMinuteOfDay() < minutoInicio)
+        (minutoActual + 1440 + 60 - minutoInicio)
+    //El minuto, más los minutos de un día, más la hora de desfase, menos cuando empezó.
+    else
+        minutoActual + 60 - minutoInicio
+
+    if (dibujar)
+        drawLine(
+            color = Color.Red.copy(alpha = 0.7f),
+            start = Offset(
+                hora.toFloat() * factorZoom,
+                alturaLineas
+            ),
+            end = Offset(
+                hora.toFloat() * factorZoom,
+                alturaFinal
+            ),
+            strokeWidth = Stroke.HairlineWidth
+        )
+}
+
+
+private fun DrawScope.drawServicios(
+    tareas: List<GrTareas>,
+    timeInicio: Int,
+    factorZoom: Int,
+    dMinEntreTextos: Int,
+    dMinEntreTextServicios: Int,
+    alturaSitios: Float,
+    alturaServicios: Float,
+    alturaServicios2: Float,
+    alturaServicios3: Float,
+    alturaHoras: Float,
+    segundosHastaMedianoche: Long,
+    textMeasurer: TextMeasurer,
+    dDesplHoras: Int,
+    alturaLineas: Float,
+    coloresTrenes: List<OtColoresTrenes>?
+) {
+    if (tareas.isNotEmpty()) {
         var posicionServicioPrevio = 0f
         var posicionServicioPrevio2 = 0f
         var posicionFinTareaPrevia = 0f
@@ -188,20 +243,21 @@ private fun drawServicios(tareas: List<GrTareas>?) {
 
         var posUltimaHoraPintada = 0f
 
-        */
-/** Está en minutos desde las 00 y se le resta 60 **//*
 
-        val inicioTurno = LocalTime.ofSecondOfDay(timeInicio).minusHours(1)
+        /** Está en minutos desde las 00 y se le resta 60 **/
+
+
+        val inicioTurno = LocalTime.fromSecondOfDay(timeInicio).minusHours(1)
 
         tareas.forEachIndexed { index, tarea ->
             val inicioTarea = if (tarea.horaOrigen == null)
-                LocalTime.ofSecondOfDay(0)
+                LocalTime.fromSecondOfDay(0)
             else
-                LocalTime.ofSecondOfDay(tarea.horaOrigen!!.toLong())
+                LocalTime.fromSecondOfDay(tarea.horaOrigen!!)
             val finTarea = if (tarea.horaFin == null)
-                LocalTime.ofSecondOfDay(0)
+                LocalTime.fromSecondOfDay(0)
             else
-                LocalTime.ofSecondOfDay(tarea.horaFin!!.toLong())
+                LocalTime.fromSecondOfDay(tarea.horaFin!!)
 
 
             val inicio = if (inicioTarea < inicioTurno) { //Pasa por la medianoche.
@@ -222,7 +278,7 @@ private fun drawServicios(tareas: List<GrTareas>?) {
                 null // there is no next item
             }
             if (nextTarea?.horaOrigen != null) {
-                val nextInicioLT = LocalTime.ofSecondOfDay(nextTarea.horaOrigen!!.toLong())
+                val nextInicioLT = LocalTime.fromSecondOfDay(nextTarea.horaOrigen!!)
                 nextHInicio = if (nextInicioLT < inicioTurno) { //Pasa por la medianoche.
                     (nextInicioLT.toMinuteOfDay() + 60 + (segundosHastaMedianoche.toInt()) / 60) * factorZoom
                 } else {
@@ -232,7 +288,15 @@ private fun drawServicios(tareas: List<GrTareas>?) {
 
 
             //Pintamos la línea.
-            drawServicioLine(inicio.toFloat(), fin.toFloat(), tarea, context)
+            drawServicioLine(
+                inicio = inicio.toFloat(),
+                fin = fin.toFloat(),
+                tarea = tarea,
+                alturaLineas = alturaLineas,
+                factorZoom = factorZoom,
+                colorTextoContraste = colorTextoContraste,
+                coloresTrenes = coloresTrenes
+            )
 
 
             //Pintamos el lugar de origen:
@@ -247,25 +311,40 @@ private fun drawServicios(tareas: List<GrTareas>?) {
                     nextHInicio - fin < dMinEntreTextos && nextTarea.sitioOrigen == tarea.sitioFin
 
 
-            if (!tarea.servicio.contains("Deje")) //Si la tarea no es un deje
+
+
+
+            if (!tarea.servicio.contains("Deje")) { //Si la tarea no es un deje
+
+                val textResult = textMeasurer.measure(tarea.sitioOrigen ?: "", style = TextStyle(fontSize = (4 * factorZoom).sp))
+                val subOffset = textResult.size.width / 4 //Para centrar el número.
+
                 if (mismoSitioYAnteriorMuyCerca)//Pintamos en medio de los dos sitios:
-                    canvas.drawText(
-                        tarea.sitioOrigen ?: "",
-                        media(posicionFinTareaPrevia.toLong(), inicio.toLong()),
-                        alturaSitios,
-                        textPaint
+                    drawText(
+                        textResult,
+                        topLeft = Offset(
+                            (media(
+                                posicionFinTareaPrevia.toLong(),
+                                inicio.toLong()
+                            ) - subOffset) * factorZoom, alturaSitios
+                        )
                     )
                 else
-                    canvas.drawText(
-                        tarea.sitioOrigen ?: "",
-                        inicio.toFloat(),
-                        alturaSitios,
-                        textPaint
+                    drawText(
+                        textResult,
+                        topLeft = Offset((inicio.toFloat() - subOffset) * factorZoom, alturaSitios)
                     )
+            }
 
             //Pintamos el lugar de destino, si no es una toma ni está cerca:
-            if (!tarea.servicio.contains("Toma") && !mismoSitioYSiguienteMuyCerca)
-                canvas.drawText(tarea.sitioFin ?: "", fin.toFloat(), alturaSitios, textPaint)
+            if (!tarea.servicio.contains("Toma") && !mismoSitioYSiguienteMuyCerca) {
+                val textResult = textMeasurer.measure(tarea.sitioFin ?: "", style = TextStyle(fontSize = (4 * factorZoom).sp))
+                val subOffset = textResult.size.width / 4 //Para centrar el número.
+                drawText(
+                    textResult,
+                    topLeft = Offset((fin.toFloat() - subOffset) * factorZoom, alturaSitios)
+                )
+            }
 
 
             //Pintamos el servicio:
@@ -280,23 +359,34 @@ private fun drawServicios(tareas: List<GrTareas>?) {
                     textoServicio =
                         tarea.observaciones.toString().take(7)//Solo los siete primeros caracteres.
 
+                val textResult = textMeasurer.measure(textoServicio, style = TextStyle(fontSize = (4 * factorZoom).sp))
+                val subOffset = textResult.size.width / 4 //Para centrar el número.
+
                 if (posicionServicio - posicionServicioPrevio > dMinEntreTextServicios) {
-                    canvas.drawText(textoServicio, posicionServicio, alturaServicios, textPaint)
+                    drawText(
+                        textResult,
+                        topLeft = Offset(
+                            (posicionServicio - subOffset) * factorZoom,
+                            alturaServicios
+                        )
+                    )
                     posicionServicioPrevio = posicionServicio
                 } else if (posicionServicio - posicionServicioPrevio2 > dMinEntreTextServicios) {
-                    canvas.drawText(
-                        textoServicio,
-                        posicionServicio,
-                        alturaServicios2,
-                        textPaint
+                    drawText(
+                        textResult,
+                        topLeft = Offset(
+                            (posicionServicio - subOffset) * factorZoom,
+                            alturaServicios2
+                        )
                     )
                     posicionServicioPrevio2 = posicionServicio
                 } else {
-                    canvas.drawText(
-                        textoServicio,
-                        posicionServicio,
-                        alturaServicios3,
-                        textPaint
+                    drawText(
+                        textResult,
+                        topLeft = Offset(
+                            (posicionServicio - subOffset) * factorZoom,
+                            alturaServicios3
+                        )
                     )
                 }
             }
@@ -314,11 +404,13 @@ private fun drawServicios(tareas: List<GrTareas>?) {
             ) {
                 finActualNoPintado = false
 
-                canvas.drawText(
-                    (fin / factorZoom + (minutosIniciales - 60)).restar60().toString(),
-                    posicionFinTextoTarea,
-                    alturaHoras,
-                    textPaint
+                val textoServicio =
+                    (fin / factorZoom + (minutosIniciales - 60)).restar60().toString()
+                val textResult = textMeasurer.measure(textoServicio, style = TextStyle(fontSize = (4 * factorZoom).sp))
+                val subOffset = textResult.size.width / 4 //Para centrar el número.
+                drawText(
+                    textResult,
+                    topLeft = Offset((posicionFinTextoTarea - subOffset) * factorZoom, alturaHoras)
                 )
             } else {
                 finActualNoPintado = true
@@ -328,11 +420,13 @@ private fun drawServicios(tareas: List<GrTareas>?) {
             if (posicionInicioTextoTarea - posUltimaHoraPintada < dMinEntreTextos) {
                 posicionInicioTextoTarea += dDesplHoras
             }
-            canvas.drawText(
-                (inicio / factorZoom + (minutosIniciales - 60)).restar60().toString(),
-                posicionInicioTextoTarea,
-                alturaHoras,
-                textPaint
+            val textoServicio =
+                (inicio / factorZoom + (minutosIniciales - 60)).restar60().toString()
+            val textResult = textMeasurer.measure(textoServicio, style = TextStyle(fontSize = (4 * factorZoom).sp))
+            val subOffset = textResult.size.width / 4 //Para centrar el número.
+            drawText(
+                textResult,
+                topLeft = Offset((posicionInicioTextoTarea - subOffset) * factorZoom, alturaHoras)
             )
             if (!finActualNoPintado)
                 posUltimaHoraPintada =
@@ -348,40 +442,46 @@ private fun drawServicios(tareas: List<GrTareas>?) {
     }
 }
 
-private fun drawServicioLine(
+
+private fun DrawScope.drawServicioLine(
     inicio: Float,
     fin: Float,
     tarea: GrTareas,
+    alturaLineas: Float,
+    factorZoom: Int,
+    colorTextoContraste: Color,
+    coloresTrenes: List<OtColoresTrenes>?
 ) {
     if (tarea.servicio.contains("Toma") || tarea.servicio.contains("Deje")) {
-        canvas.drawLine(
-            inicio,
-            alturaLineas - (2.5f * factorZoom),
-            fin,
-            alturaLineas - (2.5f * factorZoom),
-            createThinColorPaint(color = colorTextoContraste.toArgb())
+        drawLine(
+            color = colorTextoContraste,
+            start = Offset(inicio, alturaLineas - (2.5f * factorZoom)),
+            end = Offset(fin, alturaLineas - (2.5f * factorZoom)),
+            strokeWidth = Stroke.HairlineWidth
         )
-
-        canvas.drawLine(
-            inicio,
-            alturaLineas + (2.5f * factorZoom),
-            fin,
-            alturaLineas + (2.5f * factorZoom),
-            createThinColorPaint(color = colorTextoContraste.toArgb())
+        drawLine(
+            color = colorTextoContraste,
+            start = Offset(inicio, alturaLineas + (2.5f * factorZoom)),
+            end = Offset(fin, alturaLineas + (2.5f * factorZoom)),
+            strokeWidth = Stroke.HairlineWidth
         )
-
 
     } else if (tarea.servicio == "AC" || tarea.servicio.startsWith("AC ")) {
         var inicioPintar = inicio
         do {
             if (inicioPintar.toInt() % (4 * factorZoom) == 0)
-                canvas.drawLine(
-                    inicioPintar,
-                    alturaLineas - (2.5f * factorZoom),
-                    inicioPintar,
-                    alturaLineas + (2.5f * factorZoom),
-                    createMidColorPaint(color = colorTextoContraste.toArgb())
-                )
+                Path().apply {
+                    moveTo(inicioPintar, alturaLineas - (2.5f * factorZoom))
+                    lineTo(inicioPintar, alturaLineas + (2.5f * factorZoom))
+                    lineTo(inicioPintar + 2 * factorZoom, alturaLineas + (2.5f * factorZoom))
+                    lineTo(inicioPintar + 2 * factorZoom, alturaLineas - (2.5f * factorZoom))
+                    close()
+                }.let { path ->
+                    drawPath(
+                        path = path,
+                        color = colorTextoContraste
+                    )
+                }
             inicioPintar++
         } while (inicioPintar < fin)
 
@@ -389,13 +489,18 @@ private fun drawServicioLine(
         var inicioPintar = inicio
         do {
             if (inicioPintar.toInt() % (4 * factorZoom) == 0)
-                canvas.drawLine(
-                    inicioPintar + (4 * factorZoom),
-                    alturaLineas - (2.5f * factorZoom),
-                    inicioPintar,
-                    alturaLineas + (2.5f * factorZoom),
-                    createThinColorPaint(color = colorTextoContraste.toArgb())
-                )
+                Path().apply {
+                    moveTo(inicioPintar + (4 * factorZoom), alturaLineas - (2.5f * factorZoom))
+                    lineTo(inicioPintar + (4 * factorZoom), alturaLineas + (2.5f * factorZoom))
+                    lineTo(inicioPintar, alturaLineas + (2.5f * factorZoom))
+                    lineTo(inicioPintar, alturaLineas - (2.5f * factorZoom))
+                    close()
+                }.let { path ->
+                    drawPath(
+                        path = path,
+                        color = colorTextoContraste
+                    )
+                }
             inicioPintar++
         } while (inicioPintar < fin)
 
@@ -403,13 +508,18 @@ private fun drawServicioLine(
         var inicioPintar = inicio
         do {
             if (inicioPintar.toInt() % (10 * factorZoom) == 0)
-                canvas.drawLine(
-                    inicioPintar,
-                    alturaLineas - (2.5f * factorZoom),
-                    inicioPintar,
-                    alturaLineas + (2.5f * factorZoom),
-                    createColorPaint(color = colorTextoContraste.toArgb())
-                )
+                Path().apply {
+                    moveTo(inicioPintar, alturaLineas - (2.5f * factorZoom))
+                    lineTo(inicioPintar, alturaLineas + (2.5f * factorZoom))
+                    lineTo(inicioPintar + 5f * factorZoom, alturaLineas + (2.5f * factorZoom))
+                    lineTo(inicioPintar + 5f * factorZoom, alturaLineas - (2.5f * factorZoom))
+                    close()
+                }.let { path ->
+                    drawPath(
+                        path = path,
+                        color = colorTextoContraste
+                    )
+                }
             inicioPintar++
         } while (inicioPintar < fin)
 
@@ -417,19 +527,21 @@ private fun drawServicioLine(
         var inicioPintar = inicio
         do {
             if (inicioPintar.toInt() % (4 * factorZoom) == 0) {
-                canvas.drawLine(
-                    inicioPintar + (4 * factorZoom),
-                    alturaLineas - (2.5f * factorZoom),
-                    inicioPintar,
-                    alturaLineas + (2.5f * factorZoom),
-                    createThinColorPaint(color = colorTextoContraste.toArgb())
+                drawLine(
+                    color = colorTextoContraste,
+                    start = Offset(
+                        inicioPintar + (4 * factorZoom),
+                        alturaLineas - (2.5f * factorZoom)
+                    ),
+                    end = Offset(inicioPintar, alturaLineas + (2.5f * factorZoom)),
                 )
-                canvas.drawLine(
-                    inicioPintar,
-                    alturaLineas - (2.5f * factorZoom),
-                    inicioPintar + (4 * factorZoom),
-                    alturaLineas + (2.5f * factorZoom),
-                    createThinColorPaint(color = colorTextoContraste.toArgb())
+                drawLine(
+                    color = colorTextoContraste,
+                    start = Offset(inicioPintar, alturaLineas - (2.5f * factorZoom)),
+                    end = Offset(
+                        inicioPintar + (4 * factorZoom),
+                        alturaLineas + (2.5f * factorZoom)
+                    ),
                 )
             }
             inicioPintar++
@@ -441,14 +553,20 @@ private fun drawServicioLine(
             tarea.getServicioColor(coloresTrenes)
         else
             null
-        canvas.drawLine(
-            inicio, alturaLineas, fin, alturaLineas, createColorPaint(color)
-        )
+        Path().apply {
+            moveTo(inicio, alturaLineas - (2.5f * factorZoom))
+            lineTo(inicio, alturaLineas + (2.5f * factorZoom))
+            lineTo(fin, alturaLineas + (2.5f * factorZoom))
+            lineTo(fin, alturaLineas - (2.5f * factorZoom))
+            close()
+        }.let { path ->
+            drawPath(
+                path = path,
+                color = color ?: Color.Green
+            )
+        }
     }
-
 }
-*/
-
 
 private fun getWidth(
     segundosInicio: Long?,
@@ -469,36 +587,6 @@ private fun getWidth(
     }
     return 1//No puede ser de 0 de ancho.
 }
-
-
-private fun createThinColorPaint(color: Color? = null, alpha: Int? = null, factorZoom: Int): Paint {
-    return Paint().apply {
-        this.alpha = (alpha ?: 255).toFloat() / 255
-        this.color = color ?: Color.Black
-        style = PaintingStyle.Stroke
-        strokeWidth = 1f * factorZoom
-    }
-}
-
-private fun createMidColorPaint(color: Color? = null, alpha: Int? = null, factorZoom: Int): Paint {
-    return Paint().apply {
-        this.alpha = (alpha ?: 255).toFloat() / 255
-        this.color = color ?: Color.Black
-        style = PaintingStyle.Stroke
-        strokeWidth = 2f * factorZoom
-    }
-}
-
-
-private fun createColorPaint(color: Color? = null, alpha: Int? = null, factorZoom: Int): Paint {
-    return Paint().apply {
-        this.alpha = (alpha ?: 255).toFloat() / 255
-        this.color = color ?: Color.Green
-        style = PaintingStyle.Stroke
-        strokeWidth = 5f * factorZoom
-    }
-}
-
 
 private fun GrTareas.getServicioColor(
     coloresTrenes: List<OtColoresTrenes>

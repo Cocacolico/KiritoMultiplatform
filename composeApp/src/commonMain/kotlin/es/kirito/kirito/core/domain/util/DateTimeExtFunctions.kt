@@ -7,6 +7,7 @@ import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.full_days
 import kirito.composeapp.generated.resources.full_months
 import kirito.composeapp.generated.resources.short_months
+import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
@@ -15,6 +16,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
@@ -172,6 +174,20 @@ fun LocalTime.toStringUpToSeconds(): String {
 fun Instant.toLocalDate(): LocalDate {
    return this.toLocalDateTime(TimeZone.UTC)
         .date
+}
+
+fun Instant.toMinuteOfDay(): Int {
+    return this.toLocalTime().toSecondOfDay() / 60
+}
+fun LocalTime.toMinuteOfDay(): Int {
+    return this.toSecondOfDay() / 60
+}
+
+fun LocalTime.minusHours(hours: Int): LocalTime {
+    var substracted = this.toSecondOfDay() - hours * 3600
+    if (substracted < 0)
+        substracted += 24 * 3600
+    return substracted.toLocalTime()
 }
 
 fun Instant.isBefore(other: Instant): Boolean {
