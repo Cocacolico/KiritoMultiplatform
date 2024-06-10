@@ -11,6 +11,7 @@ import es.kirito.kirito.core.data.database.GrNotasTren
 import es.kirito.kirito.core.data.database.GrNotasTurno
 import es.kirito.kirito.core.data.database.GrTareas
 import es.kirito.kirito.core.data.database.KiritoDatabase
+import es.kirito.kirito.core.data.database.LsUsers
 import es.kirito.kirito.core.data.network.KiritoRequest
 import es.kirito.kirito.core.data.network.models.RequestComplementosGraficoDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
@@ -33,6 +34,7 @@ import es.kirito.kirito.precarga.data.network.models.ResponseExcelIfDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseGrTareasDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseNotasTrenDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseNotasTurnoDTO
+import kotlinx.coroutines.flow.Flow
 
 import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
@@ -232,6 +234,9 @@ class CoreRepository : KoinComponent {
         // refreshAlarmas()
         refreshCambios(bdActualizada)
 
+    }
+    fun getMyUser(id: Long): Flow<LsUsers?> {
+        return dao.getMyKiritoUser(id)
     }
 }
 

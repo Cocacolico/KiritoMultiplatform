@@ -50,38 +50,59 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import es.kirito.kirito.core.domain.util.colorDeFondoTurnos
+import es.kirito.kirito.core.domain.util.enMiFormato
+import es.kirito.kirito.core.domain.util.toComposeColor
+import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.presentation.components.ButtonMenuPrincipal
 import es.kirito.kirito.core.presentation.components.ButtonMenuPrincipalBadge
+import es.kirito.kirito.core.presentation.components.DiasEspecialesCard
 import es.kirito.kirito.core.presentation.components.MyTextSubTitle
+import es.kirito.kirito.core.presentation.theme.KiritoColors
 import es.kirito.kirito.core.presentation.theme.amarilloKirito
+import es.kirito.kirito.menu.domain.MenuState
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.admin
 import kirito.composeapp.generated.resources.ajustes
 import kirito.composeapp.generated.resources.ayuda
 import kirito.composeapp.generated.resources.bienvenido_a
+import kirito.composeapp.generated.resources.bienvenido_a__
 import kirito.composeapp.generated.resources.borrar_cuadro
+import kirito.composeapp.generated.resources.comj
 import kirito.composeapp.generated.resources.configurar_google_calendar
 import kirito.composeapp.generated.resources.contacto_con_un_admin
 import kirito.composeapp.generated.resources.d_as_especiales
+import kirito.composeapp.generated.resources.dd
+import kirito.composeapp.generated.resources.dj
+import kirito.composeapp.generated.resources.dja
 import kirito.composeapp.generated.resources.estadisticas
 import kirito.composeapp.generated.resources.excesos_de_jornada
 import kirito.composeapp.generated.resources.gestiones
 import kirito.composeapp.generated.resources.gr_fico_en_vigor
 import kirito.composeapp.generated.resources.gr_ficos
+import kirito.composeapp.generated.resources.hasta_el
+import kirito.composeapp.generated.resources.libra
 import kirito.composeapp.generated.resources.list_n_telef_nico
+import kirito.composeapp.generated.resources.lz
+import kirito.composeapp.generated.resources.lza
 import kirito.composeapp.generated.resources.mensajes
 import kirito.composeapp.generated.resources.mi_perfil
 import kirito.composeapp.generated.resources.mis_cambios
 import kirito.composeapp.generated.resources.mis_compa_eros
 import kirito.composeapp.generated.resources.mis_turnos
+import kirito.composeapp.generated.resources.no_hay_grafico_en_vigor
 import kirito.composeapp.generated.resources.notificaciones
 import kirito.composeapp.generated.resources.peticiones_de_cambios
+import kirito.composeapp.generated.resources.salir
 import kirito.composeapp.generated.resources.subir_cuadro_anual
 import kirito.composeapp.generated.resources.subir_gr_fico_nuevo
 import kirito.composeapp.generated.resources.subir_localizadores
@@ -96,13 +117,12 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
-@OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalResourceApi::class,
-    ExperimentalLayoutApi::class
-)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MenuScreen(navController: NavHostController) {
     val viewModel = koinViewModel<MenuViewModel>()
+    val state by viewModel.menuState.collectAsState(MenuState())
+
     Surface(Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -116,22 +136,38 @@ fun MenuScreen(navController: NavHostController) {
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
                         onClick = {
                             viewModel.onPerfilClick()
                         }
                     ) {
-                        Icon(Icons.Outlined.Person, contentDescription = null)
-                    }
-                    Column {
-                        ClickableText(
-                            text = AnnotatedString(stringResource(Res.string.bienvenido_a)),
-                            onClick = {
-                                viewModel.onPerfilClick()
-                            }
+                        Icon(
+                            Icons.Outlined.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp)
                         )
+                    }
+                    Column (
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(4.dp)
+                    ){
+                        if(state.userData?.username == null)
+                            Text(
+                                text = stringResource(Res.string.bienvenido_a)
+                            )
+                        else
+                            ClickableText(
+                                text = AnnotatedString(stringResource(Res.string.bienvenido_a__,
+                                    state.userData!!.name)),
+                                onClick = {
+                                    viewModel.onPerfilClick()
+                                }
+                            )
                         ClickableText(
                             text = AnnotatedString(stringResource(Res.string.mi_perfil)),
                             onClick = {
@@ -139,13 +175,23 @@ fun MenuScreen(navController: NavHostController) {
                             }
                         )
                     }
-                    IconButton(
-                        onClick = {
-                            viewModel.onLogoutClick()
+                    Column {
+                        IconButton(
+                            onClick = {
+                                viewModel.onLogoutClick()
+                            }
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Outlined.Logout,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
                         }
-                    ) {
-                        Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = null)
+                        Text(
+                            text = stringResource(Res.string.salir)
+                        )
                     }
+
                 }
                 Column(
                     modifier = Modifier
@@ -156,11 +202,22 @@ fun MenuScreen(navController: NavHostController) {
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         ),
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp)
                     ) {
-                        Text(
-                            text = stringResource(Res.string.gr_fico_en_vigor),
-                        )
+                        if(state.graficoDeHoy?.descripcion != null) {
+                            Text(
+                                text = stringResource(Res.string.gr_fico_en_vigor, state.graficoDeHoy!!.descripcion!!),
+                            )
+                            Text(
+                                text = stringResource(Res.string.hasta_el, state.graficoDeHoy!!.fechaFinal!!.toLocalDate().enMiFormato())
+                            )
+                        }
+                        else
+                            Text(
+                                text = stringResource(Res.string.no_hay_grafico_en_vigor)
+                            )
                     }
                     Card(
                         colors = CardDefaults.cardColors(
@@ -168,12 +225,53 @@ fun MenuScreen(navController: NavHostController) {
                         ),
                         modifier = Modifier.padding(4.dp)
                     ) {
-                        Text(
-                            text = "LZ: 6"
-                        )
-                        Text(
-                            text = "DD: 4"
-                        )
+                        Row (
+                            modifier = Modifier.fillMaxWidth()
+                        ){
+                            if(state.diasEspeciales.lz != 0)
+                                DiasEspecialesCard (
+                                    color = colorDeFondoTurnos("LZ"),
+                                    text = Res.string.lz,
+                                    cantidad = state.diasEspeciales.lz.toString()
+                                )
+                            if(state.diasEspeciales.lza != 0)
+                                DiasEspecialesCard (
+                                    color = colorDeFondoTurnos("LZA"),
+                                    text = Res.string.lza,
+                                    cantidad = state.diasEspeciales.lza.toString()
+                                )
+                            if(state.diasEspeciales.comj != 0)
+                                DiasEspecialesCard (
+                                    color = colorDeFondoTurnos("COMJ"),
+                                    text = Res.string.comj,
+                                    cantidad = state.diasEspeciales.comj.toString()
+                                )
+                            if(state.diasEspeciales.libra != 0)
+                                DiasEspecialesCard (
+                                    color = colorDeFondoTurnos("LIBRa"),
+                                    text = Res.string.libra,
+                                    cantidad = state.diasEspeciales.libra.toString()
+                                )
+                            if(state.diasEspeciales.dd != 0)
+                                DiasEspecialesCard (
+                                    color = colorDeFondoTurnos("DD"),
+                                    text = Res.string.dd,
+                                    cantidad = state.diasEspeciales.dd.toString()
+                                )
+                            if(state.diasEspeciales.dj != 0)
+                                DiasEspecialesCard (
+                                    color = colorDeFondoTurnos("DJ"),
+                                    text = Res.string.dj,
+                                    cantidad = state.diasEspeciales.dj.toString()
+                                )
+                            if(state.diasEspeciales.libra != 0)
+                                DiasEspecialesCard (
+                                    color = colorDeFondoTurnos("DJA"),
+                                    text = Res.string.dja,
+                                    cantidad = state.diasEspeciales.dja.toString()
+                                )
+                        }
+
                     }
                     MyTextSubTitle(text = stringResource(Res.string.mis_turnos))
                     FlowRow(
@@ -305,25 +403,26 @@ fun MenuScreen(navController: NavHostController) {
                             }
                         )
                     }
-                    MyTextSubTitle(text = stringResource(Res.string.admin))
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        ButtonMenuPrincipal(
-                            icon = Icons.Outlined.UploadFile,
-                            text = Res.string.subir_gr_fico_nuevo,
-                            onClick = {
+                    if(state.userData?.admin == "1")
+                        MyTextSubTitle(text = stringResource(Res.string.admin))
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            ButtonMenuPrincipal(
+                                icon = Icons.Outlined.UploadFile,
+                                text = Res.string.subir_gr_fico_nuevo,
+                                onClick = {
 
-                            }
-                        )
-                        ButtonMenuPrincipal(
-                            icon = Icons.Outlined.UploadFile,
-                            text = Res.string.subir_localizadores,
-                            onClick = {
+                                }
+                            )
+                            ButtonMenuPrincipal(
+                                icon = Icons.Outlined.UploadFile,
+                                text = Res.string.subir_localizadores,
+                                onClick = {
 
-                            }
-                        )
-                    }
+                                }
+                            )
+                        }
                     MyTextSubTitle(text = stringResource(Res.string.ayuda))
                     FlowRow(
                         modifier = Modifier.fillMaxWidth()

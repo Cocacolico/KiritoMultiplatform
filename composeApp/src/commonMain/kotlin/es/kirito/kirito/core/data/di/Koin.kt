@@ -4,6 +4,7 @@ import es.kirito.kirito.core.domain.CoreRepository
 import es.kirito.kirito.login.domain.LoginRepository
 import es.kirito.kirito.login.presentation.LoginViewModel
 import es.kirito.kirito.login.presentation.RegisterViewModel
+import es.kirito.kirito.menu.domain.MenuRepository
 import es.kirito.kirito.precarga.domain.PrecargaRepository
 import es.kirito.kirito.precarga.presentation.PrecargaViewModel
 import es.kirito.kirito.turnos.presentation.HoyViewModel
@@ -48,5 +49,6 @@ fun commonModule() = module {
     single { LoginRepository() }
     single { PrecargaRepository() }
     single { TurnosRepository() }
+    single { MenuRepository() }
 
 }

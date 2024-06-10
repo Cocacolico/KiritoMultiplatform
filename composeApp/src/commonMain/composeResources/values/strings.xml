@@ -131,11 +131,11 @@
     <string name="entrada_en_vigor" translatable="false">Entrada en vigor:</string>
     <string name="d_as_especiales">Días especiales</string>
     <string name="actual" translatable="false">Actual:</string>
-    <string name="dd" translatable="false">DD</string>
-    <string name="dj" translatable="false">DJ</string>
-    <string name="dja" translatable="false">DJA</string>
-    <string name="lz" translatable="false">LZ</string>
-    <string name="lza" translatable="false">LZA</string>
+    <string name="dd" translatable="false">DD: %1$s</string>
+    <string name="dj" translatable="false">DJ: %1$s</string>
+    <string name="dja" translatable="false">DJA: %1$s</string>
+    <string name="lz" translatable="false">LZ: %1$s</string>
+    <string name="lza" translatable="false">LZA: %1$s</string>
     <string name="inicio__">"Inicio: %1$s"</string>
     <string name="cambios_con">Cambios con</string>
     <string name="tc_" translatable="false">TC:</string>
@@ -152,8 +152,8 @@
     <string name="datos_actualizados">Datos actualizados</string>
     <string name="pr_ximo_gr_fico">Próximo gráfico</string>
     <string name="no_hay_ning_n_gr_fico_en_vigor">No hay ningún gráfico en vigor</string>
-    <string name="gr_fico_en_vigor">Gráfico en vigor</string>
-    <string name="hasta_el">Hasta el</string>
+    <string name="gr_fico_en_vigor">Gráfico en vigor %1$s</string>
+    <string name="hasta_el">Hasta el %1$s</string>
     <string name="entra_el" translatable="false">Entra el</string>
     <string name="teleindicadores_">Teleindicadores:</string>
     <string name="teleindicadores">Teleindicadores</string>
