@@ -41,11 +41,8 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material.icons.outlined.ViewModule
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,15 +54,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.kirito.kirito.core.data.constants.FlagLogout
 import es.kirito.kirito.core.domain.util.colorDeFondoTurnos
 import es.kirito.kirito.core.domain.util.enMiFormato
-import es.kirito.kirito.core.domain.util.toComposeColor
 import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.presentation.components.ButtonMenuPrincipal
 import es.kirito.kirito.core.presentation.components.ButtonMenuPrincipalBadge
@@ -74,9 +68,7 @@ import es.kirito.kirito.core.presentation.components.DiasEspecialesCard
 import es.kirito.kirito.core.presentation.components.MyTextSubTitle
 import es.kirito.kirito.core.presentation.components.dialogs.MyDialogConfirmation
 import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
-import es.kirito.kirito.core.presentation.theme.KiritoColors
 import es.kirito.kirito.core.presentation.theme.Orange
-import es.kirito.kirito.core.presentation.theme.amarilloKirito
 import es.kirito.kirito.menu.domain.MenuState
 import kirito.composeapp.generated.resources.Desconectarme
 import kirito.composeapp.generated.resources.Res
@@ -129,7 +121,6 @@ import kirito.composeapp.generated.resources.tratamiento_de_datos
 import kirito.composeapp.generated.resources.turnos
 import kirito.composeapp.generated.resources.turnos_con_notas
 import kirito.composeapp.generated.resources.utilidades
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -333,7 +324,7 @@ fun MenuScreen(navController: NavHostController) {
                                 ClickableText(
                                     text = AnnotatedString(stringResource(Res.string.haz_click_aqu_para_actualizar_tu_app_pronto_dejar_de_funcionar_si_no)),
                                     onClick = {
-                                        viewModel.showUpdateDialog()
+                                        viewModel.showUpdateDialog(mandatory = false)
                                     },
                                     modifier = Modifier
                                         .padding(4.dp)
@@ -341,7 +332,7 @@ fun MenuScreen(navController: NavHostController) {
                             }
 
                         FlagLogout.MUST_UPD ->
-                            viewModel.showUpdateDialog()
+                            viewModel.showUpdateDialog(mandatory = true)
 
                         FlagLogout.WRONG_TOKEN ->
                             MyDialogInformation(
@@ -569,8 +560,20 @@ fun MenuScreen(navController: NavHostController) {
                 )
             }
         }
-        // Dialog para actualizar la app
+        // Dialogs para actualizar la app
         MyDialogConfirmation(
+            show = state.showUpdateDialog,
+            onDismiss = {
+                viewModel.onUpdDismiss()
+            },
+            onConfirm = {
+                viewModel.onConfirmUpd()
+            },
+            title = stringResource(Res.string.actualiza_tu_app),
+            text = "",
+            okText = stringResource(Res.string.actualizar)
+        )
+        MyDialogInformation(
             show = state.showUpdateDialog,
             onDismiss = {
                 viewModel.onMustUpdDismiss()

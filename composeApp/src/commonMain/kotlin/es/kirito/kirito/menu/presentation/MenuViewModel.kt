@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.database.GrGraficos
 import es.kirito.kirito.core.data.database.LsUsers
+import es.kirito.kirito.core.data.utils.openStore
 import es.kirito.kirito.core.domain.CoreRepository
 import es.kirito.kirito.menu.domain.MenuRepository
 import es.kirito.kirito.menu.domain.MenuState
@@ -14,12 +15,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -48,6 +46,7 @@ class MenuViewModel: ViewModel(), KoinComponent {
 
     private val showLogoutDialog = MutableStateFlow(false)
     private val showUpdateDialog = MutableStateFlow(false)
+    private val showMandatoryUpdateDialog = MutableStateFlow(false)
 
     private val date: MutableStateFlow<LocalDate?> =
         MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
@@ -94,7 +93,7 @@ class MenuViewModel: ViewModel(), KoinComponent {
     val menuState = combine(
         userID, allDataErased, miUsuario, diasEspeciales, graficoDeHoy,graficoActualYprox,
         cambiosNuevos,mensajesAdminNuevos, diasInicialesChecked, flagLogout,
-        showLogoutDialog, showUpdateDialog
+        showLogoutDialog, showUpdateDialog, showMandatoryUpdateDialog
     ) {
         array ->
         MenuState(
@@ -109,7 +108,8 @@ class MenuViewModel: ViewModel(), KoinComponent {
             array[8] as Int,
             array[9] as Int,
             array[10] as Boolean,
-            array[11] as Boolean
+            array[11] as Boolean,
+            array[12] as Boolean
         )
     }
     fun onPerfilClick() {
@@ -123,10 +123,16 @@ class MenuViewModel: ViewModel(), KoinComponent {
         logout()
     }
     fun onConfirmUpd() {
-        /* TODO Al pinchar lleve a la Play Store*/
+        openStore()
     }
-    fun showUpdateDialog() {
-        showUpdateDialog.value = true
+    fun showUpdateDialog(mandatory: Boolean) {
+        if(mandatory)
+            showMandatoryUpdateDialog.value = true
+        else
+            showUpdateDialog.value = true
+    }
+    fun onUpdDismiss() {
+        showUpdateDialog.value = false
     }
     fun onWrongTokenDismiss() {
         logout()

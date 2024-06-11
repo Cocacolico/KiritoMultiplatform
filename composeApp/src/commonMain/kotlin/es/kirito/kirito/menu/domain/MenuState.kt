@@ -16,5 +16,6 @@ data class MenuState(
     val diasInicialesChecked: Int = 0,
     val flagLogout: Int = 0,
     val showLogoutDialog: Boolean = false,
-    val showUpdateDialog: Boolean = false
+    val showUpdateDialog: Boolean = false,
+    val showMandatoryUpdateDialog: Boolean = false
 )
