@@ -62,7 +62,6 @@ fun ImagenEga(
     val myTextSize = 12f * factorZoom
     val colorTextoContraste = MaterialTheme.customColors.textoContraste
 
-
     val width = getWidth(
         timeInicio,
         timeFin,
@@ -70,8 +69,6 @@ fun ImagenEga(
         segundosHastaMedianoche,
         factorZoom
     ).pxToDP()
-
-    println("El ancho será $width")
 
     val textMeasurer = rememberTextMeasurer()
 
@@ -141,7 +138,6 @@ private fun DrawScope.drawTimeLines(
 
     // while (remainingMinutes < minutesFin) {
     while (iteraciones != finIteraciones) {
-        println("La iteración actual es $iteraciones y $finIteraciones")
         drawLine(
             color = colorTextoContraste.copy(alpha = 0.7f),
             start = Offset(remainingMinutes.toFloat() * factorZoom, 0f),
@@ -326,13 +322,13 @@ private fun DrawScope.drawServicios(
                             (media(
                                 posicionFinTareaPrevia.toLong(),
                                 inicio.toLong()
-                            ) - subOffset) * factorZoom, alturaSitios
+                            ) - subOffset) , alturaSitios
                         )
                     )
                 else
                     drawText(
                         textResult,
-                        topLeft = Offset((inicio.toFloat() - subOffset) * factorZoom, alturaSitios)
+                        topLeft = Offset((inicio.toFloat() - subOffset) , alturaSitios)
                     )
             }
 
@@ -342,7 +338,7 @@ private fun DrawScope.drawServicios(
                 val subOffset = textResult.size.width / 4 //Para centrar el número.
                 drawText(
                     textResult,
-                    topLeft = Offset((fin.toFloat() - subOffset) * factorZoom, alturaSitios)
+                    topLeft = Offset((fin.toFloat() - subOffset) , alturaSitios)
                 )
             }
 
@@ -366,7 +362,7 @@ private fun DrawScope.drawServicios(
                     drawText(
                         textResult,
                         topLeft = Offset(
-                            (posicionServicio - subOffset) * factorZoom,
+                            (posicionServicio - subOffset) ,
                             alturaServicios
                         )
                     )
@@ -375,7 +371,7 @@ private fun DrawScope.drawServicios(
                     drawText(
                         textResult,
                         topLeft = Offset(
-                            (posicionServicio - subOffset) * factorZoom,
+                            (posicionServicio - subOffset) ,
                             alturaServicios2
                         )
                     )
@@ -384,7 +380,7 @@ private fun DrawScope.drawServicios(
                     drawText(
                         textResult,
                         topLeft = Offset(
-                            (posicionServicio - subOffset) * factorZoom,
+                            (posicionServicio - subOffset) ,
                             alturaServicios3
                         )
                     )
@@ -410,7 +406,7 @@ private fun DrawScope.drawServicios(
                 val subOffset = textResult.size.width / 4 //Para centrar el número.
                 drawText(
                     textResult,
-                    topLeft = Offset((posicionFinTextoTarea - subOffset) * factorZoom, alturaHoras)
+                    topLeft = Offset((posicionFinTextoTarea - subOffset) , alturaHoras)
                 )
             } else {
                 finActualNoPintado = true
@@ -426,7 +422,7 @@ private fun DrawScope.drawServicios(
             val subOffset = textResult.size.width / 4 //Para centrar el número.
             drawText(
                 textResult,
-                topLeft = Offset((posicionInicioTextoTarea - subOffset) * factorZoom, alturaHoras)
+                topLeft = Offset((posicionInicioTextoTarea - subOffset) , alturaHoras)
             )
             if (!finActualNoPintado)
                 posUltimaHoraPintada =
@@ -489,18 +485,12 @@ private fun DrawScope.drawServicioLine(
         var inicioPintar = inicio
         do {
             if (inicioPintar.toInt() % (4 * factorZoom) == 0)
-                Path().apply {
-                    moveTo(inicioPintar + (4 * factorZoom), alturaLineas - (2.5f * factorZoom))
-                    lineTo(inicioPintar + (4 * factorZoom), alturaLineas + (2.5f * factorZoom))
-                    lineTo(inicioPintar, alturaLineas + (2.5f * factorZoom))
-                    lineTo(inicioPintar, alturaLineas - (2.5f * factorZoom))
-                    close()
-                }.let { path ->
-                    drawPath(
-                        path = path,
-                        color = colorTextoContraste
-                    )
-                }
+                drawLine(
+                    color = colorTextoContraste,
+                    start = Offset(inicioPintar, alturaLineas + (2.5f * factorZoom)),
+                    end = Offset(inicioPintar + (4 * factorZoom), alturaLineas - (2.5f * factorZoom)),
+                    strokeWidth = 3f
+                )
             inicioPintar++
         } while (inicioPintar < fin)
 
@@ -534,6 +524,7 @@ private fun DrawScope.drawServicioLine(
                         alturaLineas - (2.5f * factorZoom)
                     ),
                     end = Offset(inicioPintar, alturaLineas + (2.5f * factorZoom)),
+                    strokeWidth = 2f
                 )
                 drawLine(
                     color = colorTextoContraste,
@@ -542,6 +533,7 @@ private fun DrawScope.drawServicioLine(
                         inicioPintar + (4 * factorZoom),
                         alturaLineas + (2.5f * factorZoom)
                     ),
+                    strokeWidth = 2f
                 )
             }
             inicioPintar++
