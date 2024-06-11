@@ -2,6 +2,7 @@
 
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -14,11 +15,6 @@ plugins {
 }
 kotlin {
     androidTarget()
-    /*androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
-    }*/
     
     listOf(
         iosX64(),
@@ -101,7 +97,6 @@ kotlin {
 
 
         }
-
         task("testClasses")
     }
 }
@@ -142,12 +137,8 @@ android {
 }
 
 dependencies {
-    add("kspCommonMainMetadata", libs.androidx.room.compiler)
     // Room
-    /*add("kspAndroid", libs.androidx.room.compiler)
-    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-    add("kspIosX64", libs.androidx.room.compiler)
-    add("kspIosArm64", libs.androidx.room.compiler)*/
+    add("kspCommonMainMetadata", libs.androidx.room.compiler)
 }
 
 room {
