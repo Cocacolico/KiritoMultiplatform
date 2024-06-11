@@ -235,7 +235,7 @@ class CoreRepository : KoinComponent {
         refreshCambios(bdActualizada)
 
     }
-    fun getMyUser(id: Long): Flow<LsUsers?> {
+    fun getMyUser(id: Long): Flow<LsUsers> {
         return dao.getMyKiritoUser(id)
     }
 }

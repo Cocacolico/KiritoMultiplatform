@@ -50,9 +50,6 @@ class MenuRepository: KoinComponent {
 
     fun areDiasInicialesInitialised(year: Int) =
         dao.areDiasInicialesInitialised(year)
-    suspend fun getMyUserName(id: Long): String? {
-        return dao.getMyKiritoUserName(id)
-    }
     fun checkLogoutFlag(): Flow<Int> {
         return dao.checkLogoutFlag()
     }

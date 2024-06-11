@@ -156,3 +156,56 @@ fun ButtonMenuPrincipalBadge(
         }
     }
 }
+@Composable
+fun ButtonMenuPrincipalBadgeDiasIniciales(
+    onClick: () -> Unit,
+    icon: ImageVector,
+    text: StringResource,
+    numNotificaciones: Int = 0,
+    modifier: Modifier = Modifier,
+) {
+    BadgedBox(
+        badge = {
+            if (numNotificaciones == 0)
+                Badge(
+                    containerColor = amarilloKirito,
+                    contentColor = Color.Black,
+                ) {
+                    Text(
+                        fontSize = 14.sp,
+                        text = "*"
+                    )
+                }
+        },
+        modifier = modifier
+            .padding(6.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = modifier
+                .clip(shape = RoundedCornerShape(20))
+                .clickable(onClick = onClick)
+                .background(color = MaterialTheme.colorScheme.surfaceVariant)
+                .size(height = 95.dp, width = 110.dp)
+                .fillMaxSize()
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = modifier
+                    .size(40.dp)
+            )
+            Text(
+                text = stringResource(text),
+                fontSize = 12.sp,
+                maxLines = 2,
+                lineHeight = 10.sp,
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Visible,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}

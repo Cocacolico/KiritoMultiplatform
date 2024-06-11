@@ -42,7 +42,8 @@ fun App() {
             "login",
             "register",
             "recuperarPassword",
-            "precarga"
+            "precarga",
+            BottomNavigationItems.Mas.route
         )
 
         Surface(

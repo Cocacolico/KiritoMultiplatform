@@ -3,14 +3,17 @@
 
 package es.kirito.kirito.menu.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -59,18 +62,26 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import es.kirito.kirito.core.data.constants.FlagLogout
 import es.kirito.kirito.core.domain.util.colorDeFondoTurnos
 import es.kirito.kirito.core.domain.util.enMiFormato
 import es.kirito.kirito.core.domain.util.toComposeColor
 import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.presentation.components.ButtonMenuPrincipal
 import es.kirito.kirito.core.presentation.components.ButtonMenuPrincipalBadge
+import es.kirito.kirito.core.presentation.components.ButtonMenuPrincipalBadgeDiasIniciales
 import es.kirito.kirito.core.presentation.components.DiasEspecialesCard
 import es.kirito.kirito.core.presentation.components.MyTextSubTitle
+import es.kirito.kirito.core.presentation.components.dialogs.MyDialogConfirmation
+import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
 import es.kirito.kirito.core.presentation.theme.KiritoColors
+import es.kirito.kirito.core.presentation.theme.Orange
 import es.kirito.kirito.core.presentation.theme.amarilloKirito
 import es.kirito.kirito.menu.domain.MenuState
+import kirito.composeapp.generated.resources.Desconectarme
 import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources.actualiza_tu_app
+import kirito.composeapp.generated.resources.actualizar
 import kirito.composeapp.generated.resources.admin
 import kirito.composeapp.generated.resources.ajustes
 import kirito.composeapp.generated.resources.ayuda
@@ -84,12 +95,14 @@ import kirito.composeapp.generated.resources.d_as_especiales
 import kirito.composeapp.generated.resources.dd
 import kirito.composeapp.generated.resources.dj
 import kirito.composeapp.generated.resources.dja
+import kirito.composeapp.generated.resources.entra_el
 import kirito.composeapp.generated.resources.estadisticas
 import kirito.composeapp.generated.resources.excesos_de_jornada
 import kirito.composeapp.generated.resources.gestiones
 import kirito.composeapp.generated.resources.gr_fico_en_vigor
 import kirito.composeapp.generated.resources.gr_ficos
 import kirito.composeapp.generated.resources.hasta_el
+import kirito.composeapp.generated.resources.haz_click_aqu_para_actualizar_tu_app_pronto_dejar_de_funcionar_si_no
 import kirito.composeapp.generated.resources.libra
 import kirito.composeapp.generated.resources.list_n_telef_nico
 import kirito.composeapp.generated.resources.lz
@@ -102,12 +115,16 @@ import kirito.composeapp.generated.resources.mis_turnos
 import kirito.composeapp.generated.resources.no_hay_grafico_en_vigor
 import kirito.composeapp.generated.resources.notificaciones
 import kirito.composeapp.generated.resources.peticiones_de_cambios
+import kirito.composeapp.generated.resources.pr_ximo_gr_fico
+import kirito.composeapp.generated.resources.quieres_salir_de_tu_cuenta
 import kirito.composeapp.generated.resources.salir
+import kirito.composeapp.generated.resources.salir_de_la_aplicacion
 import kirito.composeapp.generated.resources.subir_cuadro_anual
 import kirito.composeapp.generated.resources.subir_gr_fico_nuevo
 import kirito.composeapp.generated.resources.subir_localizadores
 import kirito.composeapp.generated.resources.subir_mensual
 import kirito.composeapp.generated.resources.tabl_n_de_anuncios
+import kirito.composeapp.generated.resources.te_hemos_forzado_el_logout
 import kirito.composeapp.generated.resources.tratamiento_de_datos
 import kirito.composeapp.generated.resources.turnos
 import kirito.composeapp.generated.resources.turnos_con_notas
@@ -150,20 +167,24 @@ fun MenuScreen(navController: NavHostController) {
                             modifier = Modifier.size(48.dp)
                         )
                     }
-                    Column (
+                    Column(
                         horizontalAlignment = Alignment.Start,
                         modifier = Modifier
                             .weight(1f)
                             .padding(4.dp)
-                    ){
-                        if(state.userData?.username == null)
+                    ) {
+                        if (state.userData.username == "")
                             Text(
                                 text = stringResource(Res.string.bienvenido_a)
                             )
                         else
                             ClickableText(
-                                text = AnnotatedString(stringResource(Res.string.bienvenido_a__,
-                                    state.userData!!.name)),
+                                text = AnnotatedString(
+                                    stringResource(
+                                        Res.string.bienvenido_a__,
+                                        state.userData.name
+                                    )
+                                ),
                                 onClick = {
                                     viewModel.onPerfilClick()
                                 }
@@ -175,23 +196,22 @@ fun MenuScreen(navController: NavHostController) {
                             }
                         )
                     }
-                    Column {
-                        IconButton(
-                            onClick = {
-                                viewModel.onLogoutClick()
-                            }
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Outlined.Logout,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        modifier = Modifier
+                            .clickable { viewModel.onLogoutClick() }
+                            .padding(4.dp)
+                            .weight(1f)
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Outlined.Logout,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
                         Text(
                             text = stringResource(Res.string.salir)
                         )
                     }
-
                 }
                 Column(
                     modifier = Modifier
@@ -206,18 +226,46 @@ fun MenuScreen(navController: NavHostController) {
                             .fillMaxWidth()
                             .padding(4.dp)
                     ) {
-                        if(state.graficoDeHoy?.descripcion != null) {
-                            Text(
-                                text = stringResource(Res.string.gr_fico_en_vigor, state.graficoDeHoy!!.descripcion!!),
-                            )
-                            Text(
-                                text = stringResource(Res.string.hasta_el, state.graficoDeHoy!!.fechaFinal!!.toLocalDate().enMiFormato())
-                            )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
+                        ) {
+                            if (state.graficoDeHoy?.descripcion != null) {
+                                Text(
+                                    text = stringResource(
+                                        Res.string.gr_fico_en_vigor,
+                                        state.graficoDeHoy!!.descripcion!!
+                                    ),
+                                )
+                                Text(
+                                    text = stringResource(
+                                        Res.string.hasta_el,
+                                        state.graficoDeHoy!!.fechaFinal!!.toLocalDate()
+                                            .enMiFormato()
+                                    )
+                                )
+                            } else
+                                Text(
+                                    text = stringResource(Res.string.no_hay_grafico_en_vigor)
+                                )
+                            if (state.graficoActualYprox.isNotEmpty()) {
+                                Text(
+                                    text = stringResource(
+                                        Res.string.pr_ximo_gr_fico,
+                                        state.graficoActualYprox.first().descripcion!!
+                                    )
+                                )
+                                Text(
+                                    text = stringResource(
+                                        Res.string.entra_el,
+                                        state.graficoActualYprox.first().fechaInicio!!.toLocalDate()
+                                            .enMiFormato()
+                                    )
+                                )
+                            }
                         }
-                        else
-                            Text(
-                                text = stringResource(Res.string.no_hay_grafico_en_vigor)
-                            )
+
                     }
                     Card(
                         colors = CardDefaults.cardColors(
@@ -225,47 +273,47 @@ fun MenuScreen(navController: NavHostController) {
                         ),
                         modifier = Modifier.padding(4.dp)
                     ) {
-                        Row (
+                        Row(
                             modifier = Modifier.fillMaxWidth()
-                        ){
-                            if(state.diasEspeciales.lz != 0)
-                                DiasEspecialesCard (
+                        ) {
+                            if (state.diasEspeciales.lz != 0)
+                                DiasEspecialesCard(
                                     color = colorDeFondoTurnos("LZ"),
                                     text = Res.string.lz,
                                     cantidad = state.diasEspeciales.lz.toString()
                                 )
-                            if(state.diasEspeciales.lza != 0)
-                                DiasEspecialesCard (
+                            if (state.diasEspeciales.lza != 0)
+                                DiasEspecialesCard(
                                     color = colorDeFondoTurnos("LZA"),
                                     text = Res.string.lza,
                                     cantidad = state.diasEspeciales.lza.toString()
                                 )
-                            if(state.diasEspeciales.comj != 0)
-                                DiasEspecialesCard (
+                            if (state.diasEspeciales.comj != 0)
+                                DiasEspecialesCard(
                                     color = colorDeFondoTurnos("COMJ"),
                                     text = Res.string.comj,
                                     cantidad = state.diasEspeciales.comj.toString()
                                 )
-                            if(state.diasEspeciales.libra != 0)
-                                DiasEspecialesCard (
+                            if (state.diasEspeciales.libra != 0)
+                                DiasEspecialesCard(
                                     color = colorDeFondoTurnos("LIBRa"),
                                     text = Res.string.libra,
                                     cantidad = state.diasEspeciales.libra.toString()
                                 )
-                            if(state.diasEspeciales.dd != 0)
-                                DiasEspecialesCard (
+                            if (state.diasEspeciales.dd != 0)
+                                DiasEspecialesCard(
                                     color = colorDeFondoTurnos("DD"),
                                     text = Res.string.dd,
                                     cantidad = state.diasEspeciales.dd.toString()
                                 )
-                            if(state.diasEspeciales.dj != 0)
-                                DiasEspecialesCard (
+                            if (state.diasEspeciales.dj != 0)
+                                DiasEspecialesCard(
                                     color = colorDeFondoTurnos("DJ"),
                                     text = Res.string.dj,
                                     cantidad = state.diasEspeciales.dj.toString()
                                 )
-                            if(state.diasEspeciales.libra != 0)
-                                DiasEspecialesCard (
+                            if (state.diasEspeciales.libra != 0)
+                                DiasEspecialesCard(
                                     color = colorDeFondoTurnos("DJA"),
                                     text = Res.string.dja,
                                     cantidad = state.diasEspeciales.dja.toString()
@@ -273,6 +321,41 @@ fun MenuScreen(navController: NavHostController) {
                         }
 
                     }
+                    when (state.flagLogout) {
+                        FlagLogout.SHOULD_UPD ->
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Orange,
+                                ),
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                ClickableText(
+                                    text = AnnotatedString(stringResource(Res.string.haz_click_aqu_para_actualizar_tu_app_pronto_dejar_de_funcionar_si_no)),
+                                    onClick = {
+                                        viewModel.showUpdateDialog()
+                                    },
+                                    modifier = Modifier
+                                        .padding(4.dp)
+                                )
+                            }
+
+                        FlagLogout.MUST_UPD ->
+                            viewModel.showUpdateDialog()
+
+                        FlagLogout.WRONG_TOKEN ->
+                            MyDialogInformation(
+                                show = true,
+                                onDismiss = {
+                                    viewModel.onWrongTokenDismiss()
+                                },
+                                onConfirm = {
+                                    viewModel.onConfirmWrongToken()
+                                },
+                                text = stringResource(Res.string.te_hemos_forzado_el_logout)
+                            )
+                    }
+
                     MyTextSubTitle(text = stringResource(Res.string.mis_turnos))
                     FlowRow(
                         Modifier.fillMaxWidth()
@@ -284,13 +367,13 @@ fun MenuScreen(navController: NavHostController) {
 
                             }
                         )
-                        ButtonMenuPrincipalBadge(
+                        ButtonMenuPrincipalBadgeDiasIniciales(
                             icon = Icons.Outlined.Celebration,
                             text = Res.string.d_as_especiales,
                             onClick = {
 
                             },
-                            numNotificaciones = 2
+                            numNotificaciones = state.diasInicialesChecked
                         )
                         ButtonMenuPrincipal(
                             icon = Icons.AutoMirrored.Outlined.Notes,
@@ -304,13 +387,14 @@ fun MenuScreen(navController: NavHostController) {
                     FlowRow(
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        ButtonMenuPrincipal(
-                            icon = Icons.Outlined.ViewModule,
-                            text = Res.string.turnos,
-                            onClick = {
+                        if (state.userData.mostrarCuadros == "1")
+                            ButtonMenuPrincipal(
+                                icon = Icons.Outlined.ViewModule,
+                                text = Res.string.turnos,
+                                onClick = {
 
-                            }
-                        )
+                                }
+                            )
                         ButtonMenuPrincipal(
                             icon = Icons.Outlined.Call,
                             text = Res.string.list_n_telef_nico,
@@ -318,22 +402,23 @@ fun MenuScreen(navController: NavHostController) {
 
                             }
                         )
-                        ButtonMenuPrincipalBadge(
-                            icon = Icons.Outlined.Handshake,
-                            text = Res.string.peticiones_de_cambios,
-                            onClick = {
-
-                            },
-                            numNotificaciones = 2
-                        )
-                        ButtonMenuPrincipalBadge(
-                                icon = Icons.AutoMirrored.Outlined.Comment,
-                                text = Res.string.tabl_n_de_anuncios,
-                            numNotificaciones = 8,
+                        if (state.userData.cambiosActivados == "1")
+                            ButtonMenuPrincipalBadge(
+                                icon = Icons.Outlined.Handshake,
+                                text = Res.string.peticiones_de_cambios,
                                 onClick = {
 
-                                }
+                                },
+                                numNotificaciones = state.cambiosNuevos
                             )
+                        ButtonMenuPrincipalBadge(
+                            icon = Icons.AutoMirrored.Outlined.Comment,
+                            text = Res.string.tabl_n_de_anuncios,
+                            numNotificaciones = 8,
+                            onClick = {
+
+                            }
+                        )
 
 
                     }
@@ -403,26 +488,26 @@ fun MenuScreen(navController: NavHostController) {
                             }
                         )
                     }
-                    if(state.userData?.admin == "1")
+                    if (state.userData.admin == "1")
                         MyTextSubTitle(text = stringResource(Res.string.admin))
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            ButtonMenuPrincipal(
-                                icon = Icons.Outlined.UploadFile,
-                                text = Res.string.subir_gr_fico_nuevo,
-                                onClick = {
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        ButtonMenuPrincipal(
+                            icon = Icons.Outlined.UploadFile,
+                            text = Res.string.subir_gr_fico_nuevo,
+                            onClick = {
 
-                                }
-                            )
-                            ButtonMenuPrincipal(
-                                icon = Icons.Outlined.UploadFile,
-                                text = Res.string.subir_localizadores,
-                                onClick = {
+                            }
+                        )
+                        ButtonMenuPrincipal(
+                            icon = Icons.Outlined.UploadFile,
+                            text = Res.string.subir_localizadores,
+                            onClick = {
 
-                                }
-                            )
-                        }
+                            }
+                        )
+                    }
                     MyTextSubTitle(text = stringResource(Res.string.ayuda))
                     FlowRow(
                         modifier = Modifier.fillMaxWidth()
@@ -434,12 +519,13 @@ fun MenuScreen(navController: NavHostController) {
 
                             }
                         )
-                        ButtonMenuPrincipal(
+                        ButtonMenuPrincipalBadge(
                             icon = Icons.AutoMirrored.Outlined.Message,
                             text = Res.string.mensajes,
                             onClick = {
 
-                            }
+                            },
+                            numNotificaciones = state.mensajesAdminNuevos
                         )
                         ButtonMenuPrincipal(
                             icon = Icons.AutoMirrored.Outlined.Help,
@@ -464,7 +550,11 @@ fun MenuScreen(navController: NavHostController) {
                         )
                     }
                 }
-
+                Spacer(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .fillMaxWidth()
+                )
             }
             FloatingActionButton(
                 onClick = {
@@ -479,5 +569,31 @@ fun MenuScreen(navController: NavHostController) {
                 )
             }
         }
+        // Dialog para actualizar la app
+        MyDialogConfirmation(
+            show = state.showUpdateDialog,
+            onDismiss = {
+                viewModel.onMustUpdDismiss()
+            },
+            onConfirm = {
+                viewModel.onConfirmUpd()
+            },
+            title = stringResource(Res.string.actualiza_tu_app),
+            text = "",
+            okText = stringResource(Res.string.actualizar)
+        )
+        // Dialog para confirmar logout
+        MyDialogConfirmation(
+            show = state.showLogoutDialog,
+            text = stringResource(Res.string.quieres_salir_de_tu_cuenta),
+            title = stringResource(Res.string.salir_de_la_aplicacion),
+            onDismiss = {
+                viewModel.onLogoutDialogDismiss()
+            },
+            onConfirm = {
+                viewModel.onLogoutDialogConfirm()
+            },
+            okText = stringResource(Res.string.Desconectarme)
+        )
     }
 }

@@ -44,7 +44,10 @@ class MenuViewModel: ViewModel(), KoinComponent {
     private val _allDataErased = MutableStateFlow(false)
     private val allDataErased: Flow<Boolean> = _allDataErased
 
-    val flagLogout = repository.checkLogoutFlag()
+    private val flagLogout = repository.checkLogoutFlag()
+
+    private val showLogoutDialog = MutableStateFlow(false)
+    private val showUpdateDialog = MutableStateFlow(false)
 
     private val date: MutableStateFlow<LocalDate?> =
         MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
@@ -61,6 +64,7 @@ class MenuViewModel: ViewModel(), KoinComponent {
     val diasInicialesChecked = date.flatMapLatest { date ->
         repository.areDiasInicialesInitialised(date!!.year)
     }
+
     val anio = date.value!!.year
     val inicioAnio = LocalDate(year = anio,1,1).toEpochDays().toLong()//LocalDate.now().withDayOfYear(1).toEpochDay()
     val finAnio = LocalDate(year = anio,12,31).toEpochDays().toLong()//LocalDate.now().withMonth(12).withDayOfMonth(31).toEpochDay()
@@ -87,21 +91,10 @@ class MenuViewModel: ViewModel(), KoinComponent {
         diasEspeciales
     }
 
-    /*private suspend fun getUserID() {
-        _state.update {
-            it.copy(userID = preferences.first().userId)
-        }
-    }
-    private fun logout() {
-        viewModelScope.launch(Dispatchers.IO) {
-            coreRepo.nukeAll()
-            _state.update {
-                it.copy(allDataErased = true)
-            }
-        }
-    }*/
     val menuState = combine(
-        userID, allDataErased, miUsuario, diasEspeciales, graficoDeHoy,graficoActualYprox
+        userID, allDataErased, miUsuario, diasEspeciales, graficoDeHoy,graficoActualYprox,
+        cambiosNuevos,mensajesAdminNuevos, diasInicialesChecked, flagLogout,
+        showLogoutDialog, showUpdateDialog
     ) {
         array ->
         MenuState(
@@ -110,19 +103,47 @@ class MenuViewModel: ViewModel(), KoinComponent {
             array[2] as LsUsers,
             array[3] as DiasEspeciales,
             array[4] as GrGraficos,
-            array[5] as List<GrGraficos>
+            array[5] as List<GrGraficos>,
+            array[6] as Int,
+            array[7] as Int,
+            array[8] as Int,
+            array[9] as Int,
+            array[10] as Boolean,
+            array[11] as Boolean
         )
     }
     fun onPerfilClick() {
         TODO("Not yet implemented")
     }
-
     fun onLogoutClick() {
-        //logout()
+        showLogoutDialog.value = true
     }
-    /*init {
+
+    fun onMustUpdDismiss() {
+        logout()
+    }
+    fun onConfirmUpd() {
+        /* TODO Al pinchar lleve a la Play Store*/
+    }
+    fun showUpdateDialog() {
+        showUpdateDialog.value = true
+    }
+    fun onWrongTokenDismiss() {
+        logout()
+    }
+    fun onConfirmWrongToken() {
+        logout()
+    }
+    fun onLogoutDialogDismiss() {
+        showLogoutDialog.value = false
+    }
+    fun onLogoutDialogConfirm() {
+        logout()
+    }
+    private fun logout() { // Aún no funciona correctamente la función nukeAll
         viewModelScope.launch(Dispatchers.IO) {
-            getUserID()
+            coreRepo.nukeAll()
+            _allDataErased.value = true
         }
-    }*/
+    }
 }

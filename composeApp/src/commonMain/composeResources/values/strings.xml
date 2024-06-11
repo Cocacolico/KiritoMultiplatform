@@ -150,11 +150,11 @@
     <string name="aqu_puedes_ver_y_modificar_los_d_as_especiales_con_que_empiezas_cada_a_o_no_en_todas_las_residencias_hay_4_detra_bles_o_6_lz">Aquí puedes ver y modificar los días especiales con que empiezas cada año. No en todas las residencias hay 4 detraíbles o 6 LZ y por eso dejamos que lo rellenes tú.</string>
     <string name="actualizar" translatable="false">Actualizar</string>
     <string name="datos_actualizados">Datos actualizados</string>
-    <string name="pr_ximo_gr_fico">Próximo gráfico</string>
+    <string name="pr_ximo_gr_fico">Próximo gráfico %1$s</string>
     <string name="no_hay_ning_n_gr_fico_en_vigor">No hay ningún gráfico en vigor</string>
     <string name="gr_fico_en_vigor">Gráfico en vigor %1$s</string>
     <string name="hasta_el">Hasta el %1$s</string>
-    <string name="entra_el" translatable="false">Entra el</string>
+    <string name="entra_el" translatable="false">Entra el %1$s</string>
     <string name="teleindicadores_">Teleindicadores:</string>
     <string name="teleindicadores">Teleindicadores</string>
     <string name="__vehiculo_">": Vehículo "</string>
