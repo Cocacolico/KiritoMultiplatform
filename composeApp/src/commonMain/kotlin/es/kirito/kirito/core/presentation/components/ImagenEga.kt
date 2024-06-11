@@ -11,11 +11,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.Density
 import es.kirito.kirito.core.data.database.GrTareas
 import es.kirito.kirito.core.data.database.OtColoresTrenes
 import es.kirito.kirito.core.domain.util.media
@@ -29,6 +30,7 @@ import es.kirito.kirito.core.domain.util.withLeadingZeros
 import es.kirito.kirito.core.presentation.theme.colorTextoContraste
 import es.kirito.kirito.core.presentation.theme.customColors
 import es.kirito.kirito.core.presentation.utils.pxToDP
+import es.kirito.kirito.core.presentation.utils.toFalseSp
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalTime
@@ -61,7 +63,7 @@ fun ImagenEga(
     val dMinEntreTextServicios = 50 * factorZoom
     val myTextSize = 12f * factorZoom
     val colorTextoContraste = MaterialTheme.customColors.textoContraste
-
+    val densidad = LocalDensity.current
     val width = getWidth(
         timeInicio,
         timeFin,
@@ -83,7 +85,8 @@ fun ImagenEga(
                 alturaHoras,
                 textMeasurer,
                 colorTextoContraste,
-                alturaTextHoras
+                alturaTextHoras,
+                densidad
             )
             drawNowLine(
                 dia = dia,
@@ -108,7 +111,8 @@ fun ImagenEga(
                 textMeasurer,
                 dDesplHoras,
                 alturaLineas,
-                coloresTrenes
+                coloresTrenes,
+                densidad
             )
         }
     )
@@ -122,6 +126,7 @@ private fun DrawScope.drawTimeLines(
     textMeasurer: TextMeasurer,
     colorTextoContraste: Color,
     alturaTextHoras: Float,
+    densidad: Density,
 ) {
     val horaInicial = timeInicio / 3600
     val minutoInicial = (timeInicio % 3600) / 60 // calculate minutes
@@ -151,7 +156,8 @@ private fun DrawScope.drawTimeLines(
                     remainingMinutes / 60 + horaInicial
                 ).restar24().toInt().withLeadingZeros()
 
-        val textResult = textMeasurer.measure(textHour, style = TextStyle(fontSize = (4 * factorZoom).sp))
+        val textResult =
+            textMeasurer.measure(textHour, style = TextStyle(fontSize = (3.5 * factorZoom).toInt().toFalseSp(densidad)))
         val subOffset = textResult.size.width / 4 //Para centrar el número.
         drawText(
             textResult,
@@ -226,7 +232,8 @@ private fun DrawScope.drawServicios(
     textMeasurer: TextMeasurer,
     dDesplHoras: Int,
     alturaLineas: Float,
-    coloresTrenes: List<OtColoresTrenes>?
+    coloresTrenes: List<OtColoresTrenes>?,
+    densidad: Density,
 ) {
     if (tareas.isNotEmpty()) {
         var posicionServicioPrevio = 0f
@@ -240,10 +247,13 @@ private fun DrawScope.drawServicios(
         var posUltimaHoraPintada = 0f
 
 
+
         /** Está en minutos desde las 00 y se le resta 60 **/
 
 
         val inicioTurno = LocalTime.fromSecondOfDay(timeInicio).minusHours(1)
+
+        println("El inicio del turno es $inicioTurno, tI $timeInicio, segMN $segundosHastaMedianoche")
 
         tareas.forEachIndexed { index, tarea ->
             val inicioTarea = if (tarea.horaOrigen == null)
@@ -256,16 +266,10 @@ private fun DrawScope.drawServicios(
                 LocalTime.fromSecondOfDay(tarea.horaFin!!)
 
 
-            val inicio = if (inicioTarea < inicioTurno) { //Pasa por la medianoche.
-                (inicioTarea.toMinuteOfDay() + 60 + (segundosHastaMedianoche.toInt()) / 60) * factorZoom
-            } else {
-                (inicioTarea.toMinuteOfDay() - inicioTurno.toMinuteOfDay()) * factorZoom
-            }
-            val fin = if (finTarea < inicioTurno) {
-                (finTarea.toMinuteOfDay() + 60 + (segundosHastaMedianoche).toInt() / 60) * factorZoom
-            } else {
-                (finTarea.toMinuteOfDay() - inicioTurno.toMinuteOfDay()) * factorZoom
-            }
+            val inicio =
+                getInicioOrFinOfTarea(inicioTarea, inicioTurno, segundosHastaMedianoche, factorZoom)
+            val fin =
+                getInicioOrFinOfTarea(finTarea, inicioTurno, segundosHastaMedianoche, factorZoom)
 
             var nextHInicio: Int? = null
             val nextTarea = if (index < tareas.size - 1) {
@@ -281,6 +285,8 @@ private fun DrawScope.drawServicios(
                     (nextInicioLT.toMinuteOfDay() - inicioTurno.toMinuteOfDay()) * factorZoom
                 }
             }
+
+            println("inicio del Tarea: $inicio y $fin ")
 
 
             //Pintamos la línea.
@@ -312,7 +318,10 @@ private fun DrawScope.drawServicios(
 
             if (!tarea.servicio.contains("Deje")) { //Si la tarea no es un deje
 
-                val textResult = textMeasurer.measure(tarea.sitioOrigen ?: "", style = TextStyle(fontSize = (4 * factorZoom).sp))
+                val textResult = textMeasurer.measure(
+                    tarea.sitioOrigen ?: "",
+                    style = TextStyle(fontSize = (3.5 * factorZoom).toInt().toFalseSp(densidad))
+                )
                 val subOffset = textResult.size.width / 4 //Para centrar el número.
 
                 if (mismoSitioYAnteriorMuyCerca)//Pintamos en medio de los dos sitios:
@@ -322,23 +331,26 @@ private fun DrawScope.drawServicios(
                             (media(
                                 posicionFinTareaPrevia.toLong(),
                                 inicio.toLong()
-                            ) - subOffset) , alturaSitios
+                            ) - subOffset), alturaSitios
                         )
                     )
                 else
                     drawText(
                         textResult,
-                        topLeft = Offset((inicio.toFloat() - subOffset) , alturaSitios)
+                        topLeft = Offset((inicio.toFloat() - subOffset), alturaSitios)
                     )
             }
 
             //Pintamos el lugar de destino, si no es una toma ni está cerca:
             if (!tarea.servicio.contains("Toma") && !mismoSitioYSiguienteMuyCerca) {
-                val textResult = textMeasurer.measure(tarea.sitioFin ?: "", style = TextStyle(fontSize = (4 * factorZoom).sp))
+                val textResult = textMeasurer.measure(
+                    tarea.sitioFin ?: "",
+                    style = TextStyle(fontSize = (3.5 * factorZoom).toInt().toFalseSp(densidad))
+                )
                 val subOffset = textResult.size.width / 4 //Para centrar el número.
                 drawText(
                     textResult,
-                    topLeft = Offset((fin.toFloat() - subOffset) , alturaSitios)
+                    topLeft = Offset((fin.toFloat() - subOffset), alturaSitios)
                 )
             }
 
@@ -355,14 +367,17 @@ private fun DrawScope.drawServicios(
                     textoServicio =
                         tarea.observaciones.toString().take(7)//Solo los siete primeros caracteres.
 
-                val textResult = textMeasurer.measure(textoServicio, style = TextStyle(fontSize = (4 * factorZoom).sp))
+                val textResult = textMeasurer.measure(
+                    textoServicio,
+                    style = TextStyle(fontSize = (3.5 * factorZoom).toInt().toFalseSp(densidad))
+                )
                 val subOffset = textResult.size.width / 4 //Para centrar el número.
 
                 if (posicionServicio - posicionServicioPrevio > dMinEntreTextServicios) {
                     drawText(
                         textResult,
                         topLeft = Offset(
-                            (posicionServicio - subOffset) ,
+                            (posicionServicio - subOffset),
                             alturaServicios
                         )
                     )
@@ -371,7 +386,7 @@ private fun DrawScope.drawServicios(
                     drawText(
                         textResult,
                         topLeft = Offset(
-                            (posicionServicio - subOffset) ,
+                            (posicionServicio - subOffset),
                             alturaServicios2
                         )
                     )
@@ -380,7 +395,7 @@ private fun DrawScope.drawServicios(
                     drawText(
                         textResult,
                         topLeft = Offset(
-                            (posicionServicio - subOffset) ,
+                            (posicionServicio - subOffset),
                             alturaServicios3
                         )
                     )
@@ -402,11 +417,14 @@ private fun DrawScope.drawServicios(
 
                 val textoServicio =
                     (fin / factorZoom + (minutosIniciales - 60)).restar60().toString()
-                val textResult = textMeasurer.measure(textoServicio, style = TextStyle(fontSize = (4 * factorZoom).sp))
+                val textResult = textMeasurer.measure(
+                    textoServicio,
+                    style = TextStyle(fontSize = (3.5 * factorZoom).toInt().toFalseSp(densidad))
+                )
                 val subOffset = textResult.size.width / 4 //Para centrar el número.
                 drawText(
                     textResult,
-                    topLeft = Offset((posicionFinTextoTarea - subOffset) , alturaHoras)
+                    topLeft = Offset((posicionFinTextoTarea - subOffset), alturaHoras)
                 )
             } else {
                 finActualNoPintado = true
@@ -418,11 +436,14 @@ private fun DrawScope.drawServicios(
             }
             val textoServicio =
                 (inicio / factorZoom + (minutosIniciales - 60)).restar60().toString()
-            val textResult = textMeasurer.measure(textoServicio, style = TextStyle(fontSize = (4 * factorZoom).sp))
+            val textResult = textMeasurer.measure(
+                textoServicio,
+                style = TextStyle(fontSize = (3.5 * factorZoom).toInt().toFalseSp(densidad))
+            )
             val subOffset = textResult.size.width / 4 //Para centrar el número.
             drawText(
                 textResult,
-                topLeft = Offset((posicionInicioTextoTarea - subOffset) , alturaHoras)
+                topLeft = Offset((posicionInicioTextoTarea - subOffset), alturaHoras)
             )
             if (!finActualNoPintado)
                 posUltimaHoraPintada =
@@ -436,6 +457,23 @@ private fun DrawScope.drawServicios(
 
         }
     }
+}
+
+private fun getInicioOrFinOfTarea(
+    inicioTarea: LocalTime,
+    inicioTurno: LocalTime,
+    segundosHastaMedianoche: Long,
+    factorZoom: Int
+): Int {
+    var inicio = if (inicioTarea < inicioTurno) { //Pasa por la medianoche.
+        (inicioTarea.toMinuteOfDay() + 60 + (segundosHastaMedianoche.toInt()) / 60)
+    } else {
+        (inicioTarea.toMinuteOfDay() - inicioTurno.toMinuteOfDay())
+    }
+    if (inicio >= 1440)
+        inicio -= 1440
+    inicio *= factorZoom
+    return inicio
 }
 
 
@@ -488,7 +526,10 @@ private fun DrawScope.drawServicioLine(
                 drawLine(
                     color = colorTextoContraste,
                     start = Offset(inicioPintar, alturaLineas + (2.5f * factorZoom)),
-                    end = Offset(inicioPintar + (4 * factorZoom), alturaLineas - (2.5f * factorZoom)),
+                    end = Offset(
+                        inicioPintar + (4 * factorZoom),
+                        alturaLineas - (2.5f * factorZoom)
+                    ),
                     strokeWidth = 3f
                 )
             inicioPintar++
