@@ -1,5 +1,6 @@
 package es.kirito.kirito.turnos.presentation
 
+import androidx.compose.foundation.rememberScrollState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.core.data.constants.FlagLogout
@@ -66,7 +67,7 @@ import org.koin.core.component.inject
 
 @Suppress("UNCHECKED_CAST")
 @OptIn(ExperimentalCoroutinesApi::class)
-class HoyViewModel: ViewModel(), KoinComponent {
+class HoyViewModel : ViewModel(), KoinComponent {
 
     private val repository: TurnosRepository by inject()
     private val coreRepo: CoreRepository by inject()
@@ -97,38 +98,13 @@ class HoyViewModel: ViewModel(), KoinComponent {
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
 
     private val showLocalizadorDialog = MutableStateFlow(false)
+    private val showImagenEgaDialog = MutableStateFlow(false)
+    private val imagenEgaInitialScroll = MutableStateFlow(0)
 
 
     private val tareasCortas = turnoPrxTr.flatMapLatest { turno ->
         repository.getTareasCortasDeUnTurno(turno?.idGrafico, turno?.turno, turno?.diaSemana)
     }
-
-    //TODO: Imagenes ega
-//    val imagenEgaDialog = MutableStateFlow(DialogImageEga())
-//
-//    val imagenEga =
-//        combine(
-//            turnoPrxTr,
-//            tareasCortas,
-//            coloresTrenes,
-//            _date,
-//            minuteTimer
-//        ) { turno, tareas, colores, date, minuteTick ->
-//            if (turno?.hora_origen == null)
-//                return@combine null
-//            else
-//                TurnoParaImagen(
-//                    timeInicio = turno.hora_origen ?: 0,
-//                    timeFin = turno.hora_fin ?: 0,
-//                    tareas = tareas,
-//                    dia = date?.toEpochDay(),
-//                    zoom = 2,
-//                    coloresTrenes = colores,
-//                    minuteTick = minuteTick
-//                )
-//        }
-
-
 
     private val tareas = turnoPrxTr.flatMapLatest { turno ->
         repository.getTareasDeUnTurnoDM(turno?.idGrafico, turno?.turno, turno?.diaSemana)
@@ -234,7 +210,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
     private val notasUsuario = cuDetalleDelTurno.map {
         //TODO: Parse HTML
-       // Html.fromHtml(it?.notas ?: "", Html.FROM_HTML_MODE_COMPACT).trim()
+        // Html.fromHtml(it?.notas ?: "", Html.FROM_HTML_MODE_COMPACT).trim()
         it?.notas.toString()
 
     }
@@ -244,7 +220,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
             .map { lista ->
                 val concatenated = lista.joinToString(separator = "") { nota -> nota.nota }
                 //TODO: Parse HTML
-               // Html.fromHtml(concatenated, Html.FROM_HTML_MODE_COMPACT).trim()
+                // Html.fromHtml(concatenated, Html.FROM_HTML_MODE_COMPACT).trim()
                 concatenated
             }
     }
@@ -264,8 +240,10 @@ class HoyViewModel: ViewModel(), KoinComponent {
         turnoPrxTr,
         mostrarDescansoEntreTurnos
     ) { fecha, tHoy, mostrarDescansoEntreTurnos ->
-        val tAyer = repository.getTurnoDeUnDia(fecha?.minus(1, DateTimeUnit.DAY)?.toEpochDays()).firstOrNull()
-        val tManana = repository.getTurnoDeUnDia(fecha?.plus(1, DateTimeUnit.DAY)?.toEpochDays()).firstOrNull()
+        val tAyer = repository.getTurnoDeUnDia(fecha?.minus(1, DateTimeUnit.DAY)?.toEpochDays())
+            .firstOrNull()
+        val tManana = repository.getTurnoDeUnDia(fecha?.plus(1, DateTimeUnit.DAY)?.toEpochDays())
+            .firstOrNull()
         val respuestaVacia =
             AdvmermasTurnosLaterales(show = false)
         if (tHoy == null)
@@ -307,6 +285,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
     private val _navigationDestination = MutableStateFlow(
         NavigationObject(NavigationDestination.Nowhere, -1)
     )
+
     //TODO: Manejar la navegación.
     val navigationDestination = _navigationDestination.asStateFlow()
 
@@ -383,8 +362,9 @@ class HoyViewModel: ViewModel(), KoinComponent {
         date, cuDetalleDelTurno, turnoPrxTr, coloresTrenes,
         festivo, tareasCortas, tareas, teleindicadores, notasUsuario,
         notasTurno, advMermasTurnosLaterales, historial, iHaveShiftsShared,
-        erroresHoy, localizador, showLocalizadorDialog
-    ){ array ->
+        erroresHoy, localizador, showLocalizadorDialog, showImagenEgaDialog,
+        imagenEgaInitialScroll
+    ) { array ->
         HoyState(
             array[0] as LocalDate?,
             array[1] as CuDetalleConFestivoDBModel?,
@@ -402,10 +382,10 @@ class HoyViewModel: ViewModel(), KoinComponent {
             array[13] as ErroresHoy,
             array[14] as Localizador?,
             array[15] as Boolean,
+            array[16] as Boolean,
+            array[17] as Int,
         )
-    }
-
-
+    }.distinctUntilChanged()
 
 
     fun onSearchClick(tarea: GrTarea) {
@@ -456,11 +436,11 @@ class HoyViewModel: ViewModel(), KoinComponent {
 
 
     fun onPreviousDayClick(days: Int) {
-        date.value = date.value?.minus(days,DateTimeUnit.DAY)
+        date.value = date.value?.minus(days, DateTimeUnit.DAY)
     }
 
     fun onNextDayClick(days: Int) {
-        date.value = date.value?.plus(days,DateTimeUnit.DAY)
+        date.value = date.value?.plus(days, DateTimeUnit.DAY)
     }
 
     fun onDateSelected(date: LocalDate) {
@@ -473,13 +453,6 @@ class HoyViewModel: ViewModel(), KoinComponent {
             showToastComjYLibra.emit(true)
         }
     }
-
-
-
-    //TODO: IMAGEN EGA
-//    fun onImageClicked(scroll: Int, offset: Float, turno: TurnoParaImagen, context: Context) {
-//        imagenEgaDialog.value = DialogImageEga(turno.genImage(context, 5), scroll, offset)
-//    }
 
     //TODO: Manejar cuando venimos de otro fragmento con una fecha concreta.
     fun setFechaFromOtherFragments(fecha: String?) {
@@ -514,7 +487,6 @@ class HoyViewModel: ViewModel(), KoinComponent {
         .distinctUntilChanged()//Por el motivo que sea, emite como un loco esto.
 
 
-
     //TODO: LLamar a este desde el init o algún sitio bueno.
 //    fun sincronizacionGeneralDeDB(newInternet: Boolean = false) {
 //        viewModelScope.launch(Dispatchers.IO) {
@@ -530,7 +502,7 @@ class HoyViewModel: ViewModel(), KoinComponent {
         val idGrafico =
             repository.getIdGraficoDeUnDia(fecha!!)//Miramos qué gráfico hay este día.
         if (idGrafico != null // && hayInternet()//TODO: Añadir comprobación de internet.
-            ) {
+        ) {
             //Si tenemos gráfico asignado...
 
             if (repository.getOneGrTareasFromGrafico(idGrafico).first() == null) {
@@ -541,13 +513,13 @@ class HoyViewModel: ViewModel(), KoinComponent {
                 } catch (e: Exception) {
                     if (e.message != "Ignorar") {
                         //TODO: Firebase
-                       // FirebaseCrashlytics.getInstance().recordException(e)
+                        // FirebaseCrashlytics.getInstance().recordException(e)
                         toastString.emit(e.message)
                     }
                 }
             }
         } else {
-           // Timber.i("Este día no tiene gráfico asignado.")
+            // Timber.i("Este día no tiene gráfico asignado.")
         }
     }
 
@@ -565,7 +537,8 @@ class HoyViewModel: ViewModel(), KoinComponent {
             try {
                 repository.requestSubirCuadroVacio(
                     CuadroAnualVacio(
-                        year = date.value?.year ?: Clock.System.todayIn(TimeZone.currentSystemDefault()).year,
+                        year = date.value?.year
+                            ?: Clock.System.todayIn(TimeZone.currentSystemDefault()).year,
                         sobrescribir = false
                     )
                 )
@@ -603,6 +576,21 @@ class HoyViewModel: ViewModel(), KoinComponent {
             toastString.emit(null)
             toastId.emit(null)
             showToastComjYLibra.emit(false)
+        }
+    }
+
+    fun onImageEgaClicked(scrollValue: Int, offsetX: Float) {
+        val scrolled = scrollValue + offsetX
+        val initialScroll = ((scrolled - 200).coerceAtLeast(0F) * 2.5).toInt()
+        viewModelScope.launch {
+            imagenEgaInitialScroll.value = initialScroll
+            showImagenEgaDialog.value = true
+        }
+    }
+
+    fun onDialogImagenEgaDimissed() {
+        viewModelScope.launch {
+            showImagenEgaDialog.value = false
         }
     }
 

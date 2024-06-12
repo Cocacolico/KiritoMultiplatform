@@ -29,8 +29,7 @@ data class HoyState(
     val erroresHoy: ErroresHoy = ErroresHoy(),
     val localizador: Localizador? = null,
     val showLocalizadorDialog: Boolean = false,
-
-
-
+    val showImagenEgaDialog: Boolean = false,
+    val imagenEgaInitialScroll: Int = 0
     )
 

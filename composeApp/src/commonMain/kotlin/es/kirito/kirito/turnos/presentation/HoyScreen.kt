@@ -17,13 +17,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -88,6 +93,7 @@ import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
 import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.components.ParagraphSubtitle
 import es.kirito.kirito.core.presentation.components.detectSwipe
+import es.kirito.kirito.core.presentation.components.dialogs.MyDialogImagenEga
 import es.kirito.kirito.core.presentation.theme.azulKirito
 import es.kirito.kirito.core.presentation.utils.Orientation
 import es.kirito.kirito.core.presentation.utils.getScreenSizeInfo
@@ -145,9 +151,8 @@ fun HoyScreen(navController: NavHostController) {
     val viewModel = koinViewModel<HoyViewModel>()
 
     Surface(Modifier.fillMaxSize()) {
-        //TODO: Imagen ega.
-       // val dialogImageEga by viewModel.imagenEgaDialog.collectAsState(initial = null)
-        var showDialogImageEga by rememberSaveable { mutableStateOf(false) }
+
+
         var showDialogExcesos by rememberSaveable { mutableStateOf(false) }
         var showDialogTarea by remember { mutableStateOf(false) } //NO saveable.
         var showEditDialog by rememberSaveable { mutableStateOf(false) }
@@ -172,7 +177,7 @@ fun HoyScreen(navController: NavHostController) {
         val orientation = getScreenSizeInfo().orientation()
         val novedades by viewModel.novedades.collectAsState(initial = false)
 
-        //TODO: Esto dará problemas, se recolectaban de otro modo.
+        //FIXME: Esto dará problemas, se recolectaban de otro modo.
         val toastString by viewModel.toastString.collectAsState(null)
         val toastId by viewModel.toastId.collectAsState(null)
         val toastFestivo by viewModel.toastFestivo.collectAsState(false)
@@ -185,26 +190,28 @@ fun HoyScreen(navController: NavHostController) {
             }
         }
 
-        if (toastString != null){
+        if (toastString != null) {
             LongToast(toastString)
             viewModel.onToastLaunched()
         }
-        if(toastId != null){
+        if (toastId != null) {
             LongToast(stringResource(toastId ?: Res.string._0))
             viewModel.onToastLaunched()
         }
-        if (toastFestivo){
+        if (toastFestivo) {
             LongToast(stringResource(Res.string.advertencia_festivos))
             viewModel.onToastLaunched()
         }
 
-        val showFraseDiasEspeciales by remember { derivedStateOf {
-            showToastComjYLibra &&
-           ( hoyState.cuDetalle?.libra.toIntIfNull(-1) > 0 ||
-            hoyState.cuDetalle?.comj.toIntIfNull(-1) > 0)
-        } }
+        val showFraseDiasEspeciales by remember {
+            derivedStateOf {
+                showToastComjYLibra &&
+                        (hoyState.cuDetalle?.libra.toIntIfNull(-1) > 0 ||
+                                hoyState.cuDetalle?.comj.toIntIfNull(-1) > 0)
+            }
+        }
 
-        if (showFraseDiasEspeciales){
+        if (showFraseDiasEspeciales) {
             val fraseDiasEspeciales = hoyState.cuDetalle?.genComjYLibraString()
             LongToast(fraseDiasEspeciales)
             viewModel.onToastLaunched()
@@ -230,9 +237,7 @@ fun HoyScreen(navController: NavHostController) {
                         Column(modifier = Modifier.weight(1f)) {
                             HoyHeader(viewModel, onDateClicked = {
                                 showDatePicker = true
-                            }) {
-                                showDialogImageEga = true
-                            }
+                            })
                             HoyBody(viewModel, onTareaClick = { tareaClicada ->
                                 tarea = tareaClicada
                                 showDialogTarea = true
@@ -278,9 +283,7 @@ fun HoyScreen(navController: NavHostController) {
                     ) {
                         HoyHeader(viewModel, onDateClicked = {
                             showDatePicker = true
-                        }) {
-                            showDialogImageEga = true
-                        }
+                        })
                         HoyBody(viewModel, onTareaClick = { tareaClicada ->
                             tarea = tareaClicada
                             showDialogTarea = true
@@ -361,12 +364,7 @@ fun HoyScreen(navController: NavHostController) {
 //            }
         }
 
-       // if (showDialogImageEga && dialogImageEga?.imagenesEga != null) {
-            //TODO: IMAGEN EGAAA
-//            ImageEgaDialog(dialogImageEga ?: return@Surface) {
-//                showDialogImageEga = false
-//            }
-   //     }
+
 
         MyDialogInformation(show = showDialogExcesos, text = textExcesos,
             onDismiss = { showDialogExcesos = false })
@@ -382,11 +380,11 @@ fun HoyScreen(navController: NavHostController) {
                                 .toLocalDate()
                         )
                     }, enabled = datePickerConfirmEnabled.value) {
-                        Text(text = stringResource( Res.string.seleccionar))
+                        Text(text = stringResource(Res.string.seleccionar))
                     }
                 }, dismissButton = {
                     TextButton(onClick = { showDatePicker = false }) {
-                        Text(text = stringResource( Res.string.cancelar))
+                        Text(text = stringResource(Res.string.cancelar))
                     }
                 }) {
                 DatePicker(state = datePickerState)
@@ -423,7 +421,20 @@ fun HoyScreen(navController: NavHostController) {
                     viewModel.onExchangeClick()
                 })
 
-
+        if (hoyState.showImagenEgaDialog)
+            MyDialogImagenEga(
+                horaOrigen = hoyState.turnoPrxTr?.horaOrigen ?: 0,
+                horaFin = hoyState.turnoPrxTr?.horaFin ?: 0,
+                tareasCortas = hoyState.tareasCortas,
+                dia = Clock.System.todayIn(TimeZone.currentSystemDefault())
+                    .toEpochDays()
+                    .toLong(),
+                coloresTrenes = hoyState.coloresTrenes,
+                initialScroll = hoyState.imagenEgaInitialScroll,
+                factorZoom = 5,
+            ){
+                viewModel.onDialogImagenEgaDimissed()
+            }
 
         MyDialogInformation(
             show = hoyState.showLocalizadorDialog,
@@ -439,11 +450,9 @@ fun HoyScreen(navController: NavHostController) {
 
 
 @Composable
-fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked: () -> Unit) {
+fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit) {
 
     val hoyState by viewModel.hoyState.collectAsState(HoyState())
-    //TODO: Imagen ega
-  //  val imagenEga by viewModel.imagenEga.collectAsState(initial = null)
 
     HeaderWithPrevNext(
         title = DateString(hoyState.date),
@@ -460,7 +469,11 @@ fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked
             text = hoyState.cuDetalle?.tipoYTurnoText(hoyState.turnoPrxTr)
                 ?: "",
             Modifier
-                .background(color = colorDeFondoTurnos(hoyState.cuDetalle?.tipo ?: "").toComposeColor())
+                .background(
+                    color = colorDeFondoTurnos(
+                        hoyState.cuDetalle?.tipo ?: ""
+                    ).toComposeColor()
+                )
                 .fillMaxWidth(),
             color = colorTextoTurnos(hoyState.cuDetalle?.tipo ?: ""),
             textAlign = TextAlign.Center,
@@ -482,32 +495,6 @@ fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit, onImageClicked
         }
     if (hoyState.turnoPrxTr?.sitioOrigen != null || hoyState.cuDetalle?.tipo == "7000")
         TurnoProxTarHeader(turno = hoyState.turnoPrxTr, hoyState.cuDetalle)
-
-//    //TODO: Imagen ega
-//    if (imagenEga != null) {
-//        val scrollState = rememberScrollState()
-//        //TODO: Imagen del egaaaa
-////        Image(
-////            bitmap = imagenEga?.genImage(context = context)?.asImageBitmap() ?: return,
-////            contentDescription = "",
-////            contentScale = ContentScale.FillHeight,
-////            modifier = Modifier
-////                .horizontalScroll(scrollState)
-////                .padding(4.dp)
-////                .pointerInput(Unit) {
-////                    detectTapGestures { offset ->
-////                        viewModel.onImageClicked(
-////                            scrollState.value,
-////                            offset.x,
-////                            imagenEga ?: return@detectTapGestures,
-////                            context
-////                        )
-////                        onImageClicked()
-////                    }
-////                }
-////
-////        )
-//    }
 }
 
 
@@ -525,14 +512,14 @@ fun HoyBody(
     var showErrors by remember { mutableStateOf(false) }
     val orientation = getScreenSizeInfo().orientation()
 
-    val showFraseAyer by remember{
+    val showFraseAyer by remember {
         derivedStateOf {
             hoyState.advMermasTurnosLaterales.tAyer != null &&
                     hoyState.advMermasTurnosLaterales.tHoy != null
         }
     }
 
-    val showFraseManana by remember{
+    val showFraseManana by remember {
         derivedStateOf {
             hoyState.advMermasTurnosLaterales.tManana != null &&
                     hoyState.advMermasTurnosLaterales.tHoy != null
@@ -550,7 +537,13 @@ fun HoyBody(
     LazyColumn(Modifier.padding(horizontal = 16.dp)) {
 
         if (hoyState.erroresHoy.hayErrores && showErrors)
-            item {ErroresHoy(hoyState.erroresHoy, hoyState.cuDetalle, Modifier.animateItemPlacement()) }
+            item {
+                ErroresHoy(
+                    hoyState.erroresHoy,
+                    hoyState.cuDetalle,
+                    Modifier.animateItemPlacement()
+                )
+            }
 
         if (hoyState.cuDetalle == null && showErrors) {
             item {
@@ -568,15 +561,19 @@ fun HoyBody(
 
         if (hoyState.tareasCortas.isNotEmpty()
             && hoyState.turnoPrxTr?.horaOrigen != null
-            && hoyState.turnoPrxTr?.horaFin != null)
+            && hoyState.turnoPrxTr?.horaFin != null
+        )
             item {
                 ImagenEga(
                     timeInicio = hoyState.turnoPrxTr?.horaOrigen ?: 0,
                     timeFin = hoyState.turnoPrxTr?.horaFin ?: 0,
                     tareas = hoyState.tareasCortas,
-                    dia = Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays().toLong(),
+                    dia = Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays()
+                        .toLong(),
                     coloresTrenes = hoyState.coloresTrenes,
-                )
+                ) { scrollValue, offsetX ->
+                    viewModel.onImageEgaClicked(scrollValue, offsetX)
+                }
             }
 
         //Solo mostramos aquí las tareas si estamos en vertical.
@@ -591,7 +588,8 @@ fun HoyBody(
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 MyTextStd(
                     text = genNombreTextView(
-                        hoyState.cuDetalle?.toTurnoPrxTr() ?: TurnoPrxTr()//Prefiero algo vacío que los !!.
+                        hoyState.cuDetalle?.toTurnoPrxTr()
+                            ?: TurnoPrxTr()//Prefiero algo vacío que los !!.
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -599,7 +597,7 @@ fun HoyBody(
         if (hoyState.teleindicadores.size > 1) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
-                ParagraphSubtitle(text = stringResource( Res.string.teleindicadores_))
+                ParagraphSubtitle(text = stringResource(Res.string.teleindicadores_))
             }
 
             itemsIndexed(hoyState.teleindicadores) { index, teleindicadoresDeTren ->
@@ -647,10 +645,14 @@ fun HoyBody(
         if (hoyState.localizador != null) {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
-                ParagraphSubtitle(text = stringResource(Res.string.localizador),
-                    modifier = Modifier.clickable { viewModel.onLocalizadorClick() }.fillMaxWidth())
-                MyTextStd(text = hoyState.localizador?.localizador ?: "",
-                    modifier = Modifier.clickable { viewModel.onLocalizadorClick() }.fillMaxWidth())
+                ParagraphSubtitle(
+                    text = stringResource(Res.string.localizador),
+                    modifier = Modifier.clickable { viewModel.onLocalizadorClick() }.fillMaxWidth()
+                )
+                MyTextStd(
+                    text = hoyState.localizador?.localizador ?: "",
+                    modifier = Modifier.clickable { viewModel.onLocalizadorClick() }.fillMaxWidth()
+                )
             }
         }
 
