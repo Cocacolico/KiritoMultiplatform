@@ -1,8 +1,6 @@
 package es.kirito.kirito.turnos.domain
 
 import es.kirito.kirito.core.data.database.Clima
-import es.kirito.kirito.core.data.database.ColoresHoraTurnos
-import es.kirito.kirito.core.data.database.CuDetalle
 import es.kirito.kirito.core.data.database.CuHistorial
 import es.kirito.kirito.core.data.database.GrGraficos
 import es.kirito.kirito.core.data.database.GrNotasTurno
@@ -11,25 +9,28 @@ import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.database.OtColoresTrenes
 import es.kirito.kirito.core.data.database.OtTeleindicadores
 import es.kirito.kirito.core.data.network.KiritoRequest
-import es.kirito.kirito.core.data.network.models.RequestComplementosGraficoDTO
-import es.kirito.kirito.core.domain.CoreRepository
 import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
 import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
-import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.GrTareaBuscador
+import es.kirito.kirito.core.domain.models.GrTareaConClima
+import es.kirito.kirito.core.domain.models.TurnoBuscador
 import es.kirito.kirito.core.domain.models.TurnoPrxTr
 import es.kirito.kirito.core.domain.util.roundUpToHour
 import es.kirito.kirito.core.domain.util.toInstant
 import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.turnos.data.network.models.RequestSubirCuadroVacioDTO
-import es.kirito.kirito.turnos.data.network.models.ResponseCuadroVacioDTO
 import es.kirito.kirito.turnos.domain.models.CuDetalleConFestivoSemanal
 import es.kirito.kirito.turnos.domain.models.CuadroAnualVacio
+import es.kirito.kirito.turnos.domain.models.OrdenBusqueda
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class TurnosRepository: KoinComponent {
+class TurnosRepository : KoinComponent {
 
     private val database: KiritoDatabase by inject()
     private val dao = database.kiritoDao()
@@ -64,7 +65,7 @@ class TurnosRepository: KoinComponent {
         idGrafico: Long?,
         turno: String?,
         weekDay: String?
-    ): Flow<List<GrTarea>> {
+    ): Flow<List<GrTareaConClima>> {
         return dao.getTareasDeUnTurnoDM(idGrafico, turno, weekDay)
     }
 
@@ -137,14 +138,13 @@ class TurnosRepository: KoinComponent {
             return respuesta.error.lanzarExcepcion()
         }
     }
+
     fun getOneGrTareasFromGrafico(idGrafico: Long): Flow<GrTareas?> {
         return dao.getOneGrTareasFromGrafico(idGrafico)
     }
 
 
-    fun fechaTieneExcelIF(fecha: Long?): Flow<Boolean> {
-        return dao.fechaTieneExcelIF(fecha)
-    }
+    fun fechaTieneExcelIF(fecha: Long?) = dao.fechaTieneExcelIF(fecha)
 
     fun getCuDetallesConFestivos(
         fechaInicial: Long?,
@@ -154,9 +154,46 @@ class TurnosRepository: KoinComponent {
             it.asSemanalModel()
         }
 
-    fun getTurnosEntreFechas(fechaInicial: Long?, fechaFinal: Long?): Flow<List<TurnoPrxTr>> {
-        return dao.getTurnosEntreFechas(fechaInicial, fechaFinal)
-    }
+    fun getTurnosEntreFechas(fechaInicial: Long?, fechaFinal: Long?) =
+        dao.getTurnosEntreFechas(fechaInicial, fechaFinal)
+
+    fun hayTeleindicadores() = dao.hayTeleindicadores()
+
+
+    /**
+     * Devuelve el turno buscado.
+     * @param idGrafico El id del gráfico a mostrar.
+     * @param turno Si en turno pones "todo", se reciben todos los turnos.
+     * @param diaSemana También puede ir con "todo".
+     * @param orden 0 = Turno, 1 = Hora de inicio, 2 = Compañero
+     * **/
+    fun getTurnoBuscado2(
+        idGrafico: Long?,
+        turno: String?,
+        diaSemana: String?,
+        orden: OrdenBusqueda
+    ): Flow<List<TurnoBuscador>> = dao.getTurnoBuscado(
+        idGrafico,
+        turno,
+        diaSemana,
+        orden.ordinal,
+        Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays().toLong()
+    )
+
+    fun getTareasDeUnTurnoBuscador2(
+        idGrafico: Long?,
+        turno: String?,
+        weekDay: String?
+    ): Flow<List<GrTareaBuscador>> = dao.getTareasDeUnTurnoBuscador2(idGrafico, turno, weekDay)
+
+    fun getTurnoBuscadoPorTren(
+        idGrafico: Long?,
+        tren: String?,
+        diaSemana: String?
+    ): Flow<List<TurnoBuscador>> = dao.getTurnoBuscadoPorTren(idGrafico, tren, diaSemana)
+
+    fun getTeleindicadoresPorTren(tren: String) = dao.getTeleindicadoresPorTren(tren)
+
 
 
 }

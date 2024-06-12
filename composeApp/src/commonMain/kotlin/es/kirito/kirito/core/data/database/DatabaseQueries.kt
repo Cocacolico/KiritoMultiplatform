@@ -11,7 +11,7 @@ import es.kirito.kirito.core.domain.models.CuDetalleCompisConCambios
 import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
 import es.kirito.kirito.core.domain.models.EtiquetaDeTablonAnuncios
 import es.kirito.kirito.core.domain.models.GrGraficosConVar
-import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.models.GrTareaBuscador
 import es.kirito.kirito.core.domain.models.TablonAnunciosItem
 import es.kirito.kirito.core.domain.models.TablonAnunciosNavigationParams
@@ -648,7 +648,7 @@ interface KiritoDao {
         idGrafico: Long?,
         turno: String?,
         diaSemana: String?
-    ): Flow<List<GrTarea>>
+    ): Flow<List<GrTareaConClima>>
 
     @Query(
         "Select * From tabla_gr_tareas " +

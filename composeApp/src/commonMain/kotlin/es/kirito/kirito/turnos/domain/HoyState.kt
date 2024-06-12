@@ -5,7 +5,7 @@ import es.kirito.kirito.core.data.database.GrTareas
 import es.kirito.kirito.core.data.database.Localizador
 import es.kirito.kirito.core.data.database.OtColoresTrenes
 import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
-import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.models.TurnoPrxTr
 import es.kirito.kirito.turnos.domain.models.ErroresHoy
 import es.kirito.kirito.turnos.domain.models.TeleindicadoresDeTren
@@ -19,7 +19,7 @@ data class HoyState(
     val coloresTrenes: List<OtColoresTrenes> = emptyList(),
     val festivo: String = "",
     val tareasCortas: List<GrTareas> = emptyList(),
-    val tareas: List<GrTarea> = emptyList(),
+    val tareas: List<GrTareaConClima> = emptyList(),
     val teleindicadores: List<TeleindicadoresDeTren> = emptyList(),
     val notasUsuario: String = "",
     val notasTurno: String = "",

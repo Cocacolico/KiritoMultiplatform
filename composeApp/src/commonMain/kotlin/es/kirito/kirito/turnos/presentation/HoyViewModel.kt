@@ -1,6 +1,5 @@
 package es.kirito.kirito.turnos.presentation
 
-import androidx.compose.foundation.rememberScrollState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.core.data.constants.FlagLogout
@@ -12,7 +11,7 @@ import es.kirito.kirito.core.data.database.Localizador
 import es.kirito.kirito.core.data.database.OtColoresTrenes
 import es.kirito.kirito.core.domain.CoreRepository
 import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
-import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.models.TurnoPrxTr
 import es.kirito.kirito.core.domain.util.deAyerAHoy
 import es.kirito.kirito.core.domain.util.deMananaAHoy
@@ -25,7 +24,6 @@ import es.kirito.kirito.core.domain.util.servicio
 import es.kirito.kirito.core.domain.util.toEpochSecondsZoned
 import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.domain.util.toLocalTime
-import es.kirito.kirito.precarga.domain.PrecargaRepository
 import es.kirito.kirito.turnos.domain.HoyState
 import es.kirito.kirito.turnos.domain.TurnosRepository
 import es.kirito.kirito.turnos.domain.models.CuadroAnualVacio
@@ -33,7 +31,6 @@ import es.kirito.kirito.turnos.domain.models.ErroresHoy
 import es.kirito.kirito.turnos.domain.models.NavigationDestination
 import es.kirito.kirito.turnos.domain.models.NavigationObject
 import es.kirito.kirito.turnos.domain.models.TeleindicadoresDeTren
-import es.kirito.kirito.turnos.domain.utils.genComjYLibraString
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.cuadro_subido_correctamente
 import kirito.composeapp.generated.resources.descargando_grafico
@@ -372,7 +369,7 @@ class HoyViewModel : ViewModel(), KoinComponent {
             array[3] as List<OtColoresTrenes>,
             array[4] as String,
             array[5] as List<GrTareas>,
-            array[6] as List<GrTarea>,
+            array[6] as List<GrTareaConClima>,
             array[7] as List<TeleindicadoresDeTren>,
             array[8] as String,
             array[9] as String,
@@ -388,7 +385,7 @@ class HoyViewModel : ViewModel(), KoinComponent {
     }.distinctUntilChanged()
 
 
-    fun onSearchClick(tarea: GrTarea) {
+    fun onSearchClick(tarea: GrTareaConClima) {
         _navigationDestination.value = NavigationObject(
             destination = NavigationDestination.Search,
             date = -1,

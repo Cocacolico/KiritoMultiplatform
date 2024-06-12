@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.util.fromHtmlWithBreaksToSpanned
 import es.kirito.kirito.core.domain.util.isBefore
 import es.kirito.kirito.core.domain.util.textoServicio
@@ -30,7 +30,7 @@ import kotlinx.datetime.todayIn
 
 
 @Composable
-fun TareaConClima(tarea: GrTarea, modifier: Modifier, onClick: (GrTarea) -> Unit) {
+fun TareaConClima(tarea: GrTareaConClima, modifier: Modifier, onClick: (GrTareaConClima) -> Unit) {
     Column(
         modifier
             .fillMaxWidth()
@@ -70,7 +70,7 @@ fun TareaConClima(tarea: GrTarea, modifier: Modifier, onClick: (GrTarea) -> Unit
 }
 
 @Composable
-private fun GrTarea.calcBackgroundColor(): Color {
+private fun GrTareaConClima.calcBackgroundColor(): Color {
     val dtInicio = this.inserted?.toInstant() ?: return Color.Transparent
     val date = dtInicio.toLocalDate()
 

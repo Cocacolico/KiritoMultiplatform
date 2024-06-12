@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.util.servicio
 import es.kirito.kirito.core.domain.util.textoServicio
 import es.kirito.kirito.core.domain.util.toLocalTime
@@ -34,7 +34,7 @@ import org.jetbrains.compose.resources.stringResource
 
 
 @Composable
-fun DialogClimaTarea(tarea: GrTarea, onDismiss: () -> Unit, onSearch: (String) -> Unit) {
+fun DialogClimaTarea(tarea: GrTareaConClima, onDismiss: () -> Unit, onSearch: (String) -> Unit) {
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
             modifier = Modifier

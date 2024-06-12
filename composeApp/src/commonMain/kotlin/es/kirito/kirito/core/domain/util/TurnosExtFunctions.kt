@@ -3,11 +3,12 @@ package es.kirito.kirito.core.domain.util
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import es.kirito.kirito.core.data.database.CuDetalle
+import es.kirito.kirito.core.data.database.GrGraficos
 import es.kirito.kirito.core.data.kiritoComponents.turnosCambiables
 import es.kirito.kirito.core.data.kiritoComponents.turnosContables
 import es.kirito.kirito.core.data.kiritoComponents.turnosKirito
 import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
-import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.models.TurnoPrxTr
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.cedido_cgo
@@ -63,11 +64,15 @@ import kirito.composeapp.generated.resources.cambiado_con_
 import kirito.composeapp.generated.resources.dia_sin_asignar
 import kirito.composeapp.generated.resources.el_dia_anterior_tienes_x
 import kirito.composeapp.generated.resources.el_dia_siguiente_tienes_x
+import kirito.composeapp.generated.resources.empieza_el__
+import kirito.composeapp.generated.resources.en_vigor
 import kirito.composeapp.generated.resources.haces_el_turno_a_
 import kirito.composeapp.generated.resources.prop_cambio_dia_anterior
 import kirito.composeapp.generated.resources.prop_cambio_dia_siguiente
+import kirito.composeapp.generated.resources.sin_vigencia
 import kirito.composeapp.generated.resources.suspension_empleo_sueldo
 import kirito.composeapp.generated.resources.te_hace_el_turno_
+import kirito.composeapp.generated.resources.termino_el__
 import kirito.composeapp.generated.resources.tienes_xtiempo_entre_turnos
 import kirito.composeapp.generated.resources.turno_cambiado
 import kirito.composeapp.generated.resources.vacaciones
@@ -75,10 +80,12 @@ import kirito.composeapp.generated.resources.vacaciones_ano_pasado
 import kirito.composeapp.generated.resources.turno_sin_trabajo_asignado
 import kirito.composeapp.generated.resources.turno_al_debe
 import kirito.composeapp.generated.resources.turno_oculto
-import kirito.composeapp.generated.resources.turnos_cambiables
 import kirito.composeapp.generated.resources.un_dia
 import kirito.composeapp.generated.resources.zcon
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -159,7 +166,7 @@ fun CuDetalle.esTurnoConDias(): Boolean {
     return false
 }
 
-fun GrTarea.servicio(): String{
+fun GrTareaConClima.servicio(): String{
     if (this.observaciones != null && this.observaciones?.length != 0) {
         if (this.servicio == "PS") {
             return this.observaciones.toString()
@@ -277,7 +284,7 @@ fun genNombreTextView(turno: CuDetalleConFestivoDBModel): String {
 
 
 @Composable
-fun GrTarea.textoServicio(): String {
+fun GrTareaConClima.textoServicio(): String {
     val descTareaK = stringArrayResource(Res.array.descripcion_tareas_keys)
     val descTareaV = stringArrayResource(Res.array.descripcion_tareas_values)
     val miMap = descTareaK.zip(descTareaV).toMap()
@@ -573,3 +580,24 @@ fun String?.calcularTipoDelTurno(): String {
     else
         "T"
 }
+
+@Composable
+fun GrGraficos.fraseDeVigencia(): String {
+    val hoy = Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays()
+    return if (this.fechaInicio != null && this.fechaFinal != null) {
+        if (this.fechaInicio!! <= hoy && this.fechaFinal!! >= hoy) {
+            //En vigor.
+            stringResource(Res.string.en_vigor)
+        } else if (this.fechaInicio!! > hoy) {
+            //Futuro
+            stringResource(Res.string.empieza_el__, this.fechaInicio.toLocalDate().enMiFormato())
+        } else {
+            //Pasado.
+            stringResource(Res.string.termino_el__, this.fechaFinal.toLocalDate().enMiFormato())
+        }
+    } else {
+        //Sin vigencia.
+        stringResource(Res.string.sin_vigencia)
+    }
+}
+

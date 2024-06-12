@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import es.kirito.kirito.core.data.constants.MyConstants
-import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.util.toStringIfNull
 import es.kirito.kirito.core.presentation.theme.Orange
 import es.kirito.kirito.core.presentation.theme.Red
@@ -69,7 +69,7 @@ fun IconClima(
 
 
 @Composable
-fun IconClimaWithTemp(tarea: GrTarea) {
+fun IconClimaWithTemp(tarea: GrTareaConClima) {
     Box(modifier = Modifier.wrapContentSize()) {
         if (tarea.lluviaF != null && tarea.nubladoF != null
             && tarea.vientoF != null && tarea.nieveF != null

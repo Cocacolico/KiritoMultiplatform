@@ -252,8 +252,67 @@ fun Long.minusEndTime(endTime: Long): Long {
         86400 - this + endTime
 }
 
+fun String?.deBinarioASemanal(): CharSequence {
+    if(this == null)
+        return ""
+    val letterMapping = mapOf(
+        0 to 'L',
+        1 to 'M',
+        2 to 'X',
+        3 to 'J',
+        4 to 'V',
+        5 to 'S',
+        6 to 'D',
+        7 to 'F'
+    )
+
+    return this.mapIndexed { index, binaryChar ->
+        if (binaryChar == '1') letterMapping[index] ?: error("Invalid binary digit: $binaryChar")
+        else '_'
+    }.joinToString("")
+}
+
+fun diasBooleansToString(l: Boolean, m: Boolean, x: Boolean, j: Boolean, v: Boolean, s: Boolean, d: Boolean, f: Boolean): String {
+    var salida: String = ""
+    salida += if (l) "L" else "_"
+    salida += if (m) "M" else "_"
+    salida += if (x) "X" else "_"
+    salida += if (j) "J" else "_"
+    salida += if (v) "V" else "_"
+    salida += if (s) "S" else "_"
+    salida += if (d) "D" else "_"
+    salida += if (f) "F" else "_"
+    return salida
+}
 
 
+fun Int.toInicialSemana(): String {
+    return when (this) {
+        0 -> "L"
+        1 -> "M"
+        2 -> "X"
+        3 -> "J"
+        4 -> "V"
+        5 -> "S"
+        6 -> "D"
+        7 -> "F"
+        else -> "todo"
+    }
+}
+
+fun String.fromInicialSemana(): Int {
+    return when (this) {
+        "L" -> 0
+        "M" -> 1
+        "X" -> 2
+        "J" -> 3
+        "V" -> 4
+        "S" -> 5
+        "D" -> 6
+        "F" -> 7
+        else -> 0
+    }
+}
 
 
 

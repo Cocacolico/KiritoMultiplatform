@@ -17,18 +17,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -67,7 +62,7 @@ import androidx.compose.ui.unit.times
 import androidx.navigation.NavHostController
 import es.kirito.kirito.core.data.constants.ConstantsNormativaLaboral
 import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
-import es.kirito.kirito.core.domain.models.GrTarea
+import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.models.TurnoPrxTr
 import es.kirito.kirito.core.domain.util.colorDeFondoTurnos
 import es.kirito.kirito.core.domain.util.colorTextoTurnos
@@ -164,7 +159,7 @@ fun HoyScreen(navController: NavHostController) {
             }
         }
         var textExcesos by rememberSaveable { mutableStateOf("") }
-        var tarea by remember { mutableStateOf(GrTarea()) }
+        var tarea by remember { mutableStateOf(GrTareaConClima()) }
 
         val hoyState by viewModel.hoyState.collectAsState(initial = HoyState())
         var nowTimeString by remember { mutableStateOf("") }
@@ -502,7 +497,7 @@ fun HoyHeader(viewModel: HoyViewModel, onDateClicked: () -> Unit) {
 @Composable
 fun HoyBody(
     viewModel: HoyViewModel,
-    onTareaClick: (GrTarea) -> Unit,
+    onTareaClick: (GrTareaConClima) -> Unit,
     onExcesosClick: (String) -> Unit,
     onGenerarCuadroVacioClick: () -> Unit,
     onGenerarCuadroClick: () -> Unit,

@@ -1,7 +1,7 @@
 package es.kirito.kirito.core.domain.models
 
 
-data class GrTarea(
+data class GrTareaConClima(
     var id: Long,
     var idGrafico: Long,
     var turno: String, //Los descansos son el número.
