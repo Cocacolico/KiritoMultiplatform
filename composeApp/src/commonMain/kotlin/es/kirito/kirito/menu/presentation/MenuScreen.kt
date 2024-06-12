@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -68,6 +66,7 @@ import es.kirito.kirito.core.presentation.components.DiasEspecialesCard
 import es.kirito.kirito.core.presentation.components.MyTextSubTitle
 import es.kirito.kirito.core.presentation.components.dialogs.MyDialogConfirmation
 import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
+import es.kirito.kirito.core.presentation.navigation.Graph
 import es.kirito.kirito.core.presentation.theme.Orange
 import es.kirito.kirito.menu.domain.MenuState
 import kirito.composeapp.generated.resources.Desconectarme
@@ -131,6 +130,11 @@ fun MenuScreen(navController: NavHostController) {
     val viewModel = koinViewModel<MenuViewModel>()
     val state by viewModel.menuState.collectAsState(MenuState())
 
+    if(state.allDataErased) {
+        navController.popBackStack()
+        navController.navigate(Graph.RootNavGraph)
+    }
+
     Surface(Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -139,8 +143,9 @@ fun MenuScreen(navController: NavHostController) {
             contentAlignment = Alignment.TopCenter
         ) {
             Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -190,14 +195,15 @@ fun MenuScreen(navController: NavHostController) {
                     Column(
                         horizontalAlignment = Alignment.End,
                         modifier = Modifier
-                            .clickable { viewModel.onLogoutClick() }
                             .padding(4.dp)
                             .weight(1f)
                     ) {
                         Icon(
                             Icons.AutoMirrored.Outlined.Logout,
                             contentDescription = null,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier
+                                .clickable { viewModel.onLogoutClick() }
+                                .size(24.dp)
                         )
                         Text(
                             text = stringResource(Res.string.salir)
@@ -405,7 +411,7 @@ fun MenuScreen(navController: NavHostController) {
                         ButtonMenuPrincipalBadge(
                             icon = Icons.AutoMirrored.Outlined.Comment,
                             text = Res.string.tabl_n_de_anuncios,
-                            numNotificaciones = 8,
+                            numNotificaciones = 0, // TODO implementar la lógica para contar los anuncios nuevos
                             onClick = {
 
                             }
@@ -541,17 +547,13 @@ fun MenuScreen(navController: NavHostController) {
                         )
                     }
                 }
-                Spacer(
-                    modifier = Modifier
-                        .height(30.dp)
-                        .fillMaxWidth()
-                )
             }
             FloatingActionButton(
                 onClick = {
                     navController.navigateUp()
                 },
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Close,
@@ -569,8 +571,8 @@ fun MenuScreen(navController: NavHostController) {
             onConfirm = {
                 viewModel.onConfirmUpd()
             },
-            title = stringResource(Res.string.actualiza_tu_app),
-            text = "",
+            title = "",
+            text = stringResource(Res.string.actualiza_tu_app),
             okText = stringResource(Res.string.actualizar)
         )
         MyDialogInformation(
@@ -581,8 +583,8 @@ fun MenuScreen(navController: NavHostController) {
             onConfirm = {
                 viewModel.onConfirmUpd()
             },
-            title = stringResource(Res.string.actualiza_tu_app),
-            text = "",
+            title = "",
+            text = stringResource(Res.string.actualiza_tu_app),
             okText = stringResource(Res.string.actualizar)
         )
         // Dialog para confirmar logout

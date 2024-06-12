@@ -13,7 +13,6 @@ import es.kirito.kirito.menu.domain.models.DiasEspeciales
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -38,9 +37,7 @@ class MenuViewModel: ViewModel(), KoinComponent {
     private val miUsuario = userID.flatMapLatest { id ->
         coreRepo.getMyUser(id)
     }
-
-    private val _allDataErased = MutableStateFlow(false)
-    private val allDataErased: Flow<Boolean> = _allDataErased
+    private val allDataErased  = MutableStateFlow(false)
 
     private val flagLogout = repository.checkLogoutFlag()
 
@@ -146,10 +143,10 @@ class MenuViewModel: ViewModel(), KoinComponent {
     fun onLogoutDialogConfirm() {
         logout()
     }
-    private fun logout() { // Aún no funciona correctamente la función nukeAll
+    private fun logout() { // TODO Aún no funciona correctamente la función nukeAll
         viewModelScope.launch(Dispatchers.IO) {
             coreRepo.nukeAll()
-            _allDataErased.value = true
+            allDataErased.value = true
         }
     }
 }
