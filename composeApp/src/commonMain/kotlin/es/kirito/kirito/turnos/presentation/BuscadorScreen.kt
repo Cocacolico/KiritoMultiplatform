@@ -276,6 +276,7 @@ fun BuscadorBody(
     onImageEgaClicked: (Int, Float, TurnoBuscadorDM) -> Unit,
 ) {
 
+    println("Cabeza del body: ${state.selectedIdGrafico} turnos: ${state.turnosBuscados?.size} ${state.textfieldText} ${state.selectedDiaSemana}")
 
     LazyColumn() {
         if (state.buscando == Buscando.TURNOS)

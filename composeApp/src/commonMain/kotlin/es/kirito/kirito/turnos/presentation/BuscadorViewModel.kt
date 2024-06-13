@@ -232,7 +232,7 @@ class BuscadorViewModel : ViewModel(), KoinComponent {
     }
 
 
-    //TODO: Meter un algo parecido al toast
+    //TODO: Esta función es llamada desde el init de este viewModel, cambiarlo.
     //De turnos compis = grafico, turno, diaSemana
     //De proxTareas = grafico, diaSemana, tren
     //De listaGraficos = gráfico.
@@ -324,6 +324,12 @@ class BuscadorViewModel : ViewModel(), KoinComponent {
         _toast.value = null
         _toastId.value = null
     }
+
+    init {
+        //TODO: Borrar esto y llamarlo desde la screen cuando recibamos las cosas de navigation.
+        setInitialParameters(null, null,null,null,null)
+    }
+
 
 
 }
