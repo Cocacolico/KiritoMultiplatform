@@ -249,7 +249,7 @@ class BuscadorViewModel : ViewModel(), KoinComponent {
                 idGrafico.value =
                     repository.getIdGraficoDeUnDia(
                         Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays().toLong()
-                    ) ?: -1L
+                    ).firstOrNull() ?: -1L
             }
             return
         }

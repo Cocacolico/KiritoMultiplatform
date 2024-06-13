@@ -114,7 +114,7 @@ class PrecargaRepository() : KoinComponent {
         //TODO: Desde aquí: Cuando ya sea la 2a y siguientes veces, hay que hacer esto desde un work
         // y desde el equivalente de iOS.
         //En ambos casos hay que hacer un callback o similar para mostrar la sincronización en la barra inferior.
-        val bdActualizada = coreRepo.getUpdatedDB().toInstant()
+        val bdActualizada = coreRepo.getUpdatedDB().first().toInstant()
         if (bdActualizada.epochSeconds == 0L) {
             //TODO: Ordenar que se muestre el trenecito de la screen.
             setInstallDT()
@@ -173,7 +173,7 @@ class PrecargaRepository() : KoinComponent {
 
         refreshRecentGraficos(bdActualizada)
 
-        dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString())
+        dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString()).first()
             .let { muestroCuadros ->
                 if (muestroCuadros == 1) {
                     updatePasosCompletados(PreloadStep.TURNOS_COMPIS)
@@ -224,7 +224,7 @@ class PrecargaRepository() : KoinComponent {
         //   refreshAlarmas(applicationContext)
         updatePasosCompletados(PreloadStep.TURNOS_COMPIS)
 
-        dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString())
+        dao.getMyUserPermisoTurnos(preferenciasKirito.first().userId.toString()).first()
             .let { muestroCuadros ->
                 if (muestroCuadros == 1) {
                     refreshTurnosCompis(bdActualizada)
@@ -385,7 +385,7 @@ class PrecargaRepository() : KoinComponent {
             if (respuesta.error.lanzarExcepcion()) {
                 val veoTurnosCompis = dao.getMyUserPermisoTurnos(
                     preferenciasKirito.map { it.userId }.first().toString()
-                )
+                ).first()
                 respuesta.respuesta?.forEach { usuario ->
                     //Si vienen los usuarios "fantasma", no hay que meterlos en la lista de usuarios.
                     if (usuario.id?.toLongOrNull() != null) {
@@ -406,7 +406,7 @@ class PrecargaRepository() : KoinComponent {
 
     private suspend fun refreshTurnosDeUnCompi(compi: Long) {
         val thisYear = Clock.System.now().toLocalDateTime(TimeZone.UTC).year
-        val lista = dao.getTableUpdatedYears(MyConstants.TABLE_TURNOS_COMPIS)
+        val lista = dao.getTableUpdatedYears(MyConstants.TABLE_TURNOS_COMPIS).first()
         val listaMutable = lista.toMutableList()
         listaMutable.add(thisYear)
         listaMutable.distinct().forEach { year ->
@@ -528,7 +528,7 @@ class PrecargaRepository() : KoinComponent {
 
     private suspend fun refreshTurnosCompis(bdActualizada: Instant) {
         val thisYear = Clock.System.todayIn(TimeZone.currentSystemDefault()).year
-        val lista = dao.getTableUpdatedYears(MyConstants.TABLE_TURNOS_COMPIS)
+        val lista = dao.getTableUpdatedYears(MyConstants.TABLE_TURNOS_COMPIS).first()
             .plus(thisYear)
         lista.distinct().forEach { year ->
             refreshTurnosCompis(year, bdActualizada)
@@ -562,7 +562,7 @@ class PrecargaRepository() : KoinComponent {
         dao.getEstacionesEnGraficos().first()
             .filterNot { it.isBlank() }
             .forEach { nombreEstacion ->
-                val exists = dao.isStationInEstaciones(nombreEstacion)
+                val exists = dao.isStationInEstaciones(nombreEstacion).first()
                 if (!exists) {
                     //La estación no existe, la metemos.
                     dao.insertEstacion(

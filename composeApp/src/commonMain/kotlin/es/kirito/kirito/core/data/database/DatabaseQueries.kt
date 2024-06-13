@@ -257,11 +257,11 @@ interface KiritoDao {
                 "indicador > 0 " + //Coincide el día de la semana.
                 "limit 1"
     )
-    suspend fun getTurnoDeEquivalencia(
+     fun getTurnoDeEquivalencia(
         equivalencia: String,
         idGrafico: Long?,
         diaSemana: String?
-    ): TurnoDeEquivalencia?
+    ): Flow<TurnoDeEquivalencia?>
 
     @Query(
         "Select tabla_gr_excel_if.turnoReal as turno, tabla_gr_excel_if.horaOrigen, " +
@@ -340,7 +340,7 @@ interface KiritoDao {
         "Select idGrafico from tabla_gr_graficos where fechaInicio <= :fechaElegida AND " +
                 "fechaFinal >= :fechaElegida LIMIT 1"
     )
-    suspend fun getIdGraficoDeUnDia(fechaElegida: Long): Long?
+    fun getIdGraficoDeUnDia(fechaElegida: Long): Flow<Long?>
 
     @Query(
         "Select idGrafico from tabla_gr_graficos where fechaInicio <= :fechaElegida AND " +
@@ -385,7 +385,7 @@ interface KiritoDao {
     fun getGraficos(): Flow<List<GrGraficos>>
 
     @Query("Select * from tabla_gr_graficos order by fechaInicio ASC")
-    suspend fun getGraficosRaw(): List<GrGraficos>
+    fun getGraficosRaw(): Flow<List<GrGraficos>>
 
 
     @Query(
@@ -536,7 +536,7 @@ interface KiritoDao {
         "Select equivalencia from tabla_equivalencias where " +
                 "idGrafico = :idGrafico AND turno = :turno"
     )
-    suspend fun getOneEquivalencia(idGrafico: Long, turno: String): String
+    fun getOneEquivalencia(idGrafico: Long, turno: String): Flow<String?>
 
     @Query(
         "Select equivalencia from tabla_equivalencias as te " +
@@ -657,11 +657,11 @@ interface KiritoDao {
                 " AND diaSemana LIKE '%' || :diaSemana || '%' " +
                 "order by ordenServicio asc"
     )
-    suspend fun getTareasDeUnTurnoRaw(
+    fun getTareasDeUnTurnoRaw(
         idGrafico: Long?,
         turno: String?,
         diaSemana: String?
-    ): List<GrTareas>
+    ): Flow<List<GrTareas>>
 
     @Query(
         "Select id, idGrafico, turno, ordenServicio, servicio, tipoServicio, diaSemana," +
@@ -759,7 +759,7 @@ interface KiritoDao {
     fun getEstacionesEnGraficos(): Flow<List<String>>
 
     @Query("Select exists (select * from tabla_estaciones where nombre = :nombre)")
-    suspend fun isStationInEstaciones(nombre: String): Boolean
+    fun isStationInEstaciones(nombre: String): Flow<Boolean>
 
 
     @Query("Select * from tabla_estaciones")
@@ -856,7 +856,7 @@ interface KiritoDao {
     fun getOtFestivos(): Flow<List<OtFestivo>>
 
     @Query("Select * From tabla_ot_festivos order by idFestivo desc")
-    suspend fun getAllOtFestivos(): List<OtFestivo>
+    fun getAllOtFestivos(): Flow<List<OtFestivo>>
 
     @Query("Delete From tabla_ot_festivos")
     suspend fun deleteAllOtFestivos()
@@ -1166,7 +1166,7 @@ interface KiritoDao {
     fun mensajesAdminNuevos(): Flow<Int>
 
     @Query("Select * from tabla_mensajes_de_admin where id = :id")
-    suspend fun getUnMensajeDeAdmin(id: Long?): OtMensajesAdmin?
+    fun getUnMensajeDeAdmin(id: Long?): Flow<OtMensajesAdmin?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMensajeDeAdmin(mensajesAdmin: OtMensajesAdmin)
@@ -1342,7 +1342,7 @@ interface KiritoDao {
                 "end result " +
                 "from LsUsers where id = :myUserId"
     )
-    suspend fun getMyUserPermisoTurnos(myUserId: String?): Int
+    fun getMyUserPermisoTurnos(myUserId: String?): Flow<Int>
 
     @Query(
         "Select username, name, surname, " +
@@ -1386,10 +1386,10 @@ interface KiritoDao {
     fun getConfigUsuario(myUserId: String?): Flow<UserConfig?>
 
     @Query("Select exists (Select * from LsUsers limit 1)")
-    suspend fun tenemosUsuarios(): Boolean
+    fun tenemosUsuarios(): Flow<Boolean>
 
     @Query("Select name from LsUsers where id = :id")
-    suspend fun getMyKiritoUserName(id: Long): String?
+    fun getMyKiritoUserName(id: Long): Flow<String?>
 
     @Query("Select * from LsUsers where id = :id")
     fun getMyKiritoUser(id: Long): Flow<LsUsers>
@@ -1434,13 +1434,13 @@ interface KiritoDao {
         "select updated from tabla_updated_tables " +
                 "where tableName = :tableName AND year = :year"
     )
-    suspend fun getTableUpdateOfYear(tableName: String, year: Int): Long?
+    fun getTableUpdateOfYear(tableName: String, year: Int): Flow<Long?>
 
     @Query(
         "select updated from tabla_updated_tables " +
                 "where tableName = :tableName AND year = 0"
     )
-    suspend fun getTableUpdateWOYear(tableName: String): Long?
+    fun getTableUpdateWOYear(tableName: String): Flow<Long?>
 
     @Query(
         "select updated from tabla_updated_tables " +
@@ -1458,7 +1458,7 @@ interface KiritoDao {
         "Select year from tabla_updated_tables " +
                 "where tableName = :tableName"
     )
-    suspend fun getTableUpdatedYears(tableName: String): List<Int>
+    fun getTableUpdatedYears(tableName: String): Flow<List<Int>>
 
 
     ///////////////////////////CONFIGURACION_APK
@@ -1470,7 +1470,7 @@ interface KiritoDao {
         "Select valorConfiguracion from tabla_configuracion_apk " +
                 "where nombreConfiguracion = 'flag_logout' "
     )
-    fun checkLogoutFlag(): Flow<Int>
+    fun checkLogoutFlag(): Flow<Int?>
 
     @Query(
         "select valorConfiguracion from tabla_configuracion_apk " +
@@ -1491,12 +1491,8 @@ interface KiritoDao {
     @Query("SELECT * FROM tabla_configuracion_apk")
     fun getAllFromConfiguracion_APK(): Flow<List<ConfiguracionAPK>>
 
-    //Nullable porque a saber qué te trae, o si te trae algo.
     @Query("SELECT * FROM tabla_configuracion_apk WHERE nombreConfiguracion = :key limit 1")
-    suspend fun getConfiguracionAPK(key: String): ConfiguracionAPK?
-
-    @Query("SELECT * FROM tabla_configuracion_apk WHERE nombreConfiguracion = :key limit 1")
-    fun getFlowConfiguracionAPK(key: String): Flow<ConfiguracionAPK?>
+    fun getConfiguracionAPK(key: String): Flow<ConfiguracionAPK?>
 
 
     @Query("DELETE FROM tabla_configuracion_apk")

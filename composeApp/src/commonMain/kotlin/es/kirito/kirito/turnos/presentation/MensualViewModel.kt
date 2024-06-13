@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.zip
@@ -238,7 +239,7 @@ class MensualViewModel : ViewModel(), KoinComponent {
 
     //Nos bajamos un gráfico si resulta que donde pinchamos no hay uno.
     private suspend fun descargarUnGrafico(fecha: Int) {
-        val idGrafico = repository.getIdGraficoDeUnDia(fecha.toLong())
+        val idGrafico = repository.getIdGraficoDeUnDia(fecha.toLong()).firstOrNull()
         println("Voy a bajarme el gráfico " + idGrafico.toString())
         if (idGrafico != null// && hayInternet() //TODO: Comprobar si hay internet.
         ) {

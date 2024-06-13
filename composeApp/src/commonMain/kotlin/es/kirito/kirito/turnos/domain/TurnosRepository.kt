@@ -120,11 +120,11 @@ class TurnosRepository : KoinComponent {
     fun getOneLocalizador(date: Long, turno: String) =
         dao.getOneLocalizador(date, turno)
 
-    fun checkLogoutFlag(): Flow<Int> {
+    fun checkLogoutFlag(): Flow<Int?> {
         return dao.checkLogoutFlag()
     }
 
-    suspend fun getIdGraficoDeUnDia(fecha: Long): Long? {
+    suspend fun getIdGraficoDeUnDia(fecha: Long): Flow<Long?> {
         return dao.getIdGraficoDeUnDia(fecha)
     }
 

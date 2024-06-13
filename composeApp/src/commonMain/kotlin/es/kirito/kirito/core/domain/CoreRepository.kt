@@ -36,6 +36,7 @@ import es.kirito.kirito.precarga.data.network.models.ResponseGrTareasDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseNotasTrenDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseNotasTurnoDTO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
@@ -229,7 +230,7 @@ class CoreRepository : KoinComponent {
 //            .build()
 //        workManager.enqueue(worker.build())
 
-        val bdActualizada = getUpdatedDB().toInstant()
+        val bdActualizada = getUpdatedDB().first().toInstant()
         refreshCuDetalles(bdActualizada)
         //TODO:
         // refreshAlarmas()

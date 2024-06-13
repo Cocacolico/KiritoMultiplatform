@@ -497,7 +497,7 @@ class HoyViewModel : ViewModel(), KoinComponent {
         if (fechaEntrada == null)
             fecha = Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays().toLong()
         val idGrafico =
-            repository.getIdGraficoDeUnDia(fecha!!)//Miramos qué gráfico hay este día.
+            repository.getIdGraficoDeUnDia(fecha!!).firstOrNull()//Miramos qué gráfico hay este día.
         if (idGrafico != null // && hayInternet()//TODO: Añadir comprobación de internet.
         ) {
             //Si tenemos gráfico asignado...
