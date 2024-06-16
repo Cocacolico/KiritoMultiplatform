@@ -37,6 +37,7 @@ import es.kirito.kirito.core.data.network.models.RequestIncluidosDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
 import es.kirito.kirito.core.domain.CoreRepository
+import es.kirito.kirito.core.domain.asDatabaseModel
 import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
 import es.kirito.kirito.core.domain.util.enFormatoDeSalida
 import es.kirito.kirito.core.domain.util.fromDateStringToLong
@@ -63,6 +64,7 @@ import es.kirito.kirito.precarga.data.network.models.ResponseCaPeticionesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseColoresTrenesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuDetallesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuHistorialDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseDelAndUpdElementsDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseDiasInicialesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseEquivalenciasDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseExcelIfDTO
@@ -199,27 +201,28 @@ class PrecargaRepository() : KoinComponent {
 
     private suspend fun refreshOfDB(bdActualizada: Instant) {
 
-        checkVersionAge()
-        updatePasosCompletados(PreloadStep.GRAFICOS)
-        refreshGraficos(bdActualizada)
+        updateElementosGlobales(bdActualizada)
+        // checkVersionAge()
+     //   updatePasosCompletados(PreloadStep.GRAFICOS)
+        // refreshGraficos(bdActualizada)
         updatePasosCompletados(PreloadStep.GRAFICO_ACTUAL)
         refreshRecentGraficos(bdActualizada)
-        updatePasosCompletados(PreloadStep.ELEMENTOS_VIEJOS)
-        processUpdatedElements(bdActualizada)
-        deleteOldElements()
-        updatePasosCompletados(PreloadStep.TURNOS)
-        coreRepo.refreshCuDetalles(bdActualizada)
-        updatePasosCompletados(PreloadStep.FESTIVOS)
-        refreshOtFestivos(bdActualizada)
-        updatePasosCompletados(PreloadStep.MENSAJES_ADMIN)
-        refreshMensajesAdmin(bdActualizada)
-        updatePasosCompletados(PreloadStep.ELEMENTOS_GENERALES)
-        coreRepo.refreshCambios(bdActualizada)
-        refreshTablonAnuncios(bdActualizada)
-        refreshTelefonosDeEmpresa(bdActualizada)
+     //   updatePasosCompletados(PreloadStep.ELEMENTOS_VIEJOS)
+        //  processUpdatedElements(bdActualizada)
+        // deleteOldElements()
+    //    updatePasosCompletados(PreloadStep.TURNOS)
+        // coreRepo.refreshCuDetalles(bdActualizada)
+    //    updatePasosCompletados(PreloadStep.FESTIVOS)
+        //   refreshOtFestivos(bdActualizada)
+     //   updatePasosCompletados(PreloadStep.MENSAJES_ADMIN)
+        //    refreshMensajesAdmin(bdActualizada)
+   //     updatePasosCompletados(PreloadStep.ELEMENTOS_GENERALES)
+        //    coreRepo.refreshCambios(bdActualizada)
+        //    refreshTablonAnuncios(bdActualizada)
+        //   refreshTelefonosDeEmpresa(bdActualizada)
 
-        updatePasosCompletados(PreloadStep.USUARIOS)
-        refreshUsuarios(bdActualizada)
+    //    updatePasosCompletados(PreloadStep.USUARIOS)
+        //   refreshUsuarios(bdActualizada)
         //TODO: Hacerlo cuando tengamos alarmas
         //   refreshAlarmas(applicationContext)
         updatePasosCompletados(PreloadStep.TURNOS_COMPIS)
@@ -242,6 +245,46 @@ class PrecargaRepository() : KoinComponent {
         /** Guardo el valor de updatedDB. **/
         saveUpdatedDB()
         updatePasosCompletados(PreloadStep.FINISHED)
+    }
+
+    private suspend fun updateElementosGlobales(bdActualizada: Instant) {
+        RequestUpdatedDTO("refresco_general", bdActualizada.enFormatoDeSalida()).let { salida ->
+            ktor.requestUpdateElementosGlobales(salida).respuesta?.let { resp ->
+                resp.festivos?.forEach { festivo ->
+                    dao.insertOtFestivos(festivo.asDatabaseModel())
+                }
+                resp.graficos?.forEach { grafico ->
+                    dao.upsertGrafico(grafico.asDatabaseModel())
+                }
+                resp.turnos?.forEach {
+                    dao.insertCuDetalles(it.asDatabaseModel())
+                }
+                resp.historiales?.forEach {
+                    dao.insertCuHistorial(it.asDatabaseModel())
+                }
+                resp.mensajes?.forEach {
+                    dao.insertMensajeDeAdmin(it.asDatabaseModel())
+                }
+                resp.cambios?.forEach {
+                    dao.upsertCaPeticiones(it.asDatabaseModel())
+                }
+                resp.telefonos_importantes?.forEach {
+                    dao.insertTelefonoDeEmpresa(it.asDatabaseModel())
+                }
+                resp.tablones?.forEach {
+                    dao.upsertTablonAnuncio(it.asDatabaseModel())
+                }
+                resp.usuarios?.forEach {
+                    dao.insertUsuarios(it.asDatabaseModel())
+                }
+                resp.actualizados?.let {
+                    processUpdatedElements(bdActualizada, resp.actualizados)
+                }
+                resp.borrados?.let {
+                    deleteOldElements(resp.borrados)
+                }
+            }
+        }
     }
 
     private fun updatePasosCompletados(step: PreloadStep) {
@@ -731,21 +774,37 @@ class PrecargaRepository() : KoinComponent {
         RequestSimpleDTO("otros.obtener_elementos_actualizados").let { salida ->
             val respuesta = ktor.requestDelAndUpdElements(salida)
             if (respuesta.error.lanzarExcepcion()) {
-                val respMapeada = respuesta.respuesta?.toMutableList()
-                if (respMapeada != null) {
-                    respMapeada.filterNot { elemento ->
+               respuesta.respuesta?.toMutableList()?.filterNot { elemento ->
                         elemento.included.fromDateTimeStringToLong()!! < bdActualizada.epochSeconds
-                    }
-                    for (item in respMapeada) {
-                        when (item.tabla) {
-                            "OT_colores_trenes" -> updateColoresTrenes()
-                            "OT_estaciones" -> updateEstaciones()
-                            "OT_teleindicadores" -> updateTeleindicadores()
-                            "NO_mensajes" -> updateMensajesAdmin(item.idElemento, bdActualizada)
-                            else -> Unit
-                        }
-                    }
+                    }?.let { respMapeada ->
+                   for (item in respMapeada) {
+                       when (item.tabla) {
+                           "OT_colores_trenes" -> updateColoresTrenes()
+                           "OT_estaciones" -> updateEstaciones()
+                           "OT_teleindicadores" -> updateTeleindicadores()
+                           "NO_mensajes" -> updateMensajesAdmin(item.idElemento, bdActualizada)
+                           else -> Unit
+                       }
+                   }
                 }
+            }
+        }
+    }
+
+    private suspend fun processUpdatedElements(
+        bdActualizada: Instant,
+        elements: List<ResponseDelAndUpdElementsDTO>
+    ) {
+        val respMapeada = elements.toMutableList().filterNot { elemento ->
+            elemento.included.fromDateTimeStringToLong()!! < bdActualizada.epochSeconds
+        }
+        for (item in respMapeada) {
+            when (item.tabla) {
+                "OT_colores_trenes" -> updateColoresTrenes()
+                "OT_estaciones" -> updateEstaciones()
+                "OT_teleindicadores" -> updateTeleindicadores()
+                "NO_mensajes" -> updateMensajesAdmin(item.idElemento, bdActualizada)
+                else -> Unit
             }
         }
     }
@@ -791,6 +850,20 @@ class PrecargaRepository() : KoinComponent {
                         else -> Unit
                     }
                 }
+            }
+        }
+    }
+
+    private suspend fun deleteOldElements(elements: List<ResponseDelAndUpdElementsDTO>) {
+        elements.forEach { elemento ->
+            when (elemento.tabla) {
+                "OT_festivos" -> dao.deletedElementFestivo(elemento.idElemento?.toLongOrNull())
+                "OT_telefonos_residencia" -> Unit
+                "LS_users" -> deleteUserAndComplements(elemento.idElemento?.toLongOrNull())
+                "GR_listado_graficos" -> deleteGraficoAndComplements(elemento.idElemento?.toLongOrNull())
+                "NO_mensajes" -> deleteMensajeDeAdminLocally(elemento.idElemento?.toLongOrNull())
+                "CA_anuncios" -> dao.deleteAnuncio(elemento.idElemento?.toLongOrNull())
+                else -> Unit
             }
         }
     }

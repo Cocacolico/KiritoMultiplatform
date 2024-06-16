@@ -1,6 +1,7 @@
 package es.kirito.kirito.core.data.di
 
 import android.content.Context
+import androidx.room.ExperimentalRoomApi
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
@@ -9,6 +10,7 @@ import es.kirito.kirito.core.data.database.dbFileName
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import java.util.concurrent.TimeUnit
 
 
 actual fun platformModule(): Module = module {
@@ -19,6 +21,7 @@ actual fun platformModule(): Module = module {
 
 }
 
+@OptIn(ExperimentalRoomApi::class)
 fun getKiritoDatabase(
     context: Context
 ): KiritoDatabase {
@@ -27,8 +30,8 @@ fun getKiritoDatabase(
         context = context,
         name = dbFile.absolutePath
     )
+        .setAutoCloseTimeout(0, TimeUnit.SECONDS)//No tocarlo hasta que lo arreglen!!
         .fallbackToDestructiveMigration(true)
-       // .fallbackToDestructiveMigrationOnDowngrade(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

@@ -246,7 +246,7 @@ class CoreRepository : KoinComponent {
 
 }
 
-private fun ResponseCaPeticionesDTO.asDatabaseModel(): CaPeticiones {
+internal fun ResponseCaPeticionesDTO.asDatabaseModel(): CaPeticiones {
     return CaPeticiones(
         id = id?.toLong() ?: 0,
         idUsuarioPide = idUsuarioPide?.toLong() ?: 0,
@@ -260,7 +260,7 @@ private fun ResponseCaPeticionesDTO.asDatabaseModel(): CaPeticiones {
     )
 }
 
-private fun ResponseCuDetallesDTO.asDatabaseModel(): CuDetalle {
+internal fun ResponseCuDetallesDTO.asDatabaseModel(): CuDetalle {
     val formattedFecha = fecha.fromDateStringToLong()
     val formattedUpdated = updated.fromDateTimeStringToLong()
     return CuDetalle(
@@ -281,7 +281,7 @@ private fun ResponseCuDetallesDTO.asDatabaseModel(): CuDetalle {
     )
 }
 
-private fun ResponseCuHistorialDTO.asDatabaseModel(): CuHistorial {
+internal fun ResponseCuHistorialDTO.asDatabaseModel(): CuHistorial {
     return CuHistorial(
         id = id.toLong(),
         idDetalle = idDetalle.toLong(),

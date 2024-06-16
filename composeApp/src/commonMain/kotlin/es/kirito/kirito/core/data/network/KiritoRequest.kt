@@ -28,6 +28,7 @@ import es.kirito.kirito.precarga.data.network.models.ResponseDiasInicialesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseEquivalenciasDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseExcelIfDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseExcesosGraficoDTO
+import es.kirito.kirito.precarga.data.network.models.ResponseGeneralRefreshDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseGrGraficosDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseGrTareasDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseLocalizadoresDTO
@@ -236,6 +237,10 @@ class KiritoRequest {
 
     suspend fun requestComplementosGrafico(request: RequestComplementosGraficoDTO): ResponseKiritoDTO<List<ResponseComplementosGraficoDTO>> {
         return post<RequestComplementosGraficoDTO, List<ResponseComplementosGraficoDTO>>(request)
+    }
+
+    suspend fun requestUpdateElementosGlobales(request: RequestUpdatedDTO): ResponseKiritoDTO<ResponseGeneralRefreshDTO?> {
+        return post<RequestUpdatedDTO, ResponseGeneralRefreshDTO?>(request)
     }
 
 

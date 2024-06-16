@@ -289,7 +289,7 @@ class BuscadorViewModel : ViewModel(), KoinComponent {
     fun onCallClick(phone: String) {
         val result = dialPhoneNumberUseCase(phone)
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if (result is Result.Error && result.error == IntentNoAppError.NO_APPLICATION_AVAILABLE)
                 _toastId.emit(Res.string.no_hay_una_aplicaci_n_para_hacer_llamadas)
         }
@@ -298,7 +298,7 @@ class BuscadorViewModel : ViewModel(), KoinComponent {
 
     fun onWhatsappClick(phone: String) {
         val result = abrirWhatsappUseCase(phone)
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if (result is Result.Error && result.error == IntentNoAppError.NO_APPLICATION_AVAILABLE)
                 _toastId.emit(Res.string.parece_que_no_tienes_instalado_whatsapp)
         }
