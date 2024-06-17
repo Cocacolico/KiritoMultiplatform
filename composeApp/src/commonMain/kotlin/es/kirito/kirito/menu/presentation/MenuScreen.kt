@@ -1,6 +1,5 @@
 @file:OptIn(KoinExperimentalAPI::class)
 
-
 package es.kirito.kirito.menu.presentation
 
 import androidx.compose.foundation.clickable
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -69,6 +69,7 @@ import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
 import es.kirito.kirito.core.presentation.navigation.Graph
 import es.kirito.kirito.core.presentation.theme.Orange
 import es.kirito.kirito.menu.domain.MenuState
+import es.kirito.kirito.menu.navigation.MenuPrincipalNav
 import kirito.composeapp.generated.resources.Desconectarme
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.actualiza_tu_app
@@ -139,7 +140,7 @@ fun MenuScreen(navController: NavHostController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 16.dp, bottom = 16.dp, end = 16.dp),
+                .padding(start = 16.dp, end = 16.dp),
             contentAlignment = Alignment.TopCenter
         ) {
             Column(
@@ -154,7 +155,7 @@ fun MenuScreen(navController: NavHostController) {
                 ) {
                     IconButton(
                         onClick = {
-                            viewModel.onPerfilClick()
+                            navController.navigate(MenuPrincipalNav.Perfil.route)
                         }
                     ) {
                         Icon(
@@ -546,6 +547,10 @@ fun MenuScreen(navController: NavHostController) {
                             }
                         )
                     }
+                    Spacer(
+                        modifier = Modifier
+                            .padding(32.dp)
+                    )
                 }
             }
             FloatingActionButton(

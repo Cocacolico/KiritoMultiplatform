@@ -11,6 +11,7 @@ import es.kirito.kirito.turnos.presentation.HoyViewModel
 import es.kirito.kirito.turnos.presentation.MensualViewModel
 import es.kirito.kirito.turnos.presentation.BuscadorViewModel
 import es.kirito.kirito.menu.presentation.MenuViewModel
+import es.kirito.kirito.menu.presentation.ProfileViewModel
 import es.kirito.kirito.turnos.domain.TurnosRepository
 import org.koin.compose.viewmodel.dsl.viewModelOf
 
@@ -43,6 +44,7 @@ fun commonModule() = module {
     viewModelOf(::MensualViewModel)
     viewModelOf(::BuscadorViewModel)
     viewModelOf(::MenuViewModel)
+    viewModelOf(::ProfileViewModel)
 
 
     single { CoreRepository() }

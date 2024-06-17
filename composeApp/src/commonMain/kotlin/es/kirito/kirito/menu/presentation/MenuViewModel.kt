@@ -57,21 +57,21 @@ class MenuViewModel: ViewModel(), KoinComponent {
     //Badges:
     val cambiosNuevos = repository.cambiosNuevos
     val mensajesAdminNuevos = repository.mensajesAdminNuevos
-    val diasInicialesChecked = date.flatMapLatest { date ->
+    private val diasInicialesChecked = date.flatMapLatest { date ->
         repository.areDiasInicialesInitialised(date!!.year)
     }
 
     val anio = date.value!!.year
-    val inicioAnio = LocalDate(year = anio,1,1).toEpochDays().toLong()//LocalDate.now().withDayOfYear(1).toEpochDay()
-    val finAnio = LocalDate(year = anio,12,31).toEpochDays().toLong()//LocalDate.now().withMonth(12).withDayOfMonth(31).toEpochDay()
-    val lzs = repository.getNumLzs(inicioAnio, finAnio, anio)
-    val lzas = repository.getNumLzas(inicioAnio, finAnio, anio)
-    val comjs = repository.getNumComjs(inicioAnio, finAnio, anio)
-    val libras = repository.getNumLibras(inicioAnio, finAnio, anio)
-    val dds = repository.getNumDds(inicioAnio, finAnio, anio)
-    val djs = repository.getNumDjs(inicioAnio, finAnio, anio)
-    val djas = repository.getNumDjas(inicioAnio, finAnio, anio)
-    val diasEspeciales = combine(lzs, lzas, comjs, libras, dds, djs, djas){array ->
+    private val inicioAnio = LocalDate(year = anio,1,1).toEpochDays().toLong()//LocalDate.now().withDayOfYear(1).toEpochDay()
+    private val finAnio = LocalDate(year = anio,12,31).toEpochDays().toLong()//LocalDate.now().withMonth(12).withDayOfMonth(31).toEpochDay()
+    private val lzs = repository.getNumLzs(inicioAnio, finAnio, anio)
+    private val lzas = repository.getNumLzas(inicioAnio, finAnio, anio)
+    private val comjs = repository.getNumComjs(inicioAnio, finAnio, anio)
+    private val libras = repository.getNumLibras(inicioAnio, finAnio, anio)
+    private val dds = repository.getNumDds(inicioAnio, finAnio, anio)
+    private val djs = repository.getNumDjs(inicioAnio, finAnio, anio)
+    private val djas = repository.getNumDjas(inicioAnio, finAnio, anio)
+    private val diasEspeciales = combine(lzs, lzas, comjs, libras, dds, djs, djas){array ->
         var diasEspeciales = DiasEspeciales()
         array.forEachIndexed { index, i ->
             when(index){

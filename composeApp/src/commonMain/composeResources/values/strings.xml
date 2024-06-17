@@ -51,6 +51,7 @@
     <string name="recuerdarme">Recuérdarme</string>
     <string name="contrasena">Contraseña</string>
     <string name="matricula" translatable="false">Matrícula</string>
+    <string name="matricula_" translatable="false">Matrícula %1$s</string>
     <string name="introduce_tu_usuario_y_contrase_a">Introduce tu usuario y contraseña:</string>
     <string name="olvid_mi_contrase_a"><u>Olvidé mi contraseña</u></string>
     <string name="entrar" translatable="false">Entrar</string>
@@ -293,9 +294,9 @@
     <string name="elige_el_a_o_que_quieres_borrar">Elige el año que quieres borrar:</string>
     <string name="ajustes">Ajustes</string>
     <string name="modificar_mis_datos">Modificar mis datos</string>
-    <string name="fecha_de_alta__">Fecha de alta: </string>
+    <string name="fecha_de_alta__">Fecha de alta: %1$s</string>
     <string name="eres_administrador">Eres administrador</string>
-    <string name="estas_en_residencia">Estás en </string>
+    <string name="estas_en_residencia">Estás en %1$s</string>
     <string name="escribe_la_contrase_a">Escribe la contraseña</string>
     <string name="nueva_contrase_a">Nueva contraseña</string>
     <string name="contrase_a_vieja">Contraseña vieja</string>
