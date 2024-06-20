@@ -36,7 +36,9 @@ import es.kirito.kirito.core.data.network.models.RequestAnioUpdatedDTO
 import es.kirito.kirito.core.data.network.models.RequestIncluidosDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
+import es.kirito.kirito.core.data.network.models.ResponseUserDTO
 import es.kirito.kirito.core.domain.CoreRepository
+import es.kirito.kirito.core.domain.asDatabaseModel
 import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
 import es.kirito.kirito.core.domain.util.enFormatoDeSalida
 import es.kirito.kirito.core.domain.util.fromDateStringToLong
@@ -77,7 +79,6 @@ import es.kirito.kirito.precarga.data.network.models.ResponseOtTablonAnunciosDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTelefonoEmpresaDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTeleindicadorDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTurnoDeCompiDTO
-import es.kirito.kirito.precarga.data.network.models.ResponseUserDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseWeatherInfoDTO
 import es.kirito.kirito.precarga.domain.models.PreloadStep
 import kotlinx.coroutines.flow.Flow
@@ -862,38 +863,6 @@ private fun ResponseTurnoDeCompiDTO.asDatabaseModel(): TurnoCompi {
         fecha = fecha.fromDateStringToLong(),
         turno = turno,
         tipo = tipo,
-    )
-}
-
-private fun ResponseUserDTO.asDatabaseModel(): LsUsers {
-    return LsUsers(
-        id = this.id!!.toLong(),
-        username = this.username.toString(),
-        email = this.email.toString(),
-        name = this.name.toString(),
-        normalizedName = this.name.toString().normalizeAndRemoveAccents(),
-        normalizedSurname = this.surname.toString().normalizeAndRemoveAccents(),
-        surname = this.surname.toString(),
-        workPhoneExt = this.workPhoneExt.toString(),
-        workPhone = this.workPhone.toString(),
-        personalPhone = this.personalPhone.toString(),
-        mostrarTelfPersonal = this.mostrarTelfPersonal.toString(),
-        mostrarTelfTrabajo = this.mostrarTelfTrabajo.toString(),
-        mostrarCuadros = this.mostrarCuadros.toString(),
-        mostrarCuadrosCuando = this.mostrarCuadrosCuando.toString(),
-        admin = this.admin.toString(),
-        cambiosActivados = this.cambiosActivados.toString(),
-        cambiosActivadosCuando = this.cambiosActivadosCuando?.fromDateTimeStringToLong(),
-        comentariosAlAdmin = this.comentariosAlAdmin.toString(),
-        recibirEmailNotificaciones = this.recibirEmailNotificaciones.toString(),
-        keyAccessWeb = this.keyAccessWeb.toString(),
-        keyIcs = this.keyIcs.toString(),
-        notas = this.notas.toString(),
-        lastLogin = this.lastLogin.toString().fromDateTimeStringToLong(),
-        peticionesDiarias = this.peticionesDiarias.toString(),
-        photo = this.photo.toString(),
-        created = this.created.toString().fromDateTimeStringToLong(),
-        disabled = this.disabled.toString()
     )
 }
 

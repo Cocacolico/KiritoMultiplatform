@@ -16,12 +16,14 @@ import es.kirito.kirito.core.data.network.KiritoRequest
 import es.kirito.kirito.core.data.network.models.RequestComplementosGraficoDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
+import es.kirito.kirito.core.data.network.models.ResponseUserDTO
 import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
 import es.kirito.kirito.core.domain.util.enFormatoDeSalida
 import es.kirito.kirito.core.domain.util.fromDateStringToLong
 import es.kirito.kirito.core.domain.util.fromDateTimeStringToLong
 import es.kirito.kirito.core.domain.util.fromTimeStringToInt
 import es.kirito.kirito.core.domain.util.fromTimeWOSecsStringToInt
+import es.kirito.kirito.core.domain.util.normalizeAndRemoveAccents
 import es.kirito.kirito.core.domain.util.toInstant
 import es.kirito.kirito.core.domain.util.toMyBoolean
 import es.kirito.kirito.core.domain.util.toStringIfNull
@@ -371,5 +373,36 @@ private fun ResponseExcelIfDTO.asDatabaseModel(): GrExcelIF {
         horaOrigen = formattedHoraOrigen,
         sitioFin = sitioFin,
         horaFin = formattedHoraFin
+    )
+}
+fun ResponseUserDTO.asDatabaseModel(): LsUsers {
+    return LsUsers(
+        id = this.id!!.toLong(),
+        username = this.username.toString(),
+        email = this.email.toString(),
+        name = this.name.toString(),
+        normalizedName = this.name.toString().normalizeAndRemoveAccents(),
+        normalizedSurname = this.surname.toString().normalizeAndRemoveAccents(),
+        surname = this.surname.toString(),
+        workPhoneExt = this.workPhoneExt.toString(),
+        workPhone = this.workPhone.toString(),
+        personalPhone = this.personalPhone.toString(),
+        mostrarTelfPersonal = this.mostrarTelfPersonal.toString(),
+        mostrarTelfTrabajo = this.mostrarTelfTrabajo.toString(),
+        mostrarCuadros = this.mostrarCuadros.toString(),
+        mostrarCuadrosCuando = this.mostrarCuadrosCuando.toString(),
+        admin = this.admin.toString(),
+        cambiosActivados = this.cambiosActivados.toString(),
+        cambiosActivadosCuando = this.cambiosActivadosCuando?.fromDateTimeStringToLong(),
+        comentariosAlAdmin = this.comentariosAlAdmin.toString(),
+        recibirEmailNotificaciones = this.recibirEmailNotificaciones.toString(),
+        keyAccessWeb = this.keyAccessWeb.toString(),
+        keyIcs = this.keyIcs.toString(),
+        notas = this.notas.toString(),
+        lastLogin = this.lastLogin.toString().fromDateTimeStringToLong(),
+        peticionesDiarias = this.peticionesDiarias.toString(),
+        photo = this.photo.toString(),
+        created = this.created.toString().fromDateTimeStringToLong(),
+        disabled = this.disabled.toString()
     )
 }

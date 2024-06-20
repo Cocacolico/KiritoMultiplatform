@@ -15,6 +15,8 @@ import es.kirito.kirito.login.data.network.ResponseOtEstacionesDTO
 import es.kirito.kirito.login.data.network.ResponseRegisterUserDTO
 import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.login.domain.RegisterData
+import es.kirito.kirito.menu.data.network.models.RequestEditarMiUsuario
+import es.kirito.kirito.core.data.network.models.ResponseUserDTO
 import es.kirito.kirito.precarga.data.network.models.RequestGraficoDTO
 import es.kirito.kirito.precarga.data.network.models.RequestStationCoordinatesDTO
 import es.kirito.kirito.precarga.data.network.models.RequestTurnosCompiDTO
@@ -40,7 +42,6 @@ import es.kirito.kirito.precarga.data.network.models.ResponseStationCoordinatesD
 import es.kirito.kirito.precarga.data.network.models.ResponseTelefonoEmpresaDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTeleindicadorDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseTurnoDeCompiDTO
-import es.kirito.kirito.precarga.data.network.models.ResponseUserDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseWeatherInfoDTO
 import es.kirito.kirito.turnos.data.network.models.RequestSubirCuadroVacioDTO
 import es.kirito.kirito.turnos.data.network.models.ResponseCuadroVacioDTO
@@ -237,6 +238,9 @@ class KiritoRequest {
     suspend fun requestComplementosGrafico(request: RequestComplementosGraficoDTO): ResponseKiritoDTO<List<ResponseComplementosGraficoDTO>> {
         return post<RequestComplementosGraficoDTO, List<ResponseComplementosGraficoDTO>>(request)
     }
+    suspend fun requestUpdateMyUser(request: RequestEditarMiUsuario): ResponseKiritoDTO<ResponseUserDTO> {
+        return post<RequestEditarMiUsuario,ResponseUserDTO>(request)
+    }
 
 
     // suspend fun post(request: Map<String, String>): HttpResponse {//Por si no va en ios el reified.
@@ -289,4 +293,6 @@ class KiritoRequest {
             })
         }
     }
+
+
 }

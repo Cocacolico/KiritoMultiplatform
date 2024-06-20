@@ -2,6 +2,7 @@
 
 package es.kirito.kirito.menu.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mail
@@ -23,6 +25,7 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -37,9 +40,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import es.kirito.kirito.core.data.database.LsUsers
 import es.kirito.kirito.core.domain.util.enMiFormato
@@ -48,6 +53,8 @@ import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.components.MyTextSubTitle
 import es.kirito.kirito.core.presentation.components.TextClicable
 import es.kirito.kirito.core.presentation.components.TitleText
+import es.kirito.kirito.core.presentation.theme.KiritoColors
+import es.kirito.kirito.core.presentation.theme.KiritoTheme
 import es.kirito.kirito.menu.domain.MenuState
 import es.kirito.kirito.menu.domain.ProfileState
 import kirito.composeapp.generated.resources.Res
@@ -81,11 +88,9 @@ import org.koin.core.annotation.KoinExperimentalAPI
 @Composable
 fun ProfileScreen() {
     val viewModel = koinViewModel<ProfileViewModel>()
-    val state by viewModel.state.collectAsState(ProfileState())
     val miUsuario by viewModel.miUsuario.collectAsState(LsUsers())
-
-    var showModificarDatosDialog by remember { mutableStateOf(false) }
-    var showCambiarPasswordDialog by remember { mutableStateOf(false) }
+    val miResidencia by viewModel.residencia.collectAsState(String)
+    val state by viewModel.state.collectAsState(ProfileState())
 
     Surface(
         Modifier
@@ -104,58 +109,59 @@ fun ProfileScreen() {
                 TitleText(titulo = stringResource(Res.string.mi_perfil))
 
                 HorizontalDivider(thickness = 2.dp)
-                Column (
+                Column(
                     modifier = Modifier
                         .padding(16.dp)
-                ){
+                ) {
                     MyTextStd(
-                        text = stringResource(Res.string.matricula_,miUsuario.username)
+                        text = stringResource(Res.string.matricula_, miUsuario.username)
                     )
-                    if(state.userData.created != null)
+                    if (miUsuario.created != null)
                         MyTextStd(
-                            text = stringResource(Res.string.fecha_de_alta__,miUsuario.created.toLocalDate().enMiFormato())
+                            text = stringResource(
+                                Res.string.fecha_de_alta__,
+                                miUsuario.created.toLocalDate().enMiFormato()
+                            )
                         )
-                    if(state.userData.admin == "1")
+                    if (miUsuario.admin == "1")
                         MyTextStd(
                             text = stringResource(Res.string.eres_administrador)
                         )
                     MyTextStd(
-                        text = stringResource(Res.string.estas_en_residencia,state.residencia)
+                        text = stringResource(Res.string.estas_en_residencia, miResidencia)
                     )
                 }
                 HorizontalDivider(thickness = 2.dp)
                 TextClicable(
                     text = stringResource(Res.string.modificar_mis_datos),
-                    onClick = { viewModel.onModificarDatosClick(miUsuario) },
+                    onClick = { viewModel.onModifcarDatosClick(miUsuario) },
                     modifier = Modifier
                         .padding(16.dp)
                 )
                 HorizontalDivider(thickness = 2.dp)
                 TextClicable(
                     text = stringResource(Res.string.cambiar_contrase_a),
-                    onClick = { showCambiarPasswordDialog = true },
+                    onClick = { viewModel.onCambiarPasswordClick() },
                     modifier = Modifier
                         .padding(16.dp)
                 )
                 HorizontalDivider(thickness = 2.dp)
-            if(showModificarDatosDialog)
-                ModificarDatosDialog(
-                    onDismiss = { showModificarDatosDialog = false },
-                    onConfirm = {
-                        showModificarDatosDialog = false
-                        viewModel.onModificarDatosConfirm()
-                    },
-                    viewModel = viewModel
-                )
-            if(showCambiarPasswordDialog)
-                CambiarPasswordDialog(
-                    onDismiss = { showCambiarPasswordDialog = false },
-                    onConfirm = {
-                        showCambiarPasswordDialog = false
-                        viewModel.onCambiarPasswordConfirm()
-                    },
-                    viewModel = viewModel
-                )
+                if (state.showModificarDatosDialog)
+                    ModificarDatosDialog(
+                        onDismiss = { viewModel.onModificarDatosDialogDismiss() },
+                        onConfirm = {
+                            viewModel.onModificarDatosConfirm()
+                        },
+                        viewModel = viewModel
+                    )
+                if (state.showCambiarPasswordDialog)
+                    CambiarPasswordDialog(
+                        onDismiss = { viewModel.onCambiarPasswordDialogDismiss() },
+                        onConfirm = {
+                            viewModel.onCambiarPasswordConfirm()
+                        },
+                        viewModel = viewModel
+                    )
             }
         }
     }
@@ -169,44 +175,54 @@ fun ModificarDatosDialog(
 ) {
     val state by viewModel.state.collectAsState(ProfileState())
 
-        Dialog(
-            onDismissRequest = { onDismiss() }
+    Dialog(
+        onDismissRequest = { onDismiss() },
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface (
+            shape = RoundedCornerShape(5),
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp)
         ){
-            Column (
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-            ){
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(20.dp)
+            ) {
                 MyTextSubTitle(
                     text = stringResource(Res.string.tus_datos)
                 )
-                Spacer(modifier = Modifier.padding(vertical = 4.dp))
+                Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 Row {
-                    Icon(Icons.Default.Train,"")
+                    Icon(Icons.Default.Train, "")
                     OutlinedTextField(
-                        value = state.userData.username,
+                        value = state.id.toString(),
                         readOnly = true,
-                        onValueChange = { viewModel.onUsernameChange() },
+                        onValueChange = { },
                         label = { Text(text = stringResource(Res.string.matricula)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     )
                 }
                 Row {
-                    Icon(Icons.Default.Person,"")
+                    Icon(Icons.Default.Person, "")
                     Column(
-                    modifier = Modifier
-                        .padding(4.dp)
+                        modifier = Modifier
+                            .padding(4.dp)
                     ) {
                         OutlinedTextField(
-                            value = state.userData.name,
-                            onValueChange = { viewModel.onNameChange() },
+                            value = state.name,
+                            onValueChange = { viewModel.onNameChange(it) },
                             label = { Text(text = stringResource(Res.string.nombre)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         )
                         OutlinedTextField(
-                            value = state.userData.surname,
-                            onValueChange = { viewModel.onSurnameChange() },
+                            value = state.surname,
+                            onValueChange = { viewModel.onSurnameChange(it) },
                             label = { Text(text = stringResource(Res.string.apellidos)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -214,28 +230,28 @@ fun ModificarDatosDialog(
                     }
                 }
                 Row {
-                    Icon(Icons.Default.Phone,"")
-                    Column (
+                    Icon(Icons.Default.Phone, "")
+                    Column(
                         modifier = Modifier
                             .padding(4.dp)
-                    ){
+                    ) {
                         OutlinedTextField(
-                            value = state.userData.workPhone,
-                            onValueChange = { viewModel.onWorkPhoneChange() },
+                            value = state.workPhone,
+                            onValueChange = { viewModel.onWorkPhoneChange(it) },
                             label = { Text(text = stringResource(Res.string.tel_fono_interior_corto)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         )
                         OutlinedTextField(
-                            value = state.userData.workPhoneExt,
-                            onValueChange = { viewModel.onWorkPhoneExtChange() },
+                            value = state.workPhoneExt,
+                            onValueChange = { viewModel.onWorkPhoneExtChange(it) },
                             label = { Text(text = stringResource(Res.string.tel_fono_exterior_largo)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         )
                         OutlinedTextField(
-                            value = state.userData.personalPhone,
-                            onValueChange = { viewModel.onPersonalPhoneChange() },
+                            value = state.personalPhone,
+                            onValueChange = { viewModel.onPersonalPhoneChange(it) },
                             label = { Text(text = stringResource(Res.string.tel_fono_personal)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -243,18 +259,23 @@ fun ModificarDatosDialog(
                     }
                 }
                 Row {
-                    Icon(Icons.Default.Mail,"")
+                    Icon(Icons.Default.Mail, "")
                     OutlinedTextField(
-                        value = state.userData.email,
-                        onValueChange = { viewModel.onEmailChange() },
+                        value = state.email,
+                        onValueChange = { viewModel.onEmailChange(it) },
                         label = { Text(text = stringResource(Res.string.email)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     )
                 }
-                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier
+                        .padding(4.dp)
+                ) {
                     OutlinedButton(
-                        onClick = { onConfirm() } ,
+                        onClick = { onConfirm() },
                     ) {
                         Text(stringResource(Res.string.guardar_cambios))
                     }
@@ -266,48 +287,54 @@ fun ModificarDatosDialog(
                 }
             }
         }
+    }
 }
+
 @Composable
 fun CambiarPasswordDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     viewModel: ProfileViewModel
 ) {
-    val state by viewModel.profileState.collectAsState(ProfileState())
+    val state by viewModel.state.collectAsState(ProfileState())
 
     Dialog(
         onDismissRequest = { onDismiss() }
     ) {
-            Column {
-                TitleText(stringResource(Res.string.cambiar_contrase_a))
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text(text = stringResource(Res.string.contrase_a_vieja)) }
-                )
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text(text = stringResource(Res.string.nueva_contrase_a)) }
-                )
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text(text = stringResource(Res.string.repite_la_contrase_a)) }
-                )
-                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-                    OutlinedButton(
-                        onClick = { onConfirm() } ,
-                    ) {
-                        Text(stringResource(Res.string.guardar))
-                    }
-                    OutlinedButton(
-                        onClick = { onDismiss() }
-                    ) {
-                        Text(stringResource(Res.string.cancelar))
-                    }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.7f))
+        ) {
+            TitleText(stringResource(Res.string.cambiar_contrase_a))
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = { Text(text = stringResource(Res.string.contrase_a_vieja)) }
+            )
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = { Text(text = stringResource(Res.string.nueva_contrase_a)) }
+            )
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = { Text(text = stringResource(Res.string.repite_la_contrase_a)) }
+            )
+            Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                OutlinedButton(
+                    onClick = { onConfirm() },
+                ) {
+                    Text(stringResource(Res.string.guardar))
+                }
+                OutlinedButton(
+                    onClick = { onDismiss() }
+                ) {
+                    Text(stringResource(Res.string.cancelar))
                 }
             }
-
         }
+
+    }
 }

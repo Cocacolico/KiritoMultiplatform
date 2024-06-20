@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import es.kirito.kirito.core.presentation.navigation.Graph
 import es.kirito.kirito.menu.presentation.MenuScreen
+import es.kirito.kirito.menu.presentation.ProfileScreen
 
 fun NavGraphBuilder.menuPrincipalNavGraph(navController: NavHostController) {
     navigation(
@@ -14,6 +15,9 @@ fun NavGraphBuilder.menuPrincipalNavGraph(navController: NavHostController) {
     ) {
         composable(route = MenuPrincipalNav.MenuPrincipal.route) {
             MenuScreen(navController)
+        }
+        composable(route = MenuPrincipalNav.Perfil.route) {
+            ProfileScreen()
         }
     }
 }

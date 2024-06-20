@@ -3,7 +3,14 @@ package es.kirito.kirito.menu.domain
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.database.GrGraficos
 import es.kirito.kirito.core.data.database.KiritoDatabase
+import es.kirito.kirito.core.data.database.LsUsers
 import es.kirito.kirito.core.data.network.KiritoRequest
+import es.kirito.kirito.core.data.network.models.ResponseUserDTO
+import es.kirito.kirito.core.domain.asDatabaseModel
+import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
+import es.kirito.kirito.core.domain.util.fromDateTimeStringToLong
+import es.kirito.kirito.core.domain.util.normalizeAndRemoveAccents
+import es.kirito.kirito.menu.data.network.models.RequestEditarMiUsuario
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -52,5 +59,13 @@ class MenuRepository: KoinComponent {
         dao.areDiasInicialesInitialised(year)
     fun checkLogoutFlag(): Flow<Int> {
         return dao.checkLogoutFlag()
+    }
+
+    suspend fun updateMyUserData(datosUsuario: RequestEditarMiUsuario) {
+        val respuesta = ktor.requestUpdateMyUser(datosUsuario)
+        respuesta.error.lanzarExcepcion()
+        if(respuesta.respuesta != null) {
+            dao.insertUsuarios(respuesta.respuesta.asDatabaseModel())
+        }
     }
 }
