@@ -22,6 +22,7 @@ import es.kirito.kirito.menu.presentation.KiritoBottomNavigation
 import es.kirito.kirito.menu.presentation.MenuScreen
 import es.kirito.kirito.precarga.presentation.PrecargaScreen
 import es.kirito.kirito.turnos.presentation.BuscadorScreen
+import es.kirito.kirito.turnos.presentation.EditarTurnoScreen
 import es.kirito.kirito.turnos.presentation.HoyScreen
 import es.kirito.kirito.turnos.presentation.MensualScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -86,6 +87,9 @@ fun App() {
                         }
                         composable("recuperarPassword") {
 
+                        }
+                        composable("editarTurno") {
+                            EditarTurnoScreen(navController)
                         }
                         composable("precarga") {
                             PrecargaScreen(

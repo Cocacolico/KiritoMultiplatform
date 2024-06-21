@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import es.kirito.kirito.core.data.database.CuDetalle
 import es.kirito.kirito.core.data.database.GrGraficos
 import es.kirito.kirito.core.data.kiritoComponents.turnosCambiables
+import es.kirito.kirito.core.data.kiritoComponents.turnosConNumero
 import es.kirito.kirito.core.data.kiritoComponents.turnosContables
 import es.kirito.kirito.core.data.kiritoComponents.turnosKirito
 import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
@@ -134,8 +135,18 @@ fun TurnoPrxTr.esTurnoContable(): Boolean {
     }
 }
 
-fun String.esTipoValido(): Boolean {
+fun String?.esTipoValido(): Boolean {
     return turnosKirito.contains(this)
+}
+
+fun String.esTurnoConNumero(): Boolean {
+    return (turnosConNumero.contains(this))
+}
+
+fun String?.esTurnoConNumeroONumero(): Boolean {
+    if (this?.toIntOrNull() != null)
+        return true
+    return turnosConNumero.contains(this)
 }
 
 

@@ -244,6 +244,8 @@ class CoreRepository : KoinComponent {
         return dao.getCompi(id ?: 0)
     }
 
+    val usuariosEnNombreDebe = dao.getUsuariosEnNombreDebe()
+
 }
 
 internal fun ResponseCaPeticionesDTO.asDatabaseModel(): CaPeticiones {

@@ -14,6 +14,7 @@ import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
 import es.kirito.kirito.core.domain.models.GrTareaBuscador
 import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.models.TurnoBuscador
+import es.kirito.kirito.core.domain.models.TurnoDeEquivalencia
 import es.kirito.kirito.core.domain.models.TurnoPrxTr
 import es.kirito.kirito.core.domain.util.roundUpToHour
 import es.kirito.kirito.core.domain.util.toInstant
@@ -128,6 +129,13 @@ class TurnosRepository : KoinComponent {
         return dao.getIdGraficoDeUnDia(fecha)
     }
 
+    fun getTurnoDeEquivalencia(
+        equivalencia: String,
+        idGrafico: Long?,
+        diaSemana: String?
+    ) = dao.getTurnoDeEquivalencia(equivalencia, idGrafico, diaSemana)
+
+
     suspend fun requestSubirCuadroVacio(cuadroAnualVacio: CuadroAnualVacio): Boolean {
         RequestSubirCuadroVacioDTO(
             peticion = "cuadros.generar_vacio",
@@ -158,6 +166,8 @@ class TurnosRepository : KoinComponent {
         dao.getTurnosEntreFechas(fechaInicial, fechaFinal)
 
     fun hayTeleindicadores() = dao.hayTeleindicadores()
+
+    fun getCuDetalleDeUnDia(date: Long?) = dao.getCuDetalleDeUnDia(date)
 
 
     /**

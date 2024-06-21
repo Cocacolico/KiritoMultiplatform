@@ -910,7 +910,7 @@ interface KiritoDao {
 
 
     @Query("Select * from tabla_cu_detalle where fecha = :selectedDate")
-    fun getTurnoParaEditar(selectedDate: Long?): Flow<CuDetalle?>
+    fun getCuDetalleDeUnDia(selectedDate: Long?): Flow<CuDetalle?>
 
     @Query(
         "Select tipo, count(*) as cantidad from tabla_cu_detalle " +

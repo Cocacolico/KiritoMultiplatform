@@ -94,6 +94,8 @@ import es.kirito.kirito.core.presentation.utils.Orientation
 import es.kirito.kirito.core.presentation.utils.getScreenSizeInfo
 import es.kirito.kirito.core.presentation.utils.orientation
 import es.kirito.kirito.turnos.domain.HoyState
+import es.kirito.kirito.turnos.domain.models.NavigationDestination
+import es.kirito.kirito.turnos.domain.models.NavigationObject
 import es.kirito.kirito.turnos.domain.models.Season
 import es.kirito.kirito.turnos.domain.utils.genComjYLibraString
 import es.kirito.kirito.turnos.presentation.components.DateString
@@ -147,12 +149,12 @@ fun HoyScreen(navController: NavHostController) {
 
     Surface(Modifier.fillMaxSize()) {
 
-
         var showDialogExcesos by rememberSaveable { mutableStateOf(false) }
         var showDialogTarea by remember { mutableStateOf(false) } //NO saveable.
         var showEditDialog by rememberSaveable { mutableStateOf(false) }
         var showDatePicker by rememberSaveable { mutableStateOf(false) }
         val datePickerState = rememberDatePickerState()
+        val navigationDestination by viewModel.navigationDestination.collectAsState()
         val datePickerConfirmEnabled = remember {
             derivedStateOf {
                 datePickerState.selectedDateMillis != null
@@ -210,6 +212,18 @@ fun HoyScreen(navController: NavHostController) {
             val fraseDiasEspeciales = hoyState.cuDetalle?.genComjYLibraString()
             LongToast(fraseDiasEspeciales)
             viewModel.onToastLaunched()
+        }
+
+        //TODO: Manejar la navegación.
+        when(navigationDestination.destination){
+            NavigationDestination.BulkEdit -> TODO()
+            NavigationDestination.Excess -> TODO()
+            NavigationDestination.Edit -> navController.navigate("editarTurno") //  TODO("meter los parámetros")
+            NavigationDestination.Exchange -> TODO()
+            NavigationDestination.Search -> TODO()
+            NavigationDestination.NewChart -> TODO()
+            NavigationDestination.Nowhere -> Unit
+            null -> Unit
         }
 
         Box(
