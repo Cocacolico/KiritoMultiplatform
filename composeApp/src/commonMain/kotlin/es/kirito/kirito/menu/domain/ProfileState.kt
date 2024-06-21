@@ -9,7 +9,10 @@ data class ProfileState (
     val workPhoneExt: String = "",
     val personalPhone: String = "",
     val showModificarDatosDialog: Boolean = false,
-    val showCambiarPasswordDialog: Boolean = false
+    val showCambiarPasswordDialog: Boolean = false,
+    val oldPassword: String = "",
+    val newPassword: String = "",
+    val checkNewPassword: String = ""
 )
 
 

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -49,6 +50,7 @@ import androidx.navigation.NavHostController
 import es.kirito.kirito.core.data.database.LsUsers
 import es.kirito.kirito.core.domain.util.enMiFormato
 import es.kirito.kirito.core.domain.util.toLocalDate
+import es.kirito.kirito.core.presentation.components.LongToast
 import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.components.MyTextSubTitle
 import es.kirito.kirito.core.presentation.components.TextClicable
@@ -58,6 +60,7 @@ import es.kirito.kirito.core.presentation.theme.KiritoTheme
 import es.kirito.kirito.menu.domain.MenuState
 import es.kirito.kirito.menu.domain.ProfileState
 import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources._0
 import kirito.composeapp.generated.resources.apellidos
 import kirito.composeapp.generated.resources.cambiar_contrase_a
 import kirito.composeapp.generated.resources.cancelar
@@ -91,6 +94,9 @@ fun ProfileScreen() {
     val miUsuario by viewModel.miUsuario.collectAsState(LsUsers())
     val miResidencia by viewModel.residencia.collectAsState(String)
     val state by viewModel.state.collectAsState(ProfileState())
+
+    val toastString by viewModel.toastString.collectAsState(null)
+    val toastId by viewModel.toastId.collectAsState(null)
 
     Surface(
         Modifier
@@ -163,6 +169,14 @@ fun ProfileScreen() {
                         viewModel = viewModel
                     )
             }
+            if (toastString != null) {
+                LongToast(toastString)
+                viewModel.clearToasts()
+            }
+            if (toastId != null) {
+                LongToast(stringResource(toastId ?: Res.string._0))
+                viewModel.clearToasts()
+            }
         }
     }
 }
@@ -179,13 +193,13 @@ fun ModificarDatosDialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Surface (
+        Surface(
             shape = RoundedCornerShape(5),
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(20.dp)
-        ){
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -196,7 +210,10 @@ fun ModificarDatosDialog(
                     text = stringResource(Res.string.tus_datos)
                 )
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
-                Row {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
                     Icon(Icons.Default.Train, "")
                     OutlinedTextField(
                         value = state.id.toString(),
@@ -207,7 +224,10 @@ fun ModificarDatosDialog(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     )
                 }
-                Row {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
                     Icon(Icons.Default.Person, "")
                     Column(
                         modifier = Modifier
@@ -229,7 +249,10 @@ fun ModificarDatosDialog(
                         )
                     }
                 }
-                Row {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
                     Icon(Icons.Default.Phone, "")
                     Column(
                         modifier = Modifier
@@ -258,7 +281,10 @@ fun ModificarDatosDialog(
                         )
                     }
                 }
-                Row {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
                     Icon(Icons.Default.Mail, "")
                     OutlinedTextField(
                         value = state.email,
@@ -272,6 +298,7 @@ fun ModificarDatosDialog(
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier
+                        .fillMaxWidth()
                         .padding(4.dp)
                 ) {
                     OutlinedButton(
@@ -299,39 +326,61 @@ fun CambiarPasswordDialog(
     val state by viewModel.state.collectAsState(ProfileState())
 
     Dialog(
-        onDismissRequest = { onDismiss() }
+        onDismissRequest = { onDismiss() },
+        properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Column(
+        Surface(
+            shape = RoundedCornerShape(5),
+            color = MaterialTheme.colorScheme.surface,
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.7f))
+                .padding(20.dp)
+                .fillMaxWidth()
         ) {
-            TitleText(stringResource(Res.string.cambiar_contrase_a))
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                label = { Text(text = stringResource(Res.string.contrase_a_vieja)) }
-            )
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                label = { Text(text = stringResource(Res.string.nueva_contrase_a)) }
-            )
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                label = { Text(text = stringResource(Res.string.repite_la_contrase_a)) }
-            )
-            Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-                OutlinedButton(
-                    onClick = { onConfirm() },
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(20.dp)
+            ) {
+                TitleText(stringResource(Res.string.cambiar_contrase_a))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
-                    Text(stringResource(Res.string.guardar))
+                    OutlinedTextField(
+                        value = state.oldPassword,
+                        onValueChange = { viewModel.onOldPasswordChange(it) },
+                        label = { Text(text = stringResource(Res.string.contrase_a_vieja)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    )
+                    OutlinedTextField(
+                        value = state.newPassword,
+                        onValueChange = { viewModel.onNewPasswordChange(it) },
+                        label = { Text(text = stringResource(Res.string.nueva_contrase_a)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    )
+                    OutlinedTextField(
+                        value = state.checkNewPassword,
+                        onValueChange = { viewModel.onCheckPasswordChange(it) },
+                        label = { Text(text = stringResource(Res.string.repite_la_contrase_a)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    )
                 }
-                OutlinedButton(
-                    onClick = { onDismiss() }
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
-                    Text(stringResource(Res.string.cancelar))
+                    OutlinedButton(
+                        onClick = { onConfirm() },
+                    ) {
+                        Text(stringResource(Res.string.guardar))
+                    }
+                    OutlinedButton(
+                        onClick = { onDismiss() }
+                    ) {
+                        Text(stringResource(Res.string.cancelar))
+                    }
                 }
             }
         }

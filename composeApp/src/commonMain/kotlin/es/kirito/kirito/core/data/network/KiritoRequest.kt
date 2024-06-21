@@ -17,6 +17,7 @@ import es.kirito.kirito.login.data.network.ResponseResidenciasDTO
 import es.kirito.kirito.login.domain.RegisterData
 import es.kirito.kirito.menu.data.network.models.RequestEditarMiUsuario
 import es.kirito.kirito.core.data.network.models.ResponseUserDTO
+import es.kirito.kirito.menu.data.network.models.RequestChangePassword
 import es.kirito.kirito.precarga.data.network.models.RequestGraficoDTO
 import es.kirito.kirito.precarga.data.network.models.RequestStationCoordinatesDTO
 import es.kirito.kirito.precarga.data.network.models.RequestTurnosCompiDTO
@@ -241,6 +242,9 @@ class KiritoRequest {
     suspend fun requestUpdateMyUser(request: RequestEditarMiUsuario): ResponseKiritoDTO<ResponseUserDTO> {
         return post<RequestEditarMiUsuario,ResponseUserDTO>(request)
     }
+    suspend fun requestChangePassword(request: RequestChangePassword): ResponseKiritoDTO<Unit?>  {
+        return post<RequestChangePassword, Unit?>(request)
+    }
 
 
     // suspend fun post(request: Map<String, String>): HttpResponse {//Por si no va en ios el reified.
@@ -293,6 +297,8 @@ class KiritoRequest {
             })
         }
     }
+
+
 
 
 }

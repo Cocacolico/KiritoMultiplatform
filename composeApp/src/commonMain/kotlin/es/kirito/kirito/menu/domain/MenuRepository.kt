@@ -10,6 +10,7 @@ import es.kirito.kirito.core.domain.asDatabaseModel
 import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
 import es.kirito.kirito.core.domain.util.fromDateTimeStringToLong
 import es.kirito.kirito.core.domain.util.normalizeAndRemoveAccents
+import es.kirito.kirito.menu.data.network.models.RequestChangePassword
 import es.kirito.kirito.menu.data.network.models.RequestEditarMiUsuario
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -63,9 +64,18 @@ class MenuRepository: KoinComponent {
 
     suspend fun updateMyUserData(datosUsuario: RequestEditarMiUsuario) {
         val respuesta = ktor.requestUpdateMyUser(datosUsuario)
-        respuesta.error.lanzarExcepcion()
-        if(respuesta.respuesta != null) {
-            dao.insertUsuarios(respuesta.respuesta.asDatabaseModel())
+        if(respuesta.error.lanzarExcepcion()) {
+            println("Respuesta de updateMyUser: ${respuesta.respuesta}")
+            if(respuesta.respuesta != null) {
+                respuesta.respuesta.username = preferences.first().matricula
+                respuesta.respuesta.id = preferences.map { it.userId }.first().toString()
+                dao.insertUsuarios(respuesta.respuesta.asDatabaseModel())
+            }
         }
+    }
+    suspend fun changePassword(salida: RequestChangePassword): Boolean {
+        val respuesta = ktor.requestChangePassword(salida)
+
+        return respuesta.error.lanzarExcepcion()
     }
 }
