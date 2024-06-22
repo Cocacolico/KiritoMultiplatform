@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+    ExperimentalMaterial3Api::class
+)
 
 package es.kirito.kirito.turnos.presentation
 
@@ -12,7 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
+import androidx.compose.material3.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
@@ -26,11 +28,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.navigation.NavHostController
+import es.kirito.kirito.core.data.kiritoComponents.turnosKirito
 import es.kirito.kirito.core.domain.util.enMiFormatoMedio
 import es.kirito.kirito.core.domain.util.esTipoTurnoCambiable
+import es.kirito.kirito.core.domain.util.nombreLargoTiposDeTurnos
 import es.kirito.kirito.core.presentation.components.HeaderWithBack
 import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.components.NotaAlPie
@@ -75,10 +80,12 @@ fun EditarTurnoScreen(navController: NavHostController) {
             onShowDiasDebeClick = { viewModel.onShowDiasDebeClick() },
             onComjClick = { comj -> viewModel.onComjSelected(comj) },
             onLibraClick = { libra -> viewModel.onLibraSelected(libra) },
+            onTipoSelected = {tipo -> viewModel.onTipoSelected(tipo)},
+            onNotasChanged = {nota -> viewModel.onNotasChanged(nota)},
         )
         EditarTurnoFooter(
-            onGuardarClick = {viewModel.onGuardarClick()},
-            onGuardarYSiguienteClick = {viewModel.onGuardarYSiguienteClick()},
+            onGuardarClick = { viewModel.onGuardarClick() },
+            onGuardarYSiguienteClick = { viewModel.onGuardarYSiguienteClick() },
         )
     }
 
@@ -93,7 +100,8 @@ fun EditarTurnoBody(
     onShowDiasDebeClick: () -> Unit,
     onComjClick: (Int) -> Unit,
     onLibraClick: (Int) -> Unit,
-
+    onTipoSelected: (String) ->Unit,
+    onNotasChanged: (String)-> Unit,
     ) {
     var expandedNombreCompi by remember { mutableStateOf(false) }
     var expandedTipo by remember { mutableStateOf(false) }
@@ -129,11 +137,11 @@ fun EditarTurnoBody(
                 expanded = expandedTipo,
                 onDismissRequest = { expandedTipo = false }
             ) {
-                state.usuariosEnNombreDebe.forEach { nombre ->
+                turnosKirito.forEach { tipo ->
                     DropdownMenuItem(
-                        text = { MyTextStd(nombre) },
+                        text = { MyTextStd("$tipo ${tipo.nombreLargoTiposDeTurnos()}") },
                         onClick = {
-                            onCompiTextChanged(nombre)
+                            onTipoSelected(tipo)
                             expandedTipo = false
                         }
                     )
@@ -179,7 +187,7 @@ fun EditarTurnoBody(
         }
         if (state.showDiasDebe) {
             FlowRow {
-                Column {
+                Column(Modifier.weight(1f)) {
                     MyTextStd(stringResource(Res.string.comj))
                     MyTextStd(stringResource(Res.string.compensaci_n_de_jornada))
                 }
@@ -191,7 +199,7 @@ fun EditarTurnoBody(
                 }
             }
             FlowRow {
-                Column {
+                Column(Modifier.weight(1f)) {
                     MyTextStd(stringResource(Res.string.libra))
                     MyTextStd(stringResource(Res.string.libranza_acordada))
                 }
@@ -204,7 +212,14 @@ fun EditarTurnoBody(
             }
         }
 
-        //TODO: NOTAS
+        androidx.compose.material3.OutlinedTextField(
+            value = state.editedShift.notas,
+            onValueChange = {text -> onNotasChanged(text)},
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 5,
+            maxLines = 10,
+        )
+
 
 
     }
@@ -215,14 +230,14 @@ fun EditarTurnoBody(
 
 @Composable
 fun EditarTurnoFooter(
-    onGuardarClick: ()->Unit,
-    onGuardarYSiguienteClick: ()->Unit,
+    onGuardarClick: () -> Unit,
+    onGuardarYSiguienteClick: () -> Unit,
 ) {
     Row {
-        Button(onClick = {onGuardarClick()}) {
+        Button(onClick = { onGuardarClick() }) {
             Text(stringResource(Res.string.guardar))
         }
-        Button(onClick = {onGuardarYSiguienteClick()}) {
+        Button(onClick = { onGuardarYSiguienteClick() }) {
             Text(stringResource(Res.string.guardar_y_siguiente))
         }
     }

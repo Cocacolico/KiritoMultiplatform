@@ -115,6 +115,17 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
         }
     }
 
+    fun onTipoSelected(tipo: String){
+        editedShift.update {
+            it.copy(tipo = tipo)
+        }
+    }
+    fun onNotasChanged(nota: String){
+        editedShift.update {
+            it.copy(notas = nota)
+        }
+    }
+
     fun onTextChanged(text: String) {
         textTurno.update { text }
     }
