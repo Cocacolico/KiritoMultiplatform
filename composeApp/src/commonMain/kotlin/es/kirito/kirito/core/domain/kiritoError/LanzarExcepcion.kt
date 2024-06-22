@@ -1,6 +1,7 @@
 package es.kirito.kirito.core.domain.kiritoError
 
 import es.kirito.kirito.core.data.network.models.ResponseKiritoErrorDTO
+import es.kirito.kirito.core.data.utils.KiritoException
 
 
 /**
