@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.database.LsUsers
+import es.kirito.kirito.core.data.utils.KiritoException
 import es.kirito.kirito.core.domain.CoreRepository
+import es.kirito.kirito.core.domain.kiritoError.kiritoErrorStringResource
 import es.kirito.kirito.menu.data.network.models.RequestChangePassword
 import es.kirito.kirito.menu.data.network.models.RequestEditarMiUsuario
 import es.kirito.kirito.menu.domain.MenuRepository
 import es.kirito.kirito.menu.domain.ProfileState
+import io.ktor.util.rootCause
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.contrase_a_modificada_correctamente
 import kirito.composeapp.generated.resources.datos_actualizados_correctamente
@@ -28,12 +31,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ProfileViewModel: ViewModel(), KoinComponent {
+class ProfileViewModel : ViewModel(), KoinComponent {
 
     private val coreRepo: CoreRepository by inject()
     private val repository: MenuRepository by inject()
@@ -140,15 +142,17 @@ class ProfileViewModel: ViewModel(), KoinComponent {
             )
         }
     }
+
     fun onModificarDatosConfirm() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.updateMyUserData(_state.value.asUsuarioParaEditar())
                 toastId.emit(Res.string.datos_actualizados_correctamente)
                 _state.update {
-                    it.copy(showModificarDatosDialog = false )
+                    it.copy(showModificarDatosDialog = false)
                 }
             } catch (e: Exception) {
+                throw e
                 toastId.emit(Res.string.no_he_podido_procesar_tu_solicutud)
             }
         }
@@ -157,11 +161,11 @@ class ProfileViewModel: ViewModel(), KoinComponent {
     fun onCambiarPasswordConfirm() {
         viewModelScope.launch(Dispatchers.IO) {
             with(_state.value) {
-                if(oldPassword.length < 5) {
+                if (oldPassword.length < 5) {
                     toastId.emit(Res.string.introduce_tu_contrase_a_anterior)
                 } else if (newPassword.length < 5) {
                     toastId.emit(Res.string.la_contrasena_debe_tener_5_caracteres)
-                } else if(newPassword != checkNewPassword) {
+                } else if (newPassword != checkNewPassword) {
                     toastId.emit(Res.string.las_contrasenas_no_coinciden)
                 } else {
                     try {
@@ -175,17 +179,16 @@ class ProfileViewModel: ViewModel(), KoinComponent {
                         _state.update {
                             it.copy(showCambiarPasswordDialog = false)
                         }
+                    } catch (e: KiritoException) {
+                        toastId.emit(kiritoErrorStringResource(e.message))
                     } catch (e: Exception) {
-                        when (e.message) {
-                            "17" -> toastId.emit(Res.string.la_contrase_a_antigua_no_coincide)
-                            "18" -> toastId.emit(Res.string.la_contrasena_debe_tener_5_caracteres)
-                            else -> toastId.emit(Res.string.no_he_podido_procesar_tu_solicutud)
-                        }
+                        toastId.emit(Res.string.no_he_podido_procesar_tu_solicutud)
                     }
                 }
             }
         }
     }
+
     fun clearToasts() {
         viewModelScope.launch {
             toastId.emit(null)
@@ -235,3 +238,4 @@ private fun ProfileState.asUsuarioParaEditar(): RequestEditarMiUsuario {
         recibir_email_notificaciones = null
     )
 }
+

@@ -2,7 +2,6 @@ package es.kirito.kirito.precarga.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import es.kirito.kirito.core.domain.kiritoError.KiritoException
 import es.kirito.kirito.precarga.domain.PrecargaRepository
 import es.kirito.kirito.precarga.domain.models.PreloadStep
 import kotlinx.coroutines.Dispatchers
