@@ -216,7 +216,7 @@ fun ModificarDatosDialog(
                 ) {
                     Icon(Icons.Default.Train, "")
                     OutlinedTextField(
-                        value = state.id.toString(),
+                        value = state.username,
                         readOnly = true,
                         onValueChange = { },
                         label = { Text(text = stringResource(Res.string.matricula)) },

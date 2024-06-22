@@ -73,9 +73,10 @@ class MenuRepository: KoinComponent {
             }
         }
     }
-    suspend fun changePassword(salida: RequestChangePassword): Boolean {
+    suspend fun changePassword(salida: RequestChangePassword){
         val respuesta = ktor.requestChangePassword(salida)
 
-        return respuesta.error.lanzarExcepcion()
+        println("Respuesta de changePassword: ${respuesta.error}")
+        respuesta.error.lanzarExcepcion()
     }
 }

@@ -13,6 +13,7 @@ import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.contrase_a_modificada_correctamente
 import kirito.composeapp.generated.resources.datos_actualizados_correctamente
 import kirito.composeapp.generated.resources.introduce_tu_contrase_a_anterior
+import kirito.composeapp.generated.resources.la_contrase_a_antigua_no_coincide
 import kirito.composeapp.generated.resources.la_contrasena_debe_tener_5_caracteres
 import kirito.composeapp.generated.resources.las_contrasenas_no_coinciden
 import kirito.composeapp.generated.resources.no_he_podido_procesar_tu_solicutud
@@ -103,6 +104,7 @@ class ProfileViewModel: ViewModel(), KoinComponent {
         _state.update {
             it.copy(
                 id = userData.id,
+                username = userData.username,
                 name = userData.name,
                 surname = userData.surname,
                 email = userData.email,
@@ -174,7 +176,11 @@ class ProfileViewModel: ViewModel(), KoinComponent {
                             it.copy(showCambiarPasswordDialog = false)
                         }
                     } catch (e: Exception) {
-                        toastId.emit(Res.string.no_he_podido_procesar_tu_solicutud)
+                        when (e.message) {
+                            "17" -> toastId.emit(Res.string.la_contrase_a_antigua_no_coincide)
+                            "18" -> toastId.emit(Res.string.la_contrasena_debe_tener_5_caracteres)
+                            else -> toastId.emit(Res.string.no_he_podido_procesar_tu_solicutud)
+                        }
                     }
                 }
             }

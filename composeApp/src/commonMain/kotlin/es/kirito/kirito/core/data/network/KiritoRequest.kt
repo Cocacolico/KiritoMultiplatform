@@ -243,6 +243,7 @@ class KiritoRequest {
         return post<RequestEditarMiUsuario,ResponseUserDTO>(request)
     }
     suspend fun requestChangePassword(request: RequestChangePassword): ResponseKiritoDTO<Unit?>  {
+        println(request)
         return post<RequestChangePassword, Unit?>(request)
     }
 
