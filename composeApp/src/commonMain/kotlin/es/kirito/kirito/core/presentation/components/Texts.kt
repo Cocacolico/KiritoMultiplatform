@@ -163,11 +163,13 @@ fun MyTextSubTitle(
 fun ParagraphTitle(
     text: String,
     modifier: Modifier = Modifier,
+    textAlign: TextAlign? = null
 ) {
     Text(
         text = text, modifier = modifier,
         style = kiritoTypography.bodyMedium,
         fontSize = 18.sp,
+        textAlign = textAlign,
     )
 }
 
@@ -175,12 +177,14 @@ fun ParagraphTitle(
 fun ParagraphSubtitle(
     text: String,
     modifier: Modifier = Modifier,
+    textAlign: TextAlign? = null
 ) {
     Text(
         text = text, modifier = modifier,
         style = kiritoTypography.bodyMedium,
         fontSize = 16.sp,
-        fontStyle = FontStyle.Italic
+        fontStyle = FontStyle.Italic,
+        textAlign = textAlign,
     )
 }
 

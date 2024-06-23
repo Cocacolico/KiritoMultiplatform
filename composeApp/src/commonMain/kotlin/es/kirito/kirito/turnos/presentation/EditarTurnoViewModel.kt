@@ -75,16 +75,14 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
 
 
     private val doneEditting = MutableStateFlow(false)
-    private val textTurno = MutableStateFlow("")
-    private val textNombreDebe = MutableStateFlow("")
     private val listaUsuariosEnNombreDebe =
-        coreRepo.usuariosEnNombreDebe.combine(textNombreDebe) { nombres: List<String>, filtro: String ->
-            nombres.filter { it.contains(filtro) }
+        coreRepo.usuariosEnNombreDebe.combine(editedShift) { nombres: List<String>, filtro: CuDetalle ->
+            nombres.filter { it.contains(filtro.nombreDebe) }
         }
 
     val state = combine(
         selectedDate, showDiasDebe, selectedShift, editedShift, listaUsuariosEnNombreDebe,
-        doneEditting, textTurno, textNombreDebe
+        doneEditting
     ) { array ->
         EditarTurnoState(
             selectedDate = array[0] as LocalDate,
@@ -93,8 +91,6 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
             editedShift = array[3] as CuDetalle,
             usuariosEnNombreDebe = array[4] as List<String>,
             doneEditting = array[5] as Boolean,
-            textTurno = array[6] as String,
-            textNombreDebe = array[7] as String,
         )
     }
 
@@ -126,12 +122,16 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun onTextChanged(text: String) {
-        textTurno.update { text }
+    fun onTurnoTextChanged(text: String) {
+        editedShift.update {
+            it.copy(turno = text)
+        }
     }
 
     fun onCompiTextChanged(text: String) {
-        textNombreDebe.update { text }
+        editedShift.update {
+            it.copy(nombreDebe = text)
+        }
     }
 
     fun onShowDiasDebeClick(){

@@ -13,6 +13,4 @@ data class EditarTurnoState(
     val editedShift: CuDetalle = CuDetalle(),
     val usuariosEnNombreDebe: List<String> = emptyList(),
     val doneEditting: Boolean = false,
-    val textTurno: String = "",
-    val textNombreDebe: String = "",
 )

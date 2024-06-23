@@ -1,23 +1,37 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
     ExperimentalMaterial3Api::class
 )
 
 package es.kirito.kirito.turnos.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
 import androidx.compose.material3.Button
-import androidx.compose.material.OutlinedTextField
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -30,17 +44,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.kirito.kirito.core.data.kiritoComponents.turnosKirito
+import es.kirito.kirito.core.domain.util.colorDeFondoTurnos
+import es.kirito.kirito.core.domain.util.colorTextoTurnos
 import es.kirito.kirito.core.domain.util.enMiFormatoMedio
 import es.kirito.kirito.core.domain.util.esTipoTurnoCambiable
 import es.kirito.kirito.core.domain.util.nombreLargoTiposDeTurnos
+import es.kirito.kirito.core.domain.util.toComposeColor
 import es.kirito.kirito.core.presentation.components.HeaderWithBack
 import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.components.NotaAlPie
 import es.kirito.kirito.core.presentation.components.ParagraphSubtitle
 import es.kirito.kirito.core.presentation.components.ParagraphTitle
+import es.kirito.kirito.core.presentation.utils.noRippleClickable
 import es.kirito.kirito.turnos.domain.EditarTurnoState
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.claves_o_tipos_101_7068_d_lz_rm
@@ -54,6 +77,7 @@ import kirito.composeapp.generated.resources.guardar_y_siguiente
 import kirito.composeapp.generated.resources.libra
 import kirito.composeapp.generated.resources.libranza_acordada
 import kirito.composeapp.generated.resources.nombre_del_compa_ero
+import kirito.composeapp.generated.resources.notas_del_turno
 import kirito.composeapp.generated.resources.si_la_empresa_te_da_d_as_por_hacer_este_turno_se_lalo_aqu
 import kirito.composeapp.generated.resources.tipo_de_turno
 import org.jetbrains.compose.resources.stringResource
@@ -67,21 +91,23 @@ fun EditarTurnoScreen(navController: NavHostController) {
     val viewModel = koinViewModel<EditarTurnoViewModel>()
     val state by viewModel.state.collectAsState(EditarTurnoState())
 
-    Column(Modifier.fillMaxWidth()) {
-        HeaderWithBack(stringResource(Res.string.editar_turno)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        EditarTurnoHeader(state) {
             //TODO: PREGUNTAR si quieres irte cuando hay algo modificado. No marcharse así directamente.
             navController.navigateUp()
         }
+
         EditarTurnoBody(
+            modifier = Modifier.weight(1f),
             state = state,
-            onTurnoTextChanged = { texto -> viewModel.onTextChanged(texto) },
+            onTurnoTextChanged = { texto -> viewModel.onTurnoTextChanged(texto) },
             onNextDayClick = { viewModel.onNextDayClick() },
             onCompiTextChanged = { texto -> viewModel.onCompiTextChanged(texto) },
             onShowDiasDebeClick = { viewModel.onShowDiasDebeClick() },
             onComjClick = { comj -> viewModel.onComjSelected(comj) },
             onLibraClick = { libra -> viewModel.onLibraSelected(libra) },
-            onTipoSelected = {tipo -> viewModel.onTipoSelected(tipo)},
-            onNotasChanged = {nota -> viewModel.onNotasChanged(nota)},
+            onTipoSelected = { tipo -> viewModel.onTipoSelected(tipo) },
+            onNotasChanged = { nota -> viewModel.onNotasChanged(nota) },
         )
         EditarTurnoFooter(
             onGuardarClick = { viewModel.onGuardarClick() },
@@ -92,7 +118,23 @@ fun EditarTurnoScreen(navController: NavHostController) {
 }
 
 @Composable
+fun EditarTurnoHeader(state: EditarTurnoState, onBackRequested: () -> Unit) {
+    Column(Modifier.fillMaxWidth()) {
+        HeaderWithBack(stringResource(Res.string.editar_turno)) {
+            onBackRequested()
+        }
+        ParagraphSubtitle(
+            text = state.selectedDate.enMiFormatoMedio(),
+            modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.padding(bottom = 8.dp))
+    }
+}
+
+@Composable
 fun EditarTurnoBody(
+    modifier: Modifier,
     state: EditarTurnoState,
     onTurnoTextChanged: (String) -> Unit,
     onNextDayClick: () -> Unit,
@@ -100,23 +142,24 @@ fun EditarTurnoBody(
     onShowDiasDebeClick: () -> Unit,
     onComjClick: (Int) -> Unit,
     onLibraClick: (Int) -> Unit,
-    onTipoSelected: (String) ->Unit,
-    onNotasChanged: (String)-> Unit,
-    ) {
+    onTipoSelected: (String) -> Unit,
+    onNotasChanged: (String) -> Unit,
+) {
     var expandedNombreCompi by remember { mutableStateOf(false) }
     var expandedTipo by remember { mutableStateOf(false) }
 
-
-    ParagraphSubtitle(state.selectedDate.enMiFormatoMedio())
-    Column(Modifier.verticalScroll(rememberScrollState())) {
+    Column(modifier.verticalScroll(rememberScrollState())) {
         OutlinedTextField(
-            value = "",
+            modifier = Modifier.fillMaxWidth(),
+            value = state.editedShift.turno ?: "",
             onValueChange = { text -> onTurnoTextChanged(text) },
-            placeholder = { Text(stringResource(Res.string.claves_o_tipos_101_7068_d_lz_rm)) },
+            label = { Text(stringResource(Res.string.claves_o_tipos_101_7068_d_lz_rm)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onNext = { onNextDayClick() })
         )
+
+        Spacer(Modifier.padding(top = 8.dp))
 
         ExposedDropdownMenuBox(
             expanded = expandedTipo,
@@ -124,22 +167,33 @@ fun EditarTurnoBody(
                 expandedTipo = true
             }
         ) {
-            androidx.compose.material3.OutlinedTextField(
-                value = state.textNombreDebe,
+            OutlinedTextField(
+                value = "${state.editedShift.tipo} ${state.editedShift.tipo.nombreLargoTiposDeTurnos()}",
+                readOnly = true,
                 onValueChange = { text -> onCompiTextChanged(text) },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTipo)
                 },
                 placeholder = { MyTextStd(stringResource(Res.string.tipo_de_turno)) },
                 modifier = Modifier.menuAnchor().fillMaxWidth()
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(colorDeFondoTurnos(state.editedShift.tipo).toComposeColor()),
+                textStyle = TextStyle.Default.copy(color = colorTextoTurnos(state.editedShift.tipo))
             )
-            ExposedDropdownMenu(
+            DropdownMenu(
+                modifier = Modifier.exposedDropdownSize(),
                 expanded = expandedTipo,
                 onDismissRequest = { expandedTipo = false }
             ) {
                 turnosKirito.forEach { tipo ->
                     DropdownMenuItem(
-                        text = { MyTextStd("$tipo ${tipo.nombreLargoTiposDeTurnos()}") },
+                        text = {
+                            Text(
+                                text = "$tipo ${tipo.nombreLargoTiposDeTurnos()}",
+                                color = colorTextoTurnos(tipo),
+                            )
+                        },
+                        modifier = Modifier.background(colorDeFondoTurnos(tipo).toComposeColor()),
                         onClick = {
                             onTipoSelected(tipo)
                             expandedTipo = false
@@ -149,82 +203,106 @@ fun EditarTurnoBody(
             }
         }
 
-        if (state.selectedShift.tipo.esTipoTurnoCambiable()) {
-            MyTextStd(stringResource(Res.string.compa_ero_con_el_que_has_cambiado_el_turno))
-            ExposedDropdownMenuBox(
-                expanded = expandedNombreCompi,
-                onExpandedChange = {}
-            ) {
-                androidx.compose.material3.OutlinedTextField(
-                    value = state.textNombreDebe,
-                    onValueChange = { text ->
-                        onCompiTextChanged(text)
-                        expandedNombreCompi = true
-                    },
-                    placeholder = { MyTextStd(stringResource(Res.string.nombre_del_compa_ero)) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
-                )
-                ExposedDropdownMenu(
+        AnimatedVisibility(state.editedShift.tipo.esTipoTurnoCambiable()) {
+            Column {
+                Spacer(Modifier.padding(top = 8.dp))
+                MyTextStd(stringResource(Res.string.compa_ero_con_el_que_has_cambiado_el_turno))
+                ExposedDropdownMenuBox(
                     expanded = expandedNombreCompi,
-                    onDismissRequest = { expandedNombreCompi = false }
+                    onExpandedChange = {}
                 ) {
-                    state.usuariosEnNombreDebe.forEach { nombre ->
-                        DropdownMenuItem(
-                            text = { MyTextStd(nombre) },
-                            onClick = {
-                                onCompiTextChanged(nombre)
-                                expandedNombreCompi = false
-                            }
-                        )
+                    OutlinedTextField(
+                        value = state.editedShift.nombreDebe,
+                        onValueChange = { text ->
+                            onCompiTextChanged(text)
+                            expandedNombreCompi = true
+                        },
+                        label = { MyTextStd(stringResource(Res.string.nombre_del_compa_ero)) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedNombreCompi,
+                        onDismissRequest = { expandedNombreCompi = false }
+                    ) {
+                        state.usuariosEnNombreDebe.forEach { nombre ->
+                            DropdownMenuItem(
+                                text = { MyTextStd(nombre) },
+                                onClick = {
+                                    onCompiTextChanged(nombre)
+                                    expandedNombreCompi = false
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
 
-        Column(Modifier.clickable { onShowDiasDebeClick() }.fillMaxWidth()) {
-            ParagraphTitle(stringResource(Res.string.d_as_ganados))
-            NotaAlPie(stringResource(Res.string.si_la_empresa_te_da_d_as_por_hacer_este_turno_se_lalo_aqu))
-        }
-        if (state.showDiasDebe) {
-            FlowRow {
-                Column(Modifier.weight(1f)) {
-                    MyTextStd(stringResource(Res.string.comj))
-                    MyTextStd(stringResource(Res.string.compensaci_n_de_jornada))
+        Card(Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp)) {
+            Column(Modifier.fillMaxWidth().padding(start = 8.dp)) {
+                Row(
+                    Modifier
+                        .noRippleClickable { onShowDiasDebeClick() }
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
+                        ParagraphSubtitle(
+                            stringResource(Res.string.d_as_ganados),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        NotaAlPie(stringResource(Res.string.si_la_empresa_te_da_d_as_por_hacer_este_turno_se_lalo_aqu))
+                    }
+                    if (!state.showDiasDebe)
+                        Icon(
+                            imageVector = Icons.Outlined.ArrowDropDown, contentDescription = "",
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
                 }
-                (0..3).forEach { option ->
-                    RadioButton(
-                        selected = option == state.selectedShift.comj,
-                        onClick = { onComjClick(option) }
-                    )
-                }
-            }
-            FlowRow {
-                Column(Modifier.weight(1f)) {
-                    MyTextStd(stringResource(Res.string.libra))
-                    MyTextStd(stringResource(Res.string.libranza_acordada))
-                }
-                (0..3).forEach { option ->
-                    RadioButton(
-                        selected = option == state.selectedShift.libra,
-                        onClick = { onLibraClick(option) }
-                    )
+
+                AnimatedVisibility(state.showDiasDebe) {
+                    Column {
+                        FlowRow {
+                            Column(Modifier.weight(1f)) {
+                                MyTextStd(stringResource(Res.string.comj))
+                                MyTextStd(stringResource(Res.string.compensaci_n_de_jornada))
+                            }
+                            (0..3).forEach { option ->
+                                RadioButton(
+                                    selected = option == state.editedShift.comj,
+                                    onClick = { onComjClick(option) }
+                                )
+                            }
+                        }
+                        FlowRow {
+                            Column(Modifier.weight(1f)) {
+                                MyTextStd(stringResource(Res.string.libra))
+                                MyTextStd(stringResource(Res.string.libranza_acordada))
+                            }
+                            (0..3).forEach { option ->
+                                RadioButton(
+                                    selected = option == state.editedShift.libra,
+                                    onClick = { onLibraClick(option) }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        androidx.compose.material3.OutlinedTextField(
+        OutlinedTextField(
             value = state.editedShift.notas,
-            onValueChange = {text -> onNotasChanged(text)},
+            onValueChange = { text -> onNotasChanged(text) },
             modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(Res.string.notas_del_turno)) },
             minLines = 5,
-            maxLines = 10,
+            maxLines = 10
         )
-
-
-
     }
-
-
 }
 
 
@@ -233,12 +311,23 @@ fun EditarTurnoFooter(
     onGuardarClick: () -> Unit,
     onGuardarYSiguienteClick: () -> Unit,
 ) {
-    Row {
+    Row(Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
         Button(onClick = { onGuardarClick() }) {
-            Text(stringResource(Res.string.guardar))
+            Text(
+                stringResource(Res.string.guardar),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
-        Button(onClick = { onGuardarYSiguienteClick() }) {
-            Text(stringResource(Res.string.guardar_y_siguiente))
+        Button(
+            onClick = { onGuardarYSiguienteClick() },
+            modifier = Modifier.padding(start = 16.dp)
+        ) {
+            Text(
+                stringResource(Res.string.guardar_y_siguiente),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
