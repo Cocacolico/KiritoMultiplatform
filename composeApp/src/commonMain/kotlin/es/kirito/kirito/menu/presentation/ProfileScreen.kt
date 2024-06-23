@@ -59,6 +59,8 @@ import es.kirito.kirito.core.presentation.theme.KiritoColors
 import es.kirito.kirito.core.presentation.theme.KiritoTheme
 import es.kirito.kirito.menu.domain.MenuState
 import es.kirito.kirito.menu.domain.ProfileState
+import es.kirito.kirito.menu.presentation.components.CambiarPasswordDialog
+import es.kirito.kirito.menu.presentation.components.ModificarDatosDialog
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources._0
 import kirito.composeapp.generated.resources.apellidos
@@ -155,18 +157,23 @@ fun ProfileScreen() {
                 if (state.showModificarDatosDialog)
                     ModificarDatosDialog(
                         onDismiss = { viewModel.onModificarDatosDialogDismiss() },
-                        onConfirm = {
-                            viewModel.onModificarDatosConfirm()
-                        },
-                        viewModel = viewModel
+                        onConfirm = { viewModel.onModificarDatosConfirm() },
+                        onNameChange = { viewModel.onNameChange(it) },
+                        onSurnameChange = { viewModel.onSurnameChange(it) },
+                        onWorkPhoneChange = { viewModel.onWorkPhoneChange(it) },
+                        onWorkPhoneExtChange = { viewModel.onWorkPhoneExtChange(it) },
+                        onPersonalPhoneChange = { viewModel.onPersonalPhoneChange(it) },
+                        onEmailChange = { viewModel.onEmailChange(it) },
+                        state = state
                     )
                 if (state.showCambiarPasswordDialog)
                     CambiarPasswordDialog(
                         onDismiss = { viewModel.onCambiarPasswordDialogDismiss() },
-                        onConfirm = {
-                            viewModel.onCambiarPasswordConfirm()
-                        },
-                        viewModel = viewModel
+                        onConfirm = { viewModel.onCambiarPasswordConfirm() },
+                        onOldPasswordChange = { viewModel.onOldPasswordChange(it) },
+                        onNewPasswordChange = { viewModel.onNewPasswordChange(it) },
+                        onCheckPasswordChange = { viewModel.onCheckPasswordChange(it) },
+                        state = state
                     )
             }
             if (toastString != null) {
@@ -178,212 +185,5 @@ fun ProfileScreen() {
                 viewModel.clearToasts()
             }
         }
-    }
-}
-
-@Composable
-fun ModificarDatosDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    viewModel: ProfileViewModel
-) {
-    val state by viewModel.state.collectAsState(ProfileState())
-
-    Dialog(
-        onDismissRequest = { onDismiss() },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(5),
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(20.dp)
-            ) {
-                MyTextSubTitle(
-                    text = stringResource(Res.string.tus_datos)
-                )
-                Spacer(modifier = Modifier.padding(vertical = 8.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Train, "")
-                    OutlinedTextField(
-                        value = state.username,
-                        readOnly = true,
-                        onValueChange = { },
-                        label = { Text(text = stringResource(Res.string.matricula)) },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Person, "")
-                    Column(
-                        modifier = Modifier
-                            .padding(4.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = state.name,
-                            onValueChange = { viewModel.onNameChange(it) },
-                            label = { Text(text = stringResource(Res.string.nombre)) },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        )
-                        OutlinedTextField(
-                            value = state.surname,
-                            onValueChange = { viewModel.onSurnameChange(it) },
-                            label = { Text(text = stringResource(Res.string.apellidos)) },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Phone, "")
-                    Column(
-                        modifier = Modifier
-                            .padding(4.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = state.workPhone,
-                            onValueChange = { viewModel.onWorkPhoneChange(it) },
-                            label = { Text(text = stringResource(Res.string.tel_fono_interior_corto)) },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        )
-                        OutlinedTextField(
-                            value = state.workPhoneExt,
-                            onValueChange = { viewModel.onWorkPhoneExtChange(it) },
-                            label = { Text(text = stringResource(Res.string.tel_fono_exterior_largo)) },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        )
-                        OutlinedTextField(
-                            value = state.personalPhone,
-                            onValueChange = { viewModel.onPersonalPhoneChange(it) },
-                            label = { Text(text = stringResource(Res.string.tel_fono_personal)) },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Mail, "")
-                    OutlinedTextField(
-                        value = state.email,
-                        onValueChange = { viewModel.onEmailChange(it) },
-                        label = { Text(text = stringResource(Res.string.email)) },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    )
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(4.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = { onConfirm() },
-                    ) {
-                        Text(stringResource(Res.string.guardar_cambios))
-                    }
-                    OutlinedButton(
-                        onClick = { onDismiss() }
-                    ) {
-                        Text(stringResource(Res.string.cancelar))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CambiarPasswordDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    viewModel: ProfileViewModel
-) {
-    val state by viewModel.state.collectAsState(ProfileState())
-
-    Dialog(
-        onDismissRequest = { onDismiss() },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(5),
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(20.dp)
-            ) {
-                TitleText(stringResource(Res.string.cambiar_contrase_a))
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    OutlinedTextField(
-                        value = state.oldPassword,
-                        onValueChange = { viewModel.onOldPasswordChange(it) },
-                        label = { Text(text = stringResource(Res.string.contrase_a_vieja)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-                    )
-                    OutlinedTextField(
-                        value = state.newPassword,
-                        onValueChange = { viewModel.onNewPasswordChange(it) },
-                        label = { Text(text = stringResource(Res.string.nueva_contrase_a)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-                    )
-                    OutlinedTextField(
-                        value = state.checkNewPassword,
-                        onValueChange = { viewModel.onCheckPasswordChange(it) },
-                        label = { Text(text = stringResource(Res.string.repite_la_contrase_a)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-                    )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    OutlinedButton(
-                        onClick = { onConfirm() },
-                    ) {
-                        Text(stringResource(Res.string.guardar))
-                    }
-                    OutlinedButton(
-                        onClick = { onDismiss() }
-                    ) {
-                        Text(stringResource(Res.string.cancelar))
-                    }
-                }
-            }
-        }
-
     }
 }

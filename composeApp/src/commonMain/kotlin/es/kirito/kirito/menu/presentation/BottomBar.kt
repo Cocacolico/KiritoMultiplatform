@@ -30,7 +30,7 @@ fun KiritoBottomNavigation(
         screens.forEach { screen ->
             NavigationBarItem(
                 icon = {
-                    // Optimizar en el futuro
+                    // TODO Optimizar en el futuro
                     if(screen.icon != null)
                         Icon(
                         imageVector = screen.icon,
