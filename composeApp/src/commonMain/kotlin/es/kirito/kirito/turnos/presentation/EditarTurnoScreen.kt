@@ -7,7 +7,7 @@ package es.kirito.kirito.turnos.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -29,7 +29,6 @@ import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDropDown
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -58,14 +57,17 @@ import es.kirito.kirito.core.domain.util.enMiFormatoMedio
 import es.kirito.kirito.core.domain.util.esTipoTurnoCambiable
 import es.kirito.kirito.core.domain.util.nombreLargoTiposDeTurnos
 import es.kirito.kirito.core.domain.util.toComposeColor
-import es.kirito.kirito.core.presentation.components.HeaderWithBack
+import es.kirito.kirito.core.presentation.components.HeaderWithBackAndHelp
 import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.components.NotaAlPie
 import es.kirito.kirito.core.presentation.components.ParagraphSubtitle
-import es.kirito.kirito.core.presentation.components.ParagraphTitle
+import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
 import es.kirito.kirito.core.presentation.utils.noRippleClickable
 import es.kirito.kirito.turnos.domain.EditarTurnoState
 import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources.ayuda
+import kirito.composeapp.generated.resources.ayuda_editar_turno
+import kirito.composeapp.generated.resources.cerrar
 import kirito.composeapp.generated.resources.claves_o_tipos_101_7068_d_lz_rm
 import kirito.composeapp.generated.resources.comj
 import kirito.composeapp.generated.resources.compa_ero_con_el_que_has_cambiado_el_turno
@@ -90,12 +92,16 @@ fun EditarTurnoScreen(navController: NavHostController) {
 
     val viewModel = koinViewModel<EditarTurnoViewModel>()
     val state by viewModel.state.collectAsState(EditarTurnoState())
+    var showHelpDialog by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        EditarTurnoHeader(state) {
-            //TODO: PREGUNTAR si quieres irte cuando hay algo modificado. No marcharse así directamente.
-            navController.navigateUp()
-        }
+        EditarTurnoHeader(state,
+            onBackRequested = {
+                //TODO: PREGUNTAR si quieres irte cuando hay algo modificado. No marcharse así directamente.
+                navController.navigateUp()
+            },
+            onHelpClicked = { showHelpDialog = true }
+        )
 
         EditarTurnoBody(
             modifier = Modifier.weight(1f),
@@ -115,14 +121,31 @@ fun EditarTurnoScreen(navController: NavHostController) {
         )
     }
 
+    MyDialogInformation(show = showHelpDialog, title = stringResource(Res.string.ayuda),
+        text = stringResource(Res.string.ayuda_editar_turno),
+        okText = stringResource(Res.string.cerrar),
+        onConfirm = { showHelpDialog = false },
+        onDismiss = { showHelpDialog = false })
+
+    if(state.doneEditting){
+        navController.navigateUp()
+    }
+
 }
 
 @Composable
-fun EditarTurnoHeader(state: EditarTurnoState, onBackRequested: () -> Unit) {
+fun EditarTurnoHeader(
+    state: EditarTurnoState,
+    onBackRequested: () -> Unit,
+    onHelpClicked: () -> Unit
+) {
     Column(Modifier.fillMaxWidth()) {
-        HeaderWithBack(stringResource(Res.string.editar_turno)) {
-            onBackRequested()
-        }
+        HeaderWithBackAndHelp(
+            title = stringResource(Res.string.editar_turno),
+            showHelp = true,
+            onBackClick = { onBackRequested() },
+            onHelpClick = { onHelpClicked() }
+        )
         ParagraphSubtitle(
             text = state.selectedDate.enMiFormatoMedio(),
             modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
@@ -265,28 +288,40 @@ fun EditarTurnoBody(
 
                 AnimatedVisibility(state.showDiasDebe) {
                     Column {
-                        FlowRow {
+                        FlowRow(verticalArrangement = Arrangement.Center) {
                             Column(Modifier.weight(1f)) {
                                 MyTextStd(stringResource(Res.string.comj))
-                                MyTextStd(stringResource(Res.string.compensaci_n_de_jornada))
+                                MyTextStd(
+                                    stringResource(Res.string.compensaci_n_de_jornada),
+                                    maxLines = 2
+                                )
                             }
                             (0..3).forEach { option ->
-                                RadioButton(
-                                    selected = option == state.editedShift.comj,
-                                    onClick = { onComjClick(option) }
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(option.toString())
+                                    RadioButton(
+                                        selected = option == state.editedShift.comj,
+                                        onClick = { onComjClick(option) }
+                                    )
+                                }
                             }
                         }
                         FlowRow {
                             Column(Modifier.weight(1f)) {
                                 MyTextStd(stringResource(Res.string.libra))
-                                MyTextStd(stringResource(Res.string.libranza_acordada))
+                                MyTextStd(
+                                    stringResource(Res.string.libranza_acordada),
+                                    maxLines = 2
+                                )
                             }
                             (0..3).forEach { option ->
-                                RadioButton(
-                                    selected = option == state.editedShift.libra,
-                                    onClick = { onLibraClick(option) }
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(option.toString())
+                                    RadioButton(
+                                        selected = option == state.editedShift.libra,
+                                        onClick = { onLibraClick(option) }
+                                    )
+                                }
                             }
                         }
                     }
@@ -311,7 +346,10 @@ fun EditarTurnoFooter(
     onGuardarClick: () -> Unit,
     onGuardarYSiguienteClick: () -> Unit,
 ) {
-    Row(Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
         Button(onClick = { onGuardarClick() }) {
             Text(
                 stringResource(Res.string.guardar),

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.core.data.database.CuDetalle
 import es.kirito.kirito.core.domain.CoreRepository
+import es.kirito.kirito.core.domain.backgroundWorks.enqueueEditShiftBackgroundWork
 import es.kirito.kirito.turnos.domain.EditarTurnoState
 import es.kirito.kirito.turnos.domain.TurnosRepository
 import kotlinx.coroutines.Dispatchers
@@ -143,11 +144,11 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
     }
 
     fun onGuardarClick(){
-        modificarClave()
+        modificarClave(false)
     }
 
     fun onGuardarYSiguienteClick(){
-        modificarClave()
+        modificarClave(true)
     }
 
     fun isTheShiftModified(): Boolean {
@@ -169,7 +170,7 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
         return modified
     }
 
-    private fun modificarClave() {
+    private fun modificarClave(goToNextDay: Boolean) {
 
         viewModelScope.launch(Dispatchers.IO) {
             val turnoEditado = editedShift.value
@@ -215,40 +216,15 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
                     turnoEditado.tipo = "T"//Lo cambio a T.
                 }
             }
-//
-//            val worker = OneTimeWorkRequest.Builder(ShiftEditWorker::class.java)
-//            val data = Data.Builder()
-//            with(turnoEditado) {
-//                data.putLong("id_detalle", id_detalle)
-//                data.putLong("fecha", fecha)
-//                data.putString("turno", turno)
-//                data.putString("tipo", tipo)
-//                data.putString("notas", notas)
-//                data.putString("nombre_debe", nombre_debe)
-//                data.putInt("LIBRa", libra ?: 0)
-//                data.putInt("COMJ", comj ?: 0)
-//                data.putString("lOrigen", tEsp.lOrigen)
-//                data.putInt("hOrigen", tEsp.hOrigen)
-//                data.putString("lFin", tEsp.lFin)
-//                data.putInt("hFin", tEsp.hFin)
-//
-//            }
-//            val constraints = Constraints.Builder()
-//                .setRequiredNetworkType(NetworkType.CONNECTED)
-//                .build()
-//
-//            worker
-//                .addTag(WORK_SHIFT_EDIT)
-//                .setInputData(data.build())
-//                .setConstraints(constraints)
-//                .build()
-//            workManager.enqueue(worker.build())
-
             println("Pues guardaríamos el turno $turnoEditado")
-//            if (goToNextDay) {
-//                selectedDate.emit(selectedDate.value?.plus(1))
-//                goToNextDay = false
-//            }
+            enqueueEditShiftBackgroundWork(turnoEditado)
+
+            if (goToNextDay){
+                selectedDate.emit(selectedDate.value.plus(1, DateTimeUnit.DAY))
+            } else{
+                doneEditting.emit(true)
+            }
+
         }
     }
 

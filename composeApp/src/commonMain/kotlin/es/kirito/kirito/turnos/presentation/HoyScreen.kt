@@ -218,7 +218,10 @@ fun HoyScreen(navController: NavHostController) {
         when(navigationDestination.destination){
             NavigationDestination.BulkEdit -> TODO()
             NavigationDestination.Excess -> TODO()
-            NavigationDestination.Edit -> navController.navigate("editarTurno") //  TODO("meter los parámetros")
+            NavigationDestination.Edit -> {
+                navController.navigate("editarTurno") //  TODO("meter los parámetros")
+                viewModel.onNavigated()
+            }
             NavigationDestination.Exchange -> TODO()
             NavigationDestination.Search -> TODO()
             NavigationDestination.NewChart -> TODO()

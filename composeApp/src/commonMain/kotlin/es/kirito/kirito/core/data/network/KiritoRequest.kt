@@ -4,6 +4,7 @@ import es.kirito.kirito.core.data.dataStore.preferenciasKirito
 import es.kirito.kirito.core.data.network.models.RequestAnioDTO
 import es.kirito.kirito.core.data.network.models.RequestAnioUpdatedDTO
 import es.kirito.kirito.core.data.network.models.RequestComplementosGraficoDTO
+import es.kirito.kirito.core.data.network.models.RequestEditarTurnoDTO
 import es.kirito.kirito.core.data.network.models.RequestIncluidosDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
@@ -21,7 +22,7 @@ import es.kirito.kirito.precarga.data.network.models.RequestTurnosCompiDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCaPeticionesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseColoresTrenesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseComplementosGraficoDTO
-import es.kirito.kirito.precarga.data.network.models.ResponseCuDetallesDTO
+import es.kirito.kirito.core.data.network.models.ResponseCuDetallesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuHistorialDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseDelAndUpdElementsDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseDiasInicialesDTO
@@ -241,6 +242,10 @@ class KiritoRequest {
 
     suspend fun requestUpdateElementosGlobales(request: RequestUpdatedDTO): ResponseKiritoDTO<ResponseGeneralRefreshDTO?> {
         return post<RequestUpdatedDTO, ResponseGeneralRefreshDTO?>(request)
+    }
+
+    suspend fun requestUpdateOneShift(request: RequestEditarTurnoDTO): ResponseKiritoDTO<ResponseCuDetallesDTO?> {
+        return post<RequestEditarTurnoDTO, ResponseCuDetallesDTO?>(request)
     }
 
 

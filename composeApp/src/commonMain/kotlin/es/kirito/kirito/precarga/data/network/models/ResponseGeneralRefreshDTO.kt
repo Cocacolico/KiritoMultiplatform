@@ -1,6 +1,6 @@
 package es.kirito.kirito.precarga.data.network.models
 
-import es.kirito.kirito.core.data.database.CuDetalle
+import es.kirito.kirito.core.data.network.models.ResponseCuDetallesDTO
 import kotlinx.serialization.Serializable
 
 @Serializable

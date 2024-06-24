@@ -51,6 +51,9 @@ kotlin {
             implementation(libs.koin.android)
            // implementation(libs.koin.androidx.compose)//Creo que no la necesito.
 
+            //Solo android.
+            implementation(libs.androidx.work.runtime.ktx)
+
 
         }
         iosMain.dependencies {

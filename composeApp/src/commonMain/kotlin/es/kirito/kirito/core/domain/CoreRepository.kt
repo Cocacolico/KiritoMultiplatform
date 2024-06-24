@@ -7,7 +7,6 @@ import es.kirito.kirito.core.data.database.CuDetalle
 import es.kirito.kirito.core.data.database.CuHistorial
 import es.kirito.kirito.core.data.database.GrEquivalencias
 import es.kirito.kirito.core.data.database.GrExcelIF
-import es.kirito.kirito.core.data.database.GrGraficos
 import es.kirito.kirito.core.data.database.GrNotasTren
 import es.kirito.kirito.core.data.database.GrNotasTurno
 import es.kirito.kirito.core.data.database.GrTareas
@@ -15,20 +14,23 @@ import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.database.LsUsers
 import es.kirito.kirito.core.data.network.KiritoRequest
 import es.kirito.kirito.core.data.network.models.RequestComplementosGraficoDTO
+import es.kirito.kirito.core.data.network.models.RequestEditarTurnoDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
 import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
+import es.kirito.kirito.core.domain.models.TurnoPrxTr
 import es.kirito.kirito.core.domain.util.enFormatoDeSalida
 import es.kirito.kirito.core.domain.util.fromDateStringToLong
 import es.kirito.kirito.core.domain.util.fromDateTimeStringToLong
 import es.kirito.kirito.core.domain.util.fromTimeStringToInt
 import es.kirito.kirito.core.domain.util.fromTimeWOSecsStringToInt
 import es.kirito.kirito.core.domain.util.toInstant
+import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.domain.util.toMyBoolean
 import es.kirito.kirito.core.domain.util.toStringIfNull
 import es.kirito.kirito.precarga.data.network.models.RequestGraficoDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCaPeticionesDTO
-import es.kirito.kirito.precarga.data.network.models.ResponseCuDetallesDTO
+import es.kirito.kirito.core.data.network.models.ResponseCuDetallesDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseCuHistorialDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseEquivalenciasDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseExcelIfDTO
@@ -37,6 +39,8 @@ import es.kirito.kirito.precarga.data.network.models.ResponseNotasTrenDTO
 import es.kirito.kirito.precarga.data.network.models.ResponseNotasTurnoDTO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 
 import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
@@ -242,6 +246,33 @@ class CoreRepository : KoinComponent {
 
     fun getCompi(id: Long?): Flow<LsUsers?> {
         return dao.getCompi(id ?: 0)
+    }
+
+    suspend fun editarTurno(turno: TurnoPrxTr) {
+        val libras = Pair("LIBRa", turno.libra.toString())
+        val comjs = Pair("COMJ", turno.comj.toString())
+        val diasGanados = listOf(comjs, libras)
+        val salida = RequestEditarTurnoDTO(
+            peticion = "turnos.actualizar",
+            id_detalle = turno.idDetalle.toString(),
+            fecha = turno.fecha.toLocalDate().toString(),
+            turno = turno.turno,
+            tipo = turno.tipo,
+            notas = turno.notas,
+            nombre_debe = turno.nombreDebe?.trim(),
+            dias_ganados = diasGanados,
+        )
+        val respuesta = ktor.requestUpdateOneShift(salida)
+        if (!respuesta.error.lanzarExcepcion())
+            respuesta.respuesta?.let {
+                dao.insertCuDetalles(respuesta.respuesta.asDatabaseModel())
+            }
+        //Ahora me descargo los complementos del turno:
+        getUpdatedDB().map { it.toInstant() }.firstOrNull()?.let { bdActualizada ->
+            refreshHistorial(bdActualizada)
+            //refreshAlarmas() //TODO: Las alarmas!!!
+            refreshCambios(bdActualizada)
+        }
     }
 
     val usuariosEnNombreDebe = dao.getUsuariosEnNombreDebe()
