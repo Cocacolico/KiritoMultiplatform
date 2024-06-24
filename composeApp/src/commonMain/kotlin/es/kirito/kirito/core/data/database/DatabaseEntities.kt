@@ -187,7 +187,24 @@ data class CuDetalle(
     var mermas: Int?,
     @ColumnInfo(name = "excesosGrafico", defaultValue = "0")
     var excesosGrafico: Int?,
-)
+) {
+    constructor() : this(
+        idDetalle = -1L,
+        idUsuario = -1L,
+        fecha = -1L,
+        diaSemana = null,
+        turno = null,
+        tipo = "",
+        notas = "",
+        nombreDebe = "",
+        updated = null,
+        libra = null,
+        comj = null,
+        excesos = null,
+        mermas = null,
+        excesosGrafico = null
+    )
+}
 
 
 @Entity(tableName = "tabla_colores_hora_turnos")

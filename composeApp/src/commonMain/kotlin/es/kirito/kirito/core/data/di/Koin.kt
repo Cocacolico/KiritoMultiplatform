@@ -7,6 +7,7 @@ import es.kirito.kirito.login.presentation.RegisterViewModel
 import es.kirito.kirito.precarga.domain.PrecargaRepository
 import es.kirito.kirito.precarga.presentation.PrecargaViewModel
 import es.kirito.kirito.turnos.presentation.HoyViewModel
+import es.kirito.kirito.turnos.presentation.EditarTurnoViewModel
 import es.kirito.kirito.turnos.presentation.MensualViewModel
 import es.kirito.kirito.turnos.presentation.BuscadorViewModel
 import es.kirito.kirito.menu.presentation.MenuViewModel
@@ -42,6 +43,7 @@ fun commonModule() = module {
     viewModelOf(::MensualViewModel)
     viewModelOf(::BuscadorViewModel)
     viewModelOf(::MenuViewModel)
+    viewModelOf(::EditarTurnoViewModel)
 
 
     single { CoreRepository() }

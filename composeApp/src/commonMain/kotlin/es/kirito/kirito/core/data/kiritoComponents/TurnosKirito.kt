@@ -4,7 +4,7 @@ val turnosKirito = listOf(
     "T",
     "TAD",
     "TC",
-    "ESP",
+   // "ESP",
     "D",
     "DAD",
     "COMJ",

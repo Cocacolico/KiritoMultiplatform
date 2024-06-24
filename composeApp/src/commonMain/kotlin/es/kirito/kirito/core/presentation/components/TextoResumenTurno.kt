@@ -28,11 +28,6 @@ fun TextoResumenTurno(entrada: TurnoPrxTr?): String {
                 texto = texto.plus(
                     "" + turno.hOrigenSietemil() + " - " + turno.hFinSietemil()
                 )
-            } else if (turno.tipo == "ESP") {
-                texto = texto.plus(
-                    " " + turno.sitioOrigen + " " + turno.horaOrigen?.toLocalTime() +
-                            " - " + turno.sitioFin + " " + turno.horaFin?.toLocalTime()
-                )
             } else {
                 println("Este turno no tiene id_grafico ni es sietemil: $turno")
                 texto = texto.plus(

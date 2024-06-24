@@ -865,6 +865,31 @@
     <string name="editar_telefono">Editar Teléfonoo</string>
     <string name="form_error_campo_vacio_servicio_nombre">Debes rellenar a menos el servicio o el nombre</string>
     <string name="debes_seleccionar_una_residencia">Debes seleccionar una residencia</string>
+    <string name="ayuda_editar_turno">Cómo modificar tu clave:
+Puedes escribir el número de clave o el tipo en el primer campo. Alternativamente, puedes seleccionar el tipo de clave que vas a realizar.
+
+Algunos tipos de turnos explicados:
+· COMJ vs LIBRa: ¿Por qué hay dos tipos para lo mismo? Pues los que hacemos Kirito también nos lo preguntamos. En unas residencias la Empresa usa unos y en otras los otros. Se pueden usar indistintamente a efectos prácticos.
+· TC, TAD y DAD: Son tipos creados por nosotros para facilitar los cambios con compañeros.
+
+Algunos detalles adicionales:
+· Los tipos COMJ, DD, DJ, DJA, LIBRa, LZ y LZA se contabilizan cuando se usan o ganan. Puedes ver el balance en el menú principal.
+· Los tipos TC, TAD y DAD se contabilizan para con el compañero que has escrito en "Nombre del compañero" y puedes ver su balance.
+· El tipo DCOM lo da la Empresa para compensar excesos de jornada durante el turno. Puedes ir añadiendo excesos de jornada y ver cuánto vas acumulando.
+
+Ejemplos de casos habituales:
+· La Empresa te llama y quiere que trabajes la clave 101 un día que tenías descanso, a cambio, te prometen 1 día que posteriormente puedes pedir:
+En el campo "Claves o tipos" escribes 101 y en el apartado de "Días ganados" dejas en "1" COMJ o LIBRa, después pulsas en Guardar.
+
+· Llamas a la Empresa para que te dé el día que hiciste y quieres descansar:
+En el desplegable de tipos de turnos seleccionas COMJ o LIBRa y pulsas en Guardar.
+
+· La Empresa te llama y te pincha un detraíble, te asigna la clave 123.
+En el campo "Claves o tipos" escribes 123 y en el desplegable de tipos mantienes "DD Descanso detraíble".
+
+· Cambias tu turno con Pepe, ambos tenemos una clave ese día, tú la 101 y él la 202:
+En el campo "Claves o tipos" escribes 202, en el desplegable de tipos seleccionas "TC Turno cambiado" y luego escribes en "Nombre del compañero" su nombre.
+*NOTA: Este cambio solo te afecta a ti, Pepe no sabrá que has escrito esto, ni se le cambiará su Kirito. Usad el sistema de cambios si buscáis que se cambien los turnos entre compañeros realmente.</string>
 
     <string-array name="orden_nuevo_buscador">
         <item>Clave</item>
@@ -905,7 +930,6 @@
         <item>T</item>
         <item>TAD</item>
         <item>TC</item>
-        <item>ESP</item>
         <item>D</item>
         <item>DAD</item>
         <item>COMJ</item>
@@ -975,7 +999,6 @@
         <item>TAD</item>
         <item>TC</item>
         <item>7000</item>
-        <item>ESP</item>
     </string-array>
     <string-array name="turnos_bulk_edit">
         <item>D</item>

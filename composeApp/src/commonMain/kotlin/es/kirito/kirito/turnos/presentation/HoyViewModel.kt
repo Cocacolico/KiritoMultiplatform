@@ -282,8 +282,6 @@ class HoyViewModel : ViewModel(), KoinComponent {
     private val _navigationDestination = MutableStateFlow(
         NavigationObject(NavigationDestination.Nowhere, -1)
     )
-
-    //TODO: Manejar la navegación.
     val navigationDestination = _navigationDestination.asStateFlow()
 
 

@@ -2,6 +2,7 @@ package es.kirito.kirito.core.domain.useCases
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 import es.kirito.kirito.core.domain.error.IntentNoAppError
 import es.kirito.kirito.core.domain.error.Result
@@ -13,6 +14,7 @@ actual fun abrirWhatsappUseCase(telefono: String): Result<Unit, IntentNoAppError
     url += telefono
 
     val openWhatsappIntent = Intent(Intent.ACTION_VIEW)
+    openWhatsappIntent.setFlags(FLAG_ACTIVITY_NEW_TASK)
     openWhatsappIntent.data = Uri.parse(url)
 
     // Checking whether whatsapp is installed or not
@@ -23,5 +25,6 @@ actual fun abrirWhatsappUseCase(telefono: String): Result<Unit, IntentNoAppError
         Result.Error(IntentNoAppError.NO_APPLICATION_AVAILABLE)
     }catch (ex: Exception) {
         Result.Error(IntentNoAppError.UNKNOWN)
+
     }
 }
