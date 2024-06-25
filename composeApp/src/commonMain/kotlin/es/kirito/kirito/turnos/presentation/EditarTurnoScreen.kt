@@ -58,6 +58,7 @@ import es.kirito.kirito.core.domain.util.esTipoTurnoCambiable
 import es.kirito.kirito.core.domain.util.nombreLargoTiposDeTurnos
 import es.kirito.kirito.core.domain.util.toComposeColor
 import es.kirito.kirito.core.presentation.components.HeaderWithBackAndHelp
+import es.kirito.kirito.core.presentation.components.LongToast
 import es.kirito.kirito.core.presentation.components.MyTextStd
 import es.kirito.kirito.core.presentation.components.NotaAlPie
 import es.kirito.kirito.core.presentation.components.ParagraphSubtitle
@@ -65,6 +66,7 @@ import es.kirito.kirito.core.presentation.components.dialogs.MyDialogInformation
 import es.kirito.kirito.core.presentation.utils.noRippleClickable
 import es.kirito.kirito.turnos.domain.EditarTurnoState
 import kirito.composeapp.generated.resources.Res
+import kirito.composeapp.generated.resources._0
 import kirito.composeapp.generated.resources.ayuda
 import kirito.composeapp.generated.resources.ayuda_editar_turno
 import kirito.composeapp.generated.resources.cerrar
@@ -94,6 +96,9 @@ fun EditarTurnoScreen(navController: NavHostController) {
     val state by viewModel.state.collectAsState(EditarTurnoState())
     var showHelpDialog by remember { mutableStateOf(false) }
 
+    val toastString by viewModel.toastString.collectAsState(null)
+    val toastId by viewModel.toastId.collectAsState(null)
+
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         EditarTurnoHeader(state,
             onBackRequested = {
@@ -119,6 +124,16 @@ fun EditarTurnoScreen(navController: NavHostController) {
             onGuardarClick = { viewModel.onGuardarClick() },
             onGuardarYSiguienteClick = { viewModel.onGuardarYSiguienteClick() },
         )
+    }
+
+
+    if (toastString != null) {
+        LongToast(toastString)
+        viewModel.onToastLaunched()
+    }
+    if (toastId != null) {
+        LongToast(stringResource(toastId ?: Res.string._0))
+        viewModel.onToastLaunched()
     }
 
     MyDialogInformation(show = showHelpDialog, title = stringResource(Res.string.ayuda),

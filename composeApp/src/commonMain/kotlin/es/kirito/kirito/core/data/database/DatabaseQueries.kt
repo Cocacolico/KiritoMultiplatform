@@ -1728,9 +1728,5 @@ interface KiritoDao {
 
     @Upsert
     suspend fun upsertTelefonoDeEmpresa(telefonoImportante: TelefonoImportante)
-
-    @Insert
-    suspend fun insertTelefonoDeEmpresa(telefonoImportante: TelefonoImportante)
-
 }
 

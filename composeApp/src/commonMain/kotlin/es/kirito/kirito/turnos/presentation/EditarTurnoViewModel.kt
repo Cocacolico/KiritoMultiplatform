@@ -3,13 +3,15 @@ package es.kirito.kirito.turnos.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.kirito.kirito.core.data.database.CuDetalle
+import es.kirito.kirito.core.data.utils.KiritoException
 import es.kirito.kirito.core.domain.CoreRepository
-import es.kirito.kirito.core.domain.backgroundWorks.enqueueEditShiftBackgroundWork
+import es.kirito.kirito.core.domain.error.errorKiritoCodeText
 import es.kirito.kirito.turnos.domain.EditarTurnoState
 import es.kirito.kirito.turnos.domain.TurnosRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -25,13 +27,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import es.kirito.kirito.core.domain.util.esTurnoConNumero
-import es.kirito.kirito.core.domain.util.esTurnoConNumeroONumero
-import es.kirito.kirito.core.domain.util.esTipoValido
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
+import org.jetbrains.compose.resources.StringResource
 
 @Suppress("UNCHECKED_CAST")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -40,10 +39,12 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
     private val repository: TurnosRepository by inject()
     private val coreRepo: CoreRepository by inject()
 
+    val toastString = MutableSharedFlow<String?>()
+    val toastId = MutableSharedFlow<StringResource?>()
+
     private val selectedDate =
         MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
 
-    private val goToNextDay = false
     private val showDiasDebe = MutableStateFlow(false)
 
     private val selectedShift = selectedDate.flatMapLatest {
@@ -96,10 +97,6 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
     }
 
 
-    fun setSelectedDate(entrada: LocalDate) {
-        selectedDate.value = entrada
-    }
-
     fun onComjSelected(cantidad: Int) {
         editedShift.update {
             it.copy(comj = cantidad)
@@ -112,12 +109,13 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun onTipoSelected(tipo: String){
+    fun onTipoSelected(tipo: String) {
         editedShift.update {
             it.copy(tipo = tipo)
         }
     }
-    fun onNotasChanged(nota: String){
+
+    fun onNotasChanged(nota: String) {
         editedShift.update {
             it.copy(notas = nota)
         }
@@ -135,19 +133,20 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun onShowDiasDebeClick(){
+    fun onShowDiasDebeClick() {
         showDiasDebe.value = true
     }
+
     fun onNextDayClick() {
         //TODO: Guardar el día actual.
         selectedDate.update { fecha -> fecha.plus(1, DateTimeUnit.DAY) }
     }
 
-    fun onGuardarClick(){
+    fun onGuardarClick() {
         modificarClave(false)
     }
 
-    fun onGuardarYSiguienteClick(){
+    fun onGuardarYSiguienteClick() {
         modificarClave(true)
     }
 
@@ -173,57 +172,19 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
     private fun modificarClave(goToNextDay: Boolean) {
 
         viewModelScope.launch(Dispatchers.IO) {
-            val turnoEditado = editedShift.value
-            val turnoOriginal = selectedShift.value
-
-
-            //En primer lugar miramos si hemos modificado el turno con una equivalencia:
-            if (turnoOriginal?.turno != turnoEditado.turno) {
-                val idGrafico = repository.getIdGraficoDeUnDia(turnoEditado.fecha).first()
-                val turnoDesdeEquivalencia =
-                    repository.getTurnoDeEquivalencia(
-                        turnoEditado.turno ?: "",
-                        idGrafico,
-                        turnoEditado.diaSemana
-                    ).first()
-                println(turnoEditado.toString() + " " + turnoDesdeEquivalencia.toString())
-                if (turnoDesdeEquivalencia?.turno != null)
-                    turnoEditado.turno = turnoDesdeEquivalencia.turno
-            }
-            //Después, preparamos el tipo y turno para hacerlos equivalentes:
-            if (turnoOriginal?.turno == turnoEditado.turno //No hemos modificado el turno
-                && turnoOriginal?.tipo != turnoEditado.tipo // pero sí el tipo.
-            ) {
-                if (!turnoEditado.tipo.esTurnoConNumero()) {
-                    //Este tipo no es para turnos con número, de serlo, así lo mandamos.
-                    //Cambiamos el turno a lo mismo que el tipo, para evitar el rebote doble del workManager:
-                    turnoEditado.turno = turnoEditado.tipo
+            try {
+                repository.editSingleShift(selectedShift.value, editedShift.value) {
+                    if (goToNextDay)
+                        selectedDate.value = selectedDate.value.plus(1, DateTimeUnit.DAY)
+                    else
+                        doneEditting.value = true
                 }
-            } else if (turnoOriginal?.turno != turnoEditado.turno //Hemos modificado el turno
-                && turnoOriginal?.tipo == turnoEditado.tipo // y no el tipo.
-            ) {
-                if (!turnoEditado.turno.esTurnoConNumeroONumero()) {
-                    //No es un turno con número ni un número, modificamos entonces el tipo también.
-                    if (turnoEditado.turno.esTipoValido() &&
-                        turnoEditado.tipo != "DD"
-                    )
-                        turnoEditado.tipo = turnoEditado.turno ?: ""
-                }
-                if (turnoEditado.turno?.toIntOrNull() != null &&
-                    !turnoEditado.tipo.esTurnoConNumero()
-                ) {
-                    //El turno es un número y el tipo NO es de los que acepta números. Lo cambio a T.
-                    turnoEditado.tipo = "T"//Lo cambio a T.
-                }
+            } catch (e: KiritoException) {
+                toastId.emit(errorKiritoCodeText(e.message?.toIntOrNull() ?: 1))
+            } catch (e: Exception) {
+                toastString.emit(e.message)
             }
-            println("Pues guardaríamos el turno $turnoEditado")
-            enqueueEditShiftBackgroundWork(turnoEditado)
 
-            if (goToNextDay){
-                selectedDate.emit(selectedDate.value.plus(1, DateTimeUnit.DAY))
-            } else{
-                doneEditting.emit(true)
-            }
 
         }
     }
@@ -245,6 +206,14 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
                 println("Reajustando desde initialize")
                 editedShift.emit(turno)
             }
+    }
+
+    fun onToastLaunched() {
+        //Limpiamos los toasts para que no se vuelvan a emitir.
+        viewModelScope.launch {
+            toastString.emit(null)
+            toastId.emit(null)
+        }
     }
 
 

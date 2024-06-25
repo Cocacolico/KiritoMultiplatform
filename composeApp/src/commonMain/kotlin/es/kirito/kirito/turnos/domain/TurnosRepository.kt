@@ -1,6 +1,7 @@
 package es.kirito.kirito.turnos.domain
 
 import es.kirito.kirito.core.data.database.Clima
+import es.kirito.kirito.core.data.database.CuDetalle
 import es.kirito.kirito.core.data.database.CuHistorial
 import es.kirito.kirito.core.data.database.GrGraficos
 import es.kirito.kirito.core.data.database.GrNotasTurno
@@ -9,13 +10,16 @@ import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.database.OtColoresTrenes
 import es.kirito.kirito.core.data.database.OtTeleindicadores
 import es.kirito.kirito.core.data.network.KiritoRequest
+import es.kirito.kirito.core.domain.backgroundWorks.enqueueEditShiftBackgroundWork
 import es.kirito.kirito.core.domain.kiritoError.lanzarExcepcion
 import es.kirito.kirito.core.domain.models.CuDetalleConFestivoDBModel
 import es.kirito.kirito.core.domain.models.GrTareaBuscador
 import es.kirito.kirito.core.domain.models.GrTareaConClima
 import es.kirito.kirito.core.domain.models.TurnoBuscador
-import es.kirito.kirito.core.domain.models.TurnoDeEquivalencia
 import es.kirito.kirito.core.domain.models.TurnoPrxTr
+import es.kirito.kirito.core.domain.util.esTipoValido
+import es.kirito.kirito.core.domain.util.esTurnoConNumero
+import es.kirito.kirito.core.domain.util.esTurnoConNumeroONumero
 import es.kirito.kirito.core.domain.util.roundUpToHour
 import es.kirito.kirito.core.domain.util.toInstant
 import es.kirito.kirito.core.domain.util.toLocalDate
@@ -24,9 +28,12 @@ import es.kirito.kirito.turnos.domain.models.CuDetalleConFestivoSemanal
 import es.kirito.kirito.turnos.domain.models.CuadroAnualVacio
 import es.kirito.kirito.turnos.domain.models.OrdenBusqueda
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -204,6 +211,50 @@ class TurnosRepository : KoinComponent {
 
     fun getTeleindicadoresPorTren(tren: String) = dao.getTeleindicadoresPorTren(tren)
 
+    suspend fun editSingleShift(turnoOriginal: CuDetalle?, turnoEditado: CuDetalle, onFinished: ()->Unit) {
+        //En primer lugar miramos si hemos modificado el turno con una equivalencia:
+        if (turnoOriginal?.turno != turnoEditado.turno) {
+            val idGrafico = getIdGraficoDeUnDia(turnoEditado.fecha).first()
+            val turnoDesdeEquivalencia =
+                getTurnoDeEquivalencia(
+                    turnoEditado.turno ?: "",
+                    idGrafico,
+                    turnoEditado.diaSemana
+                ).first()
+            println(turnoEditado.toString() + " " + turnoDesdeEquivalencia.toString())
+            if (turnoDesdeEquivalencia?.turno != null)
+                turnoEditado.turno = turnoDesdeEquivalencia.turno
+        }
+        //Después, preparamos el tipo y turno para hacerlos equivalentes:
+        if (turnoOriginal?.turno == turnoEditado.turno //No hemos modificado el turno
+            && turnoOriginal?.tipo != turnoEditado.tipo // pero sí el tipo.
+        ) {
+            if (!turnoEditado.tipo.esTurnoConNumero()) {
+                //Este tipo no es para turnos con número, de serlo, así lo mandamos.
+                //Cambiamos el turno a lo mismo que el tipo, para evitar el rebote doble del workManager:
+                turnoEditado.turno = turnoEditado.tipo
+            }
+        } else if (turnoOriginal?.turno != turnoEditado.turno //Hemos modificado el turno
+            && turnoOriginal?.tipo == turnoEditado.tipo // y no el tipo.
+        ) {
+            if (!turnoEditado.turno.esTurnoConNumeroONumero()) {
+                //No es un turno con número ni un número, modificamos entonces el tipo también.
+                if (turnoEditado.turno.esTipoValido() &&
+                    turnoEditado.tipo != "DD"
+                )
+                    turnoEditado.tipo = turnoEditado.turno ?: ""
+            }
+            if (turnoEditado.turno?.toIntOrNull() != null &&
+                !turnoEditado.tipo.esTurnoConNumero()
+            ) {
+                //El turno es un número y el tipo NO es de los que acepta números. Lo cambio a T.
+                turnoEditado.tipo = "T"//Lo cambio a T.
+            }
+        }
+        println("Pues guardaríamos el turno $turnoEditado")
+        enqueueEditShiftBackgroundWork(turnoEditado)
+        onFinished()
+    }
 
 
 }
