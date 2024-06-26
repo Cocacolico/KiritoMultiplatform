@@ -152,7 +152,6 @@ class ProfileViewModel : ViewModel(), KoinComponent {
                     it.copy(showModificarDatosDialog = false)
                 }
             } catch (e: Exception) {
-                throw e
                 toastId.emit(Res.string.no_he_podido_procesar_tu_solicutud)
             }
         }

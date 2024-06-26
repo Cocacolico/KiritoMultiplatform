@@ -13,7 +13,11 @@ data class ProfileState (
     val showCambiarPasswordDialog: Boolean = false,
     val oldPassword: String = "",
     val newPassword: String = "",
-    val checkNewPassword: String = ""
+    val checkNewPassword: String = "",
+    val passwordTiene5Caracteres: Boolean = false,
+    val passwordTieneMayuscula: Boolean = false,
+    val passwordTieneNumero: Boolean = false,
+    val passwordsCoinciden: Boolean = false
 )
 
 
