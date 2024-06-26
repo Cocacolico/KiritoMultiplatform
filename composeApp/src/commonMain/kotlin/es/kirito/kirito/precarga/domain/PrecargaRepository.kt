@@ -251,7 +251,7 @@ class PrecargaRepository() : KoinComponent {
                     dao.upsertCaPeticiones(it.asDatabaseModel())
                 }
                 resp.telefonos_importantes?.forEach {
-                    dao.insertTelefonoDeEmpresa(it.asDatabaseModel())
+                    dao.upsertTelefonoDeEmpresa(it.asDatabaseModel())
                 }
                 resp.tablones?.forEach {
                     dao.upsertTablonAnuncio(it.asDatabaseModel())
