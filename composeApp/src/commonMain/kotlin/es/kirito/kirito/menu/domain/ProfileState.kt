@@ -14,10 +14,6 @@ data class ProfileState (
     val oldPassword: String = "",
     val newPassword: String = "",
     val checkNewPassword: String = "",
-    val passwordTiene5Caracteres: Boolean = false,
-    val passwordTieneMayuscula: Boolean = false,
-    val passwordTieneNumero: Boolean = false,
-    val passwordsCoinciden: Boolean = false
 )
 
 

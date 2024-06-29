@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -22,6 +23,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,10 +39,15 @@ import es.kirito.kirito.menu.domain.ProfileState
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.cambiar_contrase_a
 import kirito.composeapp.generated.resources.cancelar
+import kirito.composeapp.generated.resources.coinciden_las_dos_contrasennas
 import kirito.composeapp.generated.resources.contrase_a_vieja
 import kirito.composeapp.generated.resources.guardar
+import kirito.composeapp.generated.resources.has_introducido_la_contrasenna_antigua
 import kirito.composeapp.generated.resources.nueva_contrase_a
 import kirito.composeapp.generated.resources.repite_la_contrase_a
+import kirito.composeapp.generated.resources.tiene_5_caracteres_o_mas
+import kirito.composeapp.generated.resources.tiene_un_numero
+import kirito.composeapp.generated.resources.tiene_una_mayuscula
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -48,6 +59,12 @@ fun CambiarPasswordDialog(
     onCheckPasswordChange: (String) -> Unit,
     state: ProfileState
 ) {
+    var oldPasswordVacio by remember { mutableStateOf(false) }
+    var passwordTiene5Caracteres by remember { mutableStateOf(false) }
+    var passwordTieneMayuscula by remember { mutableStateOf(false) }
+    var passwordTieneNumero by remember { mutableStateOf(false) }
+    var passwordsCoinciden by remember { mutableStateOf(false) }
+
     Dialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -56,7 +73,7 @@ fun CambiarPasswordDialog(
             shape = RoundedCornerShape(5),
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier
-                .height(420.dp)
+                .height(560.dp)
                 .padding(20.dp)
                 .fillMaxSize()
         ) {
@@ -92,40 +109,83 @@ fun CambiarPasswordDialog(
                         label = { Text(text = stringResource(Res.string.repite_la_contrase_a)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
                     Card(
                         modifier = Modifier
+                            .fillMaxWidth()
                             .padding(6.dp)
                     ) {
-                        Row {
-                            if(state.passwordTiene5Caracteres)
+                        Row(
+                            modifier = Modifier
+                                .padding(2.dp)
+                        ) {
+                            if(state.oldPassword.length > 5) {
                                 Icon(Icons.Default.CheckCircle,"", tint = Color.Green)
-                            else
+                                oldPasswordVacio = false
+                            } else {
                                 Icon(Icons.Default.Error,"", tint = Color.Red)
+                                oldPasswordVacio = true
+                            }
                             Text(
-                                text = "Tiene 5 caracteres o más",
-                                color = if(state.passwordTiene5Caracteres) Color.Green else Color.Red
+                                text = stringResource(Res.string.has_introducido_la_contrasenna_antigua),
+                                color = if(oldPasswordVacio) Color.Red else Color.Green
                             )
                         }
-                        Row {
-                            if(state.passwordTieneMayuscula)
+                        Row (
+                            modifier = Modifier
+                                .padding(2.dp)
+                        ){
+                            if(state.newPassword.length > 5) {
                                 Icon(Icons.Default.CheckCircle,"", tint = Color.Green)
-                            else
+                                passwordTiene5Caracteres = true
+                            } else {
                                 Icon(Icons.Default.Error,"", tint = Color.Red)
-                            Text(text = "Tiene una mayúscula", color = if(state.passwordTieneMayuscula) Color.Green else Color.Red)
+                                passwordTiene5Caracteres = false
+                            }
+                            Text(
+                                text = stringResource(Res.string.tiene_5_caracteres_o_mas),
+                                color = if(passwordTiene5Caracteres) Color.Green else Color.Red
+                            )
                         }
-                        Row {
-                            if(state.passwordTieneNumero)
+                        Row (
+                            modifier = Modifier
+                                .padding(2.dp)
+                        ){
+                            if(state.newPassword.matches("^(?=.*[A-Z]).{4,}$".toRegex())) {
                                 Icon(Icons.Default.CheckCircle,"", tint = Color.Green)
-                            else
+                                passwordTieneMayuscula = true
+                            } else {
                                 Icon(Icons.Default.Error,"", tint = Color.Red)
-                            Text(text = "Tiene un número", color = if(state.passwordTieneNumero) Color.Green else Color.Red)
+                                passwordTieneMayuscula = false
+                            }
+
+                            Text(text = stringResource(Res.string.tiene_una_mayuscula), color = if(passwordTieneMayuscula) Color.Green else Color.Red)
                         }
-                        Row {
-                            if(state.passwordsCoinciden)
+                        Row (
+                            modifier = Modifier
+                                .padding(2.dp)
+                        ){
+                            if(state.newPassword.matches("^(?=.*[0-9]).{4,}$".toRegex())) {
                                 Icon(Icons.Default.CheckCircle,"", tint = Color.Green)
-                            else
+                                passwordTieneNumero = true
+                            } else {
                                 Icon(Icons.Default.Error,"", tint = Color.Red)
-                            Text(text = "Coinciden las dos contraseñas", color = if(state.passwordsCoinciden) Color.Green else Color.Red)
+                                passwordTieneNumero = false
+                            }
+                            Text(text = stringResource(Res.string.tiene_un_numero), color = if(passwordTieneNumero) Color.Green else Color.Red)
+                        }
+                        Row (
+                            modifier = Modifier
+                                .padding(2.dp)
+                        ){
+                            if(state.checkNewPassword == state.newPassword && state.checkNewPassword.isNotEmpty()) {
+                                Icon(Icons.Default.CheckCircle,"", tint = Color.Green)
+                                passwordsCoinciden = true
+                            } else {
+                                Icon(Icons.Default.Error,"", tint = Color.Red)
+                                passwordsCoinciden = false
+                            }
+                            Text(text = stringResource(Res.string.coinciden_las_dos_contrasennas), color = if(passwordsCoinciden) Color.Green else Color.Red)
                         }
                     }
                 }
@@ -137,6 +197,7 @@ fun CambiarPasswordDialog(
                 ) {
                     OutlinedButton(
                         onClick = { onConfirm() },
+                        enabled = if(oldPasswordVacio && passwordTiene5Caracteres && passwordTieneNumero && passwordTieneMayuscula && passwordsCoinciden) true else false
                     ) {
                         Text(stringResource(Res.string.guardar))
                     }
