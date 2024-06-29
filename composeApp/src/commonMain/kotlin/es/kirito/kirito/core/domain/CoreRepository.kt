@@ -14,6 +14,7 @@ import es.kirito.kirito.core.data.database.KiritoDatabase
 import es.kirito.kirito.core.data.database.LsUsers
 import es.kirito.kirito.core.data.network.KiritoRequest
 import es.kirito.kirito.core.data.network.models.RequestComplementosGraficoDTO
+import es.kirito.kirito.core.data.network.models.DiasGanadosPair
 import es.kirito.kirito.core.data.network.models.RequestEditarTurnoDTO
 import es.kirito.kirito.core.data.network.models.RequestSimpleDTO
 import es.kirito.kirito.core.data.network.models.RequestUpdatedDTO
@@ -249,12 +250,13 @@ class CoreRepository : KoinComponent {
     }
 
     suspend fun editarTurno(turno: TurnoPrxTr) {
-        val libras = Pair("LIBRa", turno.libra.toString())
-        val comjs = Pair("COMJ", turno.comj.toString())
+        val libras = DiasGanadosPair("LIBRa", turno.libra.toString())
+        val comjs = DiasGanadosPair("COMJ", turno.comj.toString())
         val diasGanados = listOf(comjs, libras)
         val salida = RequestEditarTurnoDTO(
             peticion = "turnos.actualizar",
-            id_detalle = turno.idDetalle.toString(),
+            //Mandamos null a Jesús si no está inicializado.
+            id_detalle = if(turno.idDetalle == -1L) null else turno.idDetalle.toString(),
             fecha = turno.fecha.toLocalDate().toString(),
             turno = turno.turno,
             tipo = turno.tipo,

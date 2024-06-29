@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class LoginViewModel: ViewModel(), KoinComponent {
+class LoginViewModel : ViewModel(), KoinComponent {
 
     private val repository: LoginRepository by inject()
 
@@ -60,6 +60,7 @@ class LoginViewModel: ViewModel(), KoinComponent {
                     modoDevActivado = true
                 )
             }
+
             13 -> clicksModoDev = 0
             else ->
                 _state.update {
@@ -85,9 +86,10 @@ class LoginViewModel: ViewModel(), KoinComponent {
             )
         }
     }
+
     fun onEntrarClick() {
-      with(_state.value) {
-            if(usuario.isBlank() || password.isBlank())
+        with(_state.value) {
+            if (usuario.isBlank() || password.isBlank())
                 _state.update {
                     it.copy(
                         errorCampoUserPassword = true
@@ -95,7 +97,7 @@ class LoginViewModel: ViewModel(), KoinComponent {
                 }
             else {
                 val nombreDispositivo = "Multiplatform pruebas"
-                if(_state.value.modoDevActivado) { // Comprobamos si se ha activado el modo Developer para ajustar consecuentemente la URL
+                if (_state.value.modoDevActivado) { // Comprobamos si se ha activado el modo Developer para ajustar consecuentemente la URL
                     _state.update {
                         it.copy(
                             urlResidenciaSeleccionada = "chasca"
@@ -106,7 +108,7 @@ class LoginViewModel: ViewModel(), KoinComponent {
             }
 
         }
-        
+
     }
 
 
@@ -131,11 +133,10 @@ class LoginViewModel: ViewModel(), KoinComponent {
                     nombreDispositivo = nombreDispositivo,
                     tokenFCM = getRandomString(24) // Hasta que podamos implementar Firebase genera un token de 24 caracteres aleatorios
                 )
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 //TODO: Los errores habrá que mostrarlos, idealmente con un toast, este no es una excepción (jejje)
                 println(e.message)
             }
-
 
 
         }
@@ -144,25 +145,30 @@ class LoginViewModel: ViewModel(), KoinComponent {
     /**
      * Devuelve un string aleatorio de la longitud indicada.
      */
-    private fun getRandomString(length: Int) : String {
+    private fun getRandomString(length: Int): String {
         val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
         return (1..length)
             .map { allowedChars.random() }
             .joinToString("")
     }
 
-
-    init {
+    fun descargarResidencias(){
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                repository.getResidencias().respuesta?.residencias?.let { lista ->
-                    _state.update {
-                        it.copy(residencias = lista)
+                if (_state.value.residencias.isEmpty())
+                    repository.getResidencias().respuesta?.residencias?.let { lista ->
+                        _state.update {
+                            it.copy(residencias = lista)
+                        }
                     }
-                }
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 //TODO: Mostrar un toast sobre el error.
             }
         }
+    }
+
+
+    init {
+
     }
 }

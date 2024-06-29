@@ -33,6 +33,7 @@ class PrecargaViewModel : ViewModel(), KoinComponent {
     init {
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                println("Actualizando la base de datos")
                 repository.updateKiritoDatabase()
             } catch (e: Exception) {
                 println("Ha habido un error ${e.printStackTrace()}")

@@ -15,7 +15,6 @@ class MainActivity : ComponentActivity() {
 
 
         System.setProperty(DEBUG_PROPERTY_NAME,DEBUG_PROPERTY_VALUE_ON)
-   //     System.setProperty("kotlinx.coroutines.debug", "on")
         System.setProperty("kotlinx.coroutines.stacktrace.recovery", "true")
 
         setContent {

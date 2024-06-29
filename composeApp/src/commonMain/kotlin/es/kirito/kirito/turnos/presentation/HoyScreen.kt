@@ -647,7 +647,7 @@ fun HoyBody(
                 }
             }
         }
-        if (hoyState.notasUsuario.isNotBlank()) {
+        if (hoyState.notasUsuario.isNotBlank() && hoyState.notasUsuario != "null") {
             item {
                 HorizontalDivider(Modifier.padding(top = 4.dp))
                 ParagraphSubtitle(text = stringResource(Res.string.tus_notas))

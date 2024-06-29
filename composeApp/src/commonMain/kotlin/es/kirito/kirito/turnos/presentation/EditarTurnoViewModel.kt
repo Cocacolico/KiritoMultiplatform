@@ -63,12 +63,12 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
                 fecha = -1L,
                 diaSemana = null,
                 turno = null,
-                tipo = "",
+                tipo = "T",
                 notas = "",
                 nombreDebe = "",
                 updated = null,
-                libra = null,
-                comj = null,
+                libra = 0,
+                comj = 0,
                 excesos = null,
                 mermas = null,
                 excesosGrafico = null
@@ -200,7 +200,22 @@ class EditarTurnoViewModel : ViewModel(), KoinComponent {
             if (shift?.fecha == date.toEpochDays().toLong())
                 shift
             else
-                CuDetalle()
+                CuDetalle(
+                    idDetalle = -1L,
+                    idUsuario = -1L,
+                    fecha = date.toEpochDays().toLong(),
+                    diaSemana = null,
+                    turno = null,
+                    tipo = "T",
+                    notas = "",
+                    nombreDebe = "",
+                    updated = null,
+                    libra = 0,
+                    comj = 0,
+                    excesos = null,
+                    mermas = null,
+                    excesosGrafico = null
+                )
         }.distinctUntilChanged()
             .collectLatest { turno ->
                 println("Reajustando desde initialize")

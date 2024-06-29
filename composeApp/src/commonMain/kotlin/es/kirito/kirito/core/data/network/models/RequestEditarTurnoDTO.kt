@@ -11,5 +11,5 @@ data class RequestEditarTurnoDTO(
     val tipo: String,
     val notas: String?,
     val nombre_debe: String?,
-    val dias_ganados: List<Pair<String, String>>?,
+    val dias_ganados: List<DiasGanadosPair>,
 )

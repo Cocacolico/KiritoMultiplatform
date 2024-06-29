@@ -60,7 +60,6 @@ import kirito.composeapp.generated.resources.selecciona_tu_residencia
 import kirito.composeapp.generated.resources.usuario_o_contrase_a_incorrectos
 import kirito.composeapp.generated.resources.ver_contrase_a
 import kotlinx.coroutines.flow.first
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -69,21 +68,21 @@ import org.koin.core.annotation.KoinExperimentalAPI
 fun LoginScreen(navController: NavHostController) {
     val viewModel = koinViewModel<LoginViewModel>()
 
-    val yaLogueado by viewModel.yaLogueado.collectAsState(false)
+    val yaLogueado by viewModel.yaLogueado.collectAsState(null)
 
     when (yaLogueado) {
         true -> {
-            LaunchedEffect(yaLogueado) {
+            LaunchedEffect(Unit) {
                 navController.navigate("precarga")
             }
         }
-        else -> { LoginScreenContent(navController) }
+        false -> { LoginScreenContent(navController, viewModel) }
+        null -> Unit
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreenContent(navController: NavHostController) {
-    val viewModel = koinViewModel<LoginViewModel>()
+fun LoginScreenContent(navController: NavHostController, viewModel: LoginViewModel) {
 
     val state by viewModel.state.collectAsState()
     var showPassword by remember { mutableStateOf(false) }
@@ -230,6 +229,11 @@ fun LoginScreenContent(navController: NavHostController) {
             }
 
         }
+    }
+
+
+    LaunchedEffect(state.expanded) {
+        viewModel.descargarResidencias()
     }
 }
 
