@@ -866,7 +866,7 @@
     <string name="editar_telefono">Editar Teléfonoo</string>
     <string name="form_error_campo_vacio_servicio_nombre">Debes rellenar a menos el servicio o el nombre</string>
     <string name="debes_seleccionar_una_residencia">Debes seleccionar una residencia</string>
-    <string name="tiene_5_caracteres_o_mas">Tiene 5 caracteres o más</string>
+    <string name="tiene_6_caracteres_o_mas">Tiene 6 caracteres o más</string>
     <string name="tiene_una_mayuscula">Tiene una mayúscula</string>
     <string name="tiene_un_numero">Tiene un número</string>
     <string name="coinciden_las_dos_contrasennas">Coinciden las dos contraseñas</string>

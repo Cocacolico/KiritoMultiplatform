@@ -11,6 +11,7 @@ import es.kirito.kirito.menu.data.network.models.RequestChangePassword
 import es.kirito.kirito.menu.data.network.models.RequestEditarMiUsuario
 import es.kirito.kirito.menu.domain.MenuRepository
 import es.kirito.kirito.menu.domain.ProfileState
+import es.kirito.kirito.menu.domain.models.CambiarPasswordSteps
 import io.ktor.util.rootCause
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.contrase_a_modificada_correctamente
@@ -23,6 +24,7 @@ import kirito.composeapp.generated.resources.no_he_podido_procesar_tu_solicutud
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -138,7 +140,11 @@ class ProfileViewModel : ViewModel(), KoinComponent {
     fun onCambiarPasswordDialogDismiss() {
         _state.update {
             it.copy(
-                showCambiarPasswordDialog = false
+                oldPassword = "",
+                newPassword = "",
+                checkNewPassword = "",
+                showCambiarPasswordDialog = false,
+                cambiarPasswordStep = CambiarPasswordSteps.SIN_MODIFICAR
             )
         }
     }
@@ -158,14 +164,21 @@ class ProfileViewModel : ViewModel(), KoinComponent {
     }
 
     fun onCambiarPasswordConfirm() {
+        var hayError = false
         viewModelScope.launch(Dispatchers.IO) {
             with(_state.value) {
+                _state.update {
+                    it.copy(cambiarPasswordStep = CambiarPasswordSteps.CAMBIANDO)
+                }
                 if (oldPassword.length < 5) {
                     toastId.emit(Res.string.introduce_tu_contrase_a_anterior)
+                    hayError = true
                 } else if (newPassword.length < 5) {
                     toastId.emit(Res.string.la_contrasena_debe_tener_5_caracteres)
+                    hayError = true
                 } else if (newPassword != checkNewPassword) {
                     toastId.emit(Res.string.las_contrasenas_no_coinciden)
+                    hayError = true
                 } else {
                     try {
                         val salida = RequestChangePassword(
@@ -175,15 +188,37 @@ class ProfileViewModel : ViewModel(), KoinComponent {
                         )
                         repository.changePassword(salida)
                         toastId.emit(Res.string.contrase_a_modificada_correctamente)
-                        _state.update {
-                            it.copy(showCambiarPasswordDialog = false)
-                        }
                     } catch (e: KiritoException) {
                         toastId.emit(kiritoErrorStringResource(e.message))
+                        hayError = true
                     } catch (e: Exception) {
                         toastId.emit(Res.string.no_he_podido_procesar_tu_solicutud)
+                        hayError = true
                     }
                 }
+                if(hayError) {
+                    _state.update {
+                        it.copy(cambiarPasswordStep = CambiarPasswordSteps.PASSWORD_ERROR)
+                    }
+                    delay(3000L)
+                    _state.update {
+                        it.copy(cambiarPasswordStep = CambiarPasswordSteps.SIN_MODIFICAR)
+                    }
+                }
+
+                else {
+                    _state.update {
+                        it.copy(cambiarPasswordStep = CambiarPasswordSteps.PASSWORD_OK)
+                    }
+                    delay(3000L)
+                    _state.update {
+                        it.copy(cambiarPasswordStep = CambiarPasswordSteps.SIN_MODIFICAR)
+                    }
+                    _state.update {
+                        it.copy(showCambiarPasswordDialog = false)
+                    }
+                }
+
             }
         }
     }

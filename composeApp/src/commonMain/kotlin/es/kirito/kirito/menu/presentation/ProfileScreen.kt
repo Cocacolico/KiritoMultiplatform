@@ -48,7 +48,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import es.kirito.kirito.core.data.database.LsUsers
+import es.kirito.kirito.core.domain.util.enFormatoDeSalida
 import es.kirito.kirito.core.domain.util.enMiFormato
+import es.kirito.kirito.core.domain.util.toInstant
 import es.kirito.kirito.core.domain.util.toLocalDate
 import es.kirito.kirito.core.presentation.components.LongToast
 import es.kirito.kirito.core.presentation.components.MyTextStd
@@ -86,6 +88,7 @@ import kirito.composeapp.generated.resources.tel_fono_interior_corto
 import kirito.composeapp.generated.resources.tel_fono_personal
 import kirito.composeapp.generated.resources.telefono_interior
 import kirito.composeapp.generated.resources.tus_datos
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -128,7 +131,7 @@ fun ProfileScreen() {
                         MyTextStd(
                             text = stringResource(
                                 Res.string.fecha_de_alta__,
-                                miUsuario.created.toLocalDate().enMiFormato()
+                                miUsuario.created.toInstant().toLocalDate().enMiFormato()
                             )
                         )
                     if (miUsuario.admin == "1")

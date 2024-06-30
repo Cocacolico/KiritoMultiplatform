@@ -1,5 +1,7 @@
 package es.kirito.kirito.menu.domain
 
+import es.kirito.kirito.menu.domain.models.CambiarPasswordSteps
+
 data class ProfileState (
     val id: Long = -1L,
     val username: String = "",
@@ -14,6 +16,7 @@ data class ProfileState (
     val oldPassword: String = "",
     val newPassword: String = "",
     val checkNewPassword: String = "",
+    val cambiarPasswordStep: CambiarPasswordSteps = CambiarPasswordSteps.SIN_MODIFICAR
 )
 
 

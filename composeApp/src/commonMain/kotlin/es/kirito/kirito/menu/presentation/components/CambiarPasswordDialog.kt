@@ -12,10 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -23,7 +24,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +36,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import es.kirito.kirito.core.presentation.components.TitleText
 import es.kirito.kirito.menu.domain.ProfileState
+import es.kirito.kirito.menu.domain.models.CambiarPasswordSteps
 import kirito.composeapp.generated.resources.Res
 import kirito.composeapp.generated.resources.cambiar_contrase_a
 import kirito.composeapp.generated.resources.cancelar
@@ -45,7 +46,7 @@ import kirito.composeapp.generated.resources.guardar
 import kirito.composeapp.generated.resources.has_introducido_la_contrasenna_antigua
 import kirito.composeapp.generated.resources.nueva_contrase_a
 import kirito.composeapp.generated.resources.repite_la_contrase_a
-import kirito.composeapp.generated.resources.tiene_5_caracteres_o_mas
+import kirito.composeapp.generated.resources.tiene_6_caracteres_o_mas
 import kirito.composeapp.generated.resources.tiene_un_numero
 import kirito.composeapp.generated.resources.tiene_una_mayuscula
 import org.jetbrains.compose.resources.stringResource
@@ -143,7 +144,7 @@ fun CambiarPasswordDialog(
                                 passwordTiene5Caracteres = false
                             }
                             Text(
-                                text = stringResource(Res.string.tiene_5_caracteres_o_mas),
+                                text = stringResource(Res.string.tiene_6_caracteres_o_mas),
                                 color = if(passwordTiene5Caracteres) Color.Green else Color.Red
                             )
                         }
@@ -197,9 +198,16 @@ fun CambiarPasswordDialog(
                 ) {
                     OutlinedButton(
                         onClick = { onConfirm() },
-                        enabled = if(oldPasswordVacio && passwordTiene5Caracteres && passwordTieneNumero && passwordTieneMayuscula && passwordsCoinciden) true else false
+                        enabled = if(!oldPasswordVacio && passwordTiene5Caracteres && passwordTieneNumero && passwordTieneMayuscula && passwordsCoinciden) true else false
                     ) {
-                        Text(stringResource(Res.string.guardar))
+                        if(state.cambiarPasswordStep == CambiarPasswordSteps.SIN_MODIFICAR)
+                            Text(stringResource(Res.string.guardar))
+                        else if(state.cambiarPasswordStep == CambiarPasswordSteps.CAMBIANDO)
+                            CircularProgressIndicator()
+                        else if(state.cambiarPasswordStep == CambiarPasswordSteps.PASSWORD_OK)
+                            Icon(Icons.Default.Check,"", tint = Color.Green)
+                        else if(state.cambiarPasswordStep == CambiarPasswordSteps.PASSWORD_ERROR)
+                            Icon(Icons.Default.Error,"", tint = Color.Red)
                     }
                     OutlinedButton(
                         onClick = { onDismiss() }
